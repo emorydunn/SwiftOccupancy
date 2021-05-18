@@ -90,6 +90,13 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		D2C44C6E265425250045D1B9 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		D2E3CC102651BE18007AC8E3 = {
 			isa = PBXGroup;
 			children = (
@@ -99,6 +106,7 @@
 				D2E3CC262651BE1A007AC8E3 /* macOS */,
 				D2E3CC542651FF03007AC8E3 /* ThermalViewerTests */,
 				D2E3CC1E2651BE1A007AC8E3 /* Products */,
+				D2C44C6E265425250045D1B9 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -196,6 +204,8 @@
 			dependencies = (
 			);
 			name = "ThermalViewer (iOS)";
+			packageProductDependencies = (
+			);
 			productName = "ThermalViewer (iOS)";
 			productReference = D2E3CC1D2651BE1A007AC8E3 /* ThermalViewer.app */;
 			productType = "com.apple.product-type.application";
@@ -213,6 +223,8 @@
 			dependencies = (
 			);
 			name = "ThermalViewer (macOS)";
+			packageProductDependencies = (
+			);
 			productName = "ThermalViewer (macOS)";
 			productReference = D2E3CC252651BE1A007AC8E3 /* ThermalViewer.app */;
 			productType = "com.apple.product-type.application";
@@ -265,6 +277,8 @@
 				Base,
 			);
 			mainGroup = D2E3CC102651BE18007AC8E3;
+			packageReferences = (
+			);
 			productRefGroup = D2E3CC1E2651BE1A007AC8E3 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
