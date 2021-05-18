@@ -9,21 +9,60 @@
 /* Begin PBXBuildFile section */
 		D2E3CC292651BE1A007AC8E3 /* ThermalViewerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2E3CC162651BE18007AC8E3 /* ThermalViewerApp.swift */; };
 		D2E3CC2A2651BE1A007AC8E3 /* ThermalViewerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2E3CC162651BE18007AC8E3 /* ThermalViewerApp.swift */; };
-		D2E3CC2B2651BE1A007AC8E3 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2E3CC172651BE18007AC8E3 /* ContentView.swift */; };
-		D2E3CC2C2651BE1A007AC8E3 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2E3CC172651BE18007AC8E3 /* ContentView.swift */; };
 		D2E3CC2D2651BE1A007AC8E3 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D2E3CC182651BE1A007AC8E3 /* Assets.xcassets */; };
 		D2E3CC2E2651BE1A007AC8E3 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D2E3CC182651BE1A007AC8E3 /* Assets.xcassets */; };
+		D2E3CC422651BE43007AC8E3 /* ThermalImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2E3CC3A2651BE43007AC8E3 /* ThermalImageView.swift */; };
+		D2E3CC432651BE43007AC8E3 /* ThermalImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2E3CC3A2651BE43007AC8E3 /* ThermalImageView.swift */; };
+		D2E3CC442651BE43007AC8E3 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2E3CC3B2651BE43007AC8E3 /* ContentView.swift */; };
+		D2E3CC452651BE43007AC8E3 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2E3CC3B2651BE43007AC8E3 /* ContentView.swift */; };
+		D2E3CC462651BE43007AC8E3 /* Sensor.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2E3CC3D2651BE43007AC8E3 /* Sensor.swift */; };
+		D2E3CC472651BE43007AC8E3 /* Sensor.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2E3CC3D2651BE43007AC8E3 /* Sensor.swift */; };
+		D2E3CC482651BE43007AC8E3 /* Pixel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2E3CC3E2651BE43007AC8E3 /* Pixel.swift */; };
+		D2E3CC492651BE43007AC8E3 /* Pixel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2E3CC3E2651BE43007AC8E3 /* Pixel.swift */; };
+		D2E3CC4A2651BE43007AC8E3 /* Cluster.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2E3CC3F2651BE43007AC8E3 /* Cluster.swift */; };
+		D2E3CC4B2651BE43007AC8E3 /* Cluster.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2E3CC3F2651BE43007AC8E3 /* Cluster.swift */; };
+		D2E3CC4D2651D8C6007AC8E3 /* MinValueWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2E3CC4C2651D8C6007AC8E3 /* MinValueWrapper.swift */; };
+		D2E3CC4E2651D8C6007AC8E3 /* MinValueWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2E3CC4C2651D8C6007AC8E3 /* MinValueWrapper.swift */; };
+		D2E3CC562651FF03007AC8E3 /* ThermalViewerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2E3CC552651FF03007AC8E3 /* ThermalViewerTests.swift */; };
+		D2E3CC5F265331AA007AC8E3 /* SensorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2E3CC5E265331AA007AC8E3 /* SensorManager.swift */; };
+		D2E3CC60265331AA007AC8E3 /* SensorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2E3CC5E265331AA007AC8E3 /* SensorManager.swift */; };
+		D2E65FC0265401DF008814E0 /* SensorPayload.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2E65FBF265401DF008814E0 /* SensorPayload.swift */; };
+		D2E65FC1265401DF008814E0 /* SensorPayload.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2E65FBF265401DF008814E0 /* SensorPayload.swift */; };
+		D2E65FC326540229008814E0 /* SensorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2E65FC226540229008814E0 /* SensorView.swift */; };
+		D2E65FC426540229008814E0 /* SensorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2E65FC226540229008814E0 /* SensorView.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		D2E3CC582651FF03007AC8E3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D2E3CC112651BE18007AC8E3 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D2E3CC242651BE1A007AC8E3;
+			remoteInfo = "ThermalViewer (macOS)";
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		D2E3CC162651BE18007AC8E3 /* ThermalViewerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThermalViewerApp.swift; sourceTree = "<group>"; };
-		D2E3CC172651BE18007AC8E3 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		D2E3CC182651BE1A007AC8E3 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D2E3CC1D2651BE1A007AC8E3 /* ThermalViewer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ThermalViewer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D2E3CC202651BE1A007AC8E3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D2E3CC252651BE1A007AC8E3 /* ThermalViewer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ThermalViewer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D2E3CC272651BE1A007AC8E3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D2E3CC282651BE1A007AC8E3 /* macOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = macOS.entitlements; sourceTree = "<group>"; };
+		D2E3CC372651BE21007AC8E3 /* ThermalViewer.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ThermalViewer.entitlements; sourceTree = "<group>"; };
+		D2E3CC3A2651BE43007AC8E3 /* ThermalImageView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ThermalImageView.swift; sourceTree = "<group>"; };
+		D2E3CC3B2651BE43007AC8E3 /* ContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		D2E3CC3D2651BE43007AC8E3 /* Sensor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Sensor.swift; sourceTree = "<group>"; };
+		D2E3CC3E2651BE43007AC8E3 /* Pixel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Pixel.swift; sourceTree = "<group>"; };
+		D2E3CC3F2651BE43007AC8E3 /* Cluster.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Cluster.swift; sourceTree = "<group>"; };
+		D2E3CC4C2651D8C6007AC8E3 /* MinValueWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MinValueWrapper.swift; sourceTree = "<group>"; };
+		D2E3CC532651FF03007AC8E3 /* ThermalViewerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ThermalViewerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		D2E3CC552651FF03007AC8E3 /* ThermalViewerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThermalViewerTests.swift; sourceTree = "<group>"; };
+		D2E3CC572651FF03007AC8E3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		D2E3CC5E265331AA007AC8E3 /* SensorManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SensorManager.swift; sourceTree = "<group>"; };
+		D2E65FBF265401DF008814E0 /* SensorPayload.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SensorPayload.swift; sourceTree = "<group>"; };
+		D2E65FC226540229008814E0 /* SensorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SensorView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -41,15 +80,24 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D2E3CC502651FF03007AC8E3 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		D2E3CC102651BE18007AC8E3 = {
 			isa = PBXGroup;
 			children = (
+				D2E3CC372651BE21007AC8E3 /* ThermalViewer.entitlements */,
 				D2E3CC152651BE18007AC8E3 /* Shared */,
 				D2E3CC1F2651BE1A007AC8E3 /* iOS */,
 				D2E3CC262651BE1A007AC8E3 /* macOS */,
+				D2E3CC542651FF03007AC8E3 /* ThermalViewerTests */,
 				D2E3CC1E2651BE1A007AC8E3 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -58,7 +106,9 @@
 			isa = PBXGroup;
 			children = (
 				D2E3CC162651BE18007AC8E3 /* ThermalViewerApp.swift */,
-				D2E3CC172651BE18007AC8E3 /* ContentView.swift */,
+				D2E3CC5D2652DAEF007AC8E3 /* Extensions */,
+				D2E3CC3C2651BE43007AC8E3 /* Model */,
+				D2E3CC382651BE43007AC8E3 /* Views */,
 				D2E3CC182651BE1A007AC8E3 /* Assets.xcassets */,
 			);
 			path = Shared;
@@ -69,6 +119,7 @@
 			children = (
 				D2E3CC1D2651BE1A007AC8E3 /* ThermalViewer.app */,
 				D2E3CC252651BE1A007AC8E3 /* ThermalViewer.app */,
+				D2E3CC532651FF03007AC8E3 /* ThermalViewerTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -88,6 +139,45 @@
 				D2E3CC282651BE1A007AC8E3 /* macOS.entitlements */,
 			);
 			path = macOS;
+			sourceTree = "<group>";
+		};
+		D2E3CC382651BE43007AC8E3 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				D2E3CC3A2651BE43007AC8E3 /* ThermalImageView.swift */,
+				D2E3CC3B2651BE43007AC8E3 /* ContentView.swift */,
+				D2E65FC226540229008814E0 /* SensorView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		D2E3CC3C2651BE43007AC8E3 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				D2E3CC3D2651BE43007AC8E3 /* Sensor.swift */,
+				D2E65FBF265401DF008814E0 /* SensorPayload.swift */,
+				D2E3CC5E265331AA007AC8E3 /* SensorManager.swift */,
+				D2E3CC4C2651D8C6007AC8E3 /* MinValueWrapper.swift */,
+				D2E3CC3E2651BE43007AC8E3 /* Pixel.swift */,
+				D2E3CC3F2651BE43007AC8E3 /* Cluster.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		D2E3CC542651FF03007AC8E3 /* ThermalViewerTests */ = {
+			isa = PBXGroup;
+			children = (
+				D2E3CC552651FF03007AC8E3 /* ThermalViewerTests.swift */,
+				D2E3CC572651FF03007AC8E3 /* Info.plist */,
+			);
+			path = ThermalViewerTests;
+			sourceTree = "<group>";
+		};
+		D2E3CC5D2652DAEF007AC8E3 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Extensions;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -127,6 +217,24 @@
 			productReference = D2E3CC252651BE1A007AC8E3 /* ThermalViewer.app */;
 			productType = "com.apple.product-type.application";
 		};
+		D2E3CC522651FF03007AC8E3 /* ThermalViewerTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D2E3CC5A2651FF03007AC8E3 /* Build configuration list for PBXNativeTarget "ThermalViewerTests" */;
+			buildPhases = (
+				D2E3CC4F2651FF03007AC8E3 /* Sources */,
+				D2E3CC502651FF03007AC8E3 /* Frameworks */,
+				D2E3CC512651FF03007AC8E3 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				D2E3CC592651FF03007AC8E3 /* PBXTargetDependency */,
+			);
+			name = ThermalViewerTests;
+			productName = ThermalViewerTests;
+			productReference = D2E3CC532651FF03007AC8E3 /* ThermalViewerTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -141,6 +249,10 @@
 					};
 					D2E3CC242651BE1A007AC8E3 = {
 						CreatedOnToolsVersion = 12.5;
+					};
+					D2E3CC522651FF03007AC8E3 = {
+						CreatedOnToolsVersion = 12.5;
+						TestTargetID = D2E3CC242651BE1A007AC8E3;
 					};
 				};
 			};
@@ -159,6 +271,7 @@
 			targets = (
 				D2E3CC1C2651BE1A007AC8E3 /* ThermalViewer (iOS) */,
 				D2E3CC242651BE1A007AC8E3 /* ThermalViewer (macOS) */,
+				D2E3CC522651FF03007AC8E3 /* ThermalViewerTests */,
 			);
 		};
 /* End PBXProject section */
@@ -180,6 +293,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D2E3CC512651FF03007AC8E3 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -187,8 +307,16 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D2E3CC2B2651BE1A007AC8E3 /* ContentView.swift in Sources */,
+				D2E3CC482651BE43007AC8E3 /* Pixel.swift in Sources */,
+				D2E3CC422651BE43007AC8E3 /* ThermalImageView.swift in Sources */,
+				D2E3CC4A2651BE43007AC8E3 /* Cluster.swift in Sources */,
+				D2E3CC5F265331AA007AC8E3 /* SensorManager.swift in Sources */,
+				D2E65FC326540229008814E0 /* SensorView.swift in Sources */,
+				D2E65FC0265401DF008814E0 /* SensorPayload.swift in Sources */,
+				D2E3CC462651BE43007AC8E3 /* Sensor.swift in Sources */,
+				D2E3CC442651BE43007AC8E3 /* ContentView.swift in Sources */,
 				D2E3CC292651BE1A007AC8E3 /* ThermalViewerApp.swift in Sources */,
+				D2E3CC4D2651D8C6007AC8E3 /* MinValueWrapper.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -196,12 +324,36 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D2E3CC2C2651BE1A007AC8E3 /* ContentView.swift in Sources */,
+				D2E3CC492651BE43007AC8E3 /* Pixel.swift in Sources */,
+				D2E3CC432651BE43007AC8E3 /* ThermalImageView.swift in Sources */,
+				D2E3CC4B2651BE43007AC8E3 /* Cluster.swift in Sources */,
+				D2E3CC60265331AA007AC8E3 /* SensorManager.swift in Sources */,
+				D2E65FC426540229008814E0 /* SensorView.swift in Sources */,
+				D2E65FC1265401DF008814E0 /* SensorPayload.swift in Sources */,
+				D2E3CC472651BE43007AC8E3 /* Sensor.swift in Sources */,
+				D2E3CC452651BE43007AC8E3 /* ContentView.swift in Sources */,
 				D2E3CC2A2651BE1A007AC8E3 /* ThermalViewerApp.swift in Sources */,
+				D2E3CC4E2651D8C6007AC8E3 /* MinValueWrapper.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D2E3CC4F2651FF03007AC8E3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D2E3CC562651FF03007AC8E3 /* ThermalViewerTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		D2E3CC592651FF03007AC8E3 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D2E3CC242651BE1A007AC8E3 /* ThermalViewer (macOS) */;
+			targetProxy = D2E3CC582651FF03007AC8E3 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		D2E3CC2F2651BE1A007AC8E3 /* Debug */ = {
@@ -320,6 +472,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = ThermalViewer.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = A76BV63T8L;
 				ENABLE_PREVIEWS = YES;
@@ -332,6 +485,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = photo.lostcause.ThermalViewer;
 				PRODUCT_NAME = ThermalViewer;
 				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -342,6 +496,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = ThermalViewer.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = A76BV63T8L;
 				ENABLE_PREVIEWS = YES;
@@ -354,6 +509,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = photo.lostcause.ThermalViewer;
 				PRODUCT_NAME = ThermalViewer;
 				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
@@ -408,6 +564,50 @@
 			};
 			name = Release;
 		};
+		D2E3CC5B2651FF03007AC8E3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = A76BV63T8L;
+				INFOPLIST_FILE = ThermalViewerTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 11.2;
+				PRODUCT_BUNDLE_IDENTIFIER = photo.lostcause.ThermalViewerTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ThermalViewer.app/Contents/MacOS/ThermalViewer";
+			};
+			name = Debug;
+		};
+		D2E3CC5C2651FF03007AC8E3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = A76BV63T8L;
+				INFOPLIST_FILE = ThermalViewerTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 11.2;
+				PRODUCT_BUNDLE_IDENTIFIER = photo.lostcause.ThermalViewerTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ThermalViewer.app/Contents/MacOS/ThermalViewer";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -434,6 +634,15 @@
 			buildConfigurations = (
 				D2E3CC352651BE1A007AC8E3 /* Debug */,
 				D2E3CC362651BE1A007AC8E3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D2E3CC5A2651FF03007AC8E3 /* Build configuration list for PBXNativeTarget "ThermalViewerTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D2E3CC5B2651FF03007AC8E3 /* Debug */,
+				D2E3CC5C2651FF03007AC8E3 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

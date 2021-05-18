@@ -11,7 +11,11 @@ import SwiftUI
 struct ThermalViewerApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView(manager: SensorManager(sensors: [
+                Sensor(URL(string: "http://10.0.2.163/raw")!,
+                       topName: "Hall",
+                       bottomName: "Office")
+            ]))
         }
     }
 }
