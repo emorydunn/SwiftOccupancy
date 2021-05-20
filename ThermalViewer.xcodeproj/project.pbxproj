@@ -18,6 +18,8 @@
 		D2D023FF2656C19900D1B7C7 /* TestData.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2D023F22655D22900D1B7C7 /* TestData.swift */; };
 		D2D024042656EB1D00D1B7C7 /* Nwise.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2D024032656EB1D00D1B7C7 /* Nwise.swift */; };
 		D2D024052656EB1D00D1B7C7 /* Nwise.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2D024032656EB1D00D1B7C7 /* Nwise.swift */; };
+		D2D0240726570B2200D1B7C7 /* HAConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2D0240626570B2200D1B7C7 /* HAConfig.swift */; };
+		D2D0240826570B2200D1B7C7 /* HAConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2D0240626570B2200D1B7C7 /* HAConfig.swift */; };
 		D2E3CC292651BE1A007AC8E3 /* ThermalViewerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2E3CC162651BE18007AC8E3 /* ThermalViewerApp.swift */; };
 		D2E3CC2A2651BE1A007AC8E3 /* ThermalViewerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2E3CC162651BE18007AC8E3 /* ThermalViewerApp.swift */; };
 		D2E3CC2D2651BE1A007AC8E3 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D2E3CC182651BE1A007AC8E3 /* Assets.xcassets */; };
@@ -59,6 +61,7 @@
 		D2D023F82655F33100D1B7C7 /* Pub+OccupancyChange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Pub+OccupancyChange.swift"; sourceTree = "<group>"; };
 		D2D023FB2655F36D00D1B7C7 /* Pub+SensorPayload.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Pub+SensorPayload.swift"; sourceTree = "<group>"; };
 		D2D024032656EB1D00D1B7C7 /* Nwise.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Nwise.swift; sourceTree = "<group>"; };
+		D2D0240626570B2200D1B7C7 /* HAConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HAConfig.swift; sourceTree = "<group>"; };
 		D2E3CC162651BE18007AC8E3 /* ThermalViewerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThermalViewerApp.swift; sourceTree = "<group>"; };
 		D2E3CC182651BE1A007AC8E3 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D2E3CC1D2651BE1A007AC8E3 /* ThermalViewer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ThermalViewer.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -181,6 +184,7 @@
 				D2E3CC3D2651BE43007AC8E3 /* Sensor.swift */,
 				D2E65FBF265401DF008814E0 /* SensorPayload.swift */,
 				D2E3CC5E265331AA007AC8E3 /* SensorManager.swift */,
+				D2D0240626570B2200D1B7C7 /* HAConfig.swift */,
 				D2E3CC4C2651D8C6007AC8E3 /* MinValueWrapper.swift */,
 				D2E3CC3E2651BE43007AC8E3 /* Pixel.swift */,
 				D2E3CC3F2651BE43007AC8E3 /* Cluster.swift */,
@@ -350,6 +354,7 @@
 				D2D023FE2656C19800D1B7C7 /* TestData.swift in Sources */,
 				D2E65FC326540229008814E0 /* SensorView.swift in Sources */,
 				D2E65FC0265401DF008814E0 /* SensorPayload.swift in Sources */,
+				D2D0240726570B2200D1B7C7 /* HAConfig.swift in Sources */,
 				D2D023FC2655F36E00D1B7C7 /* Pub+SensorPayload.swift in Sources */,
 				D2D024042656EB1D00D1B7C7 /* Nwise.swift in Sources */,
 				D2E3CC462651BE43007AC8E3 /* Sensor.swift in Sources */,
@@ -372,6 +377,7 @@
 				D2D023FF2656C19900D1B7C7 /* TestData.swift in Sources */,
 				D2E65FC426540229008814E0 /* SensorView.swift in Sources */,
 				D2E65FC1265401DF008814E0 /* SensorPayload.swift in Sources */,
+				D2D0240826570B2200D1B7C7 /* HAConfig.swift in Sources */,
 				D2D023FD2655F36E00D1B7C7 /* Pub+SensorPayload.swift in Sources */,
 				D2D024052656EB1D00D1B7C7 /* Nwise.swift in Sources */,
 				D2E3CC472651BE43007AC8E3 /* Sensor.swift in Sources */,

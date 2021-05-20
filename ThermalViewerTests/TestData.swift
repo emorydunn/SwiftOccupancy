@@ -18,6 +18,10 @@ class MockSensor: Sensor {
         super.init(URL(string: "http://lol.local")!)
     }
     
+    required init(from decoder: Decoder) throws {
+        fatalError("init(from:) has not been implemented")
+    }
+    
     override func sensorPublisher() -> AnyPublisher<SensorPayload, Never> {
 
         return Timer.publish(every: refreshInterval, on: .main, in: .common)

@@ -33,13 +33,13 @@ enum Direction {
     case toBottom
 }
 
-class Sensor: ObservableObject, Identifiable {
+class Sensor: ObservableObject, Identifiable, Codable {
     let url: URL
     
     let topName: String
     let bottomName: String
     
-    let id: URL
+    var id: URL { url }
     
     var title: String { "\(topName) / \(bottomName)" }
     
@@ -49,28 +49,64 @@ class Sensor: ObservableObject, Identifiable {
     @State var refreshInterval: TimeInterval = 0.1
     
     @Published var currentState: SensorPayload = SensorPayload(sensor: "Fake Sensor", data: [])
-    @Published var currentCluster: Cluster?// = Cluster()
+    @Published var currentCluster: Cluster?
     @Published var currentDelta: OccupancyChange = OccupancyChange.default
     @Published var averageTemperature: Double = 21
 
-    public var token: AnyCancellable?
-    
+
     init(_ url: URL, topName: String = "Top", bottomName: String = "Bottom") {
         self.url = url
         self.topName = topName
         self.bottomName = bottomName
+    }
+    
+    // MARK: Codable
+    enum CodingKeys: String, CodingKey {
+        case url,
+             topName,
+             bottomName,
+             deltaThreshold,
+             minClusterSize,
+             averageFrameCount,
+             refreshInterval
+
+    }
+
+    required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        // Primary Info
+        self.url = try container.decode(URL.self, forKey: .url)
+        self.topName = try container.decodeIfPresent(String.self, forKey: .topName) ?? "Top Room"
+        self.bottomName = try container.decodeIfPresent(String.self, forKey: .bottomName) ?? "Bottom Room"
+
+        // Sensor Config
+        self.deltaThreshold = try container.decodeIfPresent(Double.self, forKey: .deltaThreshold) ?? 1.5
+        self.minClusterSize = try container.decodeIfPresent(Int.self, forKey: .minClusterSize) ?? 10
+        self.averageFrameCount = try container.decodeIfPresent(Int.self, forKey: .averageFrameCount) ?? 2
+        self.refreshInterval = try container.decodeIfPresent(TimeInterval.self, forKey: .refreshInterval) ?? 0.1
         
-        self.id = url
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        
+        // Primary Info
+        try container.encode(url, forKey: .url)
+        try container.encode(topName, forKey: .topName)
+        try container.encode(bottomName, forKey: .bottomName)
+        
+        // Sensor Config
+        try container.encode(deltaThreshold, forKey: .deltaThreshold)
+        try container.encode(minClusterSize, forKey: .minClusterSize)
+        try container.encode(averageFrameCount, forKey: .averageFrameCount)
+        try container.encode(refreshInterval, forKey: .refreshInterval)
     }
     
     // MARK: - Combine
     
     /// Continually read data from the sensor and update the counts.
     func monitorData() {
-        if token != nil {
-            print("Cancelling existing read")
-            token?.cancel()
-        }
 
         // Create the timer publisher
         let pub = sensorPublisher()
@@ -178,4 +214,3 @@ class Sensor: ObservableObject, Identifiable {
         return clusterPixels(pixels)
     }
 }
-
