@@ -1,12 +1,32 @@
 import Foundation
 
-enum ClusterSide {
+enum ClusterSide: String, Equatable {
     case top, bottom
 }
 
 public class Cluster: Identifiable, Hashable {
     
-    public var pixels: [Pixel]
+    public var pixels: [Pixel] {
+        didSet {
+            centerCache = nil
+        }
+    }
+    
+    fileprivate var centerCache: Pixel?
+    public var center: Pixel {
+        centerCache ?? calculateCenter()
+    }
+    
+    
+    var size: Int { pixels.count }
+    
+    var clusterSide: ClusterSide {
+        if center.y > 4 {
+            return .bottom
+        } else {
+            return .top
+        }
+    }
     
     public init(_ pixels: Pixel...) {
         self.pixels = pixels
@@ -21,50 +41,42 @@ public class Cluster: Identifiable, Hashable {
         }) != nil
     }
     
-    // TODO: Use the center of the pixels
-    public func center() -> Pixel? {
+    func calculateCenter() -> Pixel {
+        guard size > 0 else {
+            return tempCenter()
+        }
+        
         let box = boundingBox()
         
-        let width = Double(box.maxX - (box.minX - 1))
-        let centerX = Int(width / 2 + Double(box.minX))
+        let width = Double(box.maxX - box.minX)
+        let tempX = Double(box.minX) + width / 2
         
-        let height = Double(box.maxY - (box.minY - 1))
-        let centerY = Int(height / 2 + Double(box.minY))
+        let height = Double(box.maxY - box.minY)
+        let tempY = Double(box.minY) + height / 2
         
-        print(centerX, centerY)
+        let centerX = Int(tempX.rounded())
+        let centerY = Int(tempY.rounded())
         
-//        let centerX = (((box.maxX - (box.minX - 1)) + box.minX) - 1)
-//        let centerY = (((box.maxY - (box.minY - 1)) + box.minY) - 1)
+        // Return the geometric center
+        // If the geometric center can't be found, most likely due to
+        // an iregular cluster, fallback to the temp center
+        guard let center = pixels.first(where: {
+            $0.x == centerX && $0.y == centerY
+        }) else {
+            return tempCenter()
+        }
         
-//        let index = index(for: centerY - 1, and: centerX - 1)
-        
-//        return Pixel(x: centerX, y: centerY, temp: 0)
-        
-//        return pixels.first(where: {
-//            $0.x == centerX && $0.x == centerY
-//        })!
-        
-//        return pixels[index]
-        
-//        pixels
-        return nil
-        
-//        return pixels.reduce(pixels[0]) { result, pixel in
-//            result.temp > pixel.temp ? result : pixel
-//        }
+        return center
+
     }
     
-    public func tempCenter() -> Pixel {
+    func tempCenter() -> Pixel {
         return pixels.reduce(pixels[0]) { result, pixel in
             result.temp > pixel.temp ? result : pixel
         }
     }
-    
-    func index(for row: Int, and column: Int, width: Int = 8) -> Int {
-        return (row * width) + column
-    }
-    
-    public func boundingBox() -> (minX: Int, minY: Int, maxX: Int, maxY: Int) {
+
+    func boundingBox() -> (minX: Int, minY: Int, maxX: Int, maxY: Int) {
         var minX: Int = Int.max
         var minY: Int = Int.max
         var maxX: Int = Int.min
@@ -92,15 +104,61 @@ public class Cluster: Identifiable, Hashable {
     func contains(_ pixel: Pixel) -> Bool {
         pixels.contains(pixel)
     }
+
     
-    var size: Int { pixels.count }
-    
-    var clusterSide: ClusterSide {
-        if tempCenter().y > 4 {
-            return .bottom
-        } else {
-            return .top
+    /// Print a textual representation of a grid of pixels.
+    ///
+    /// ```
+    /// [ ][ ][ ][ ][ ][ ][ ][ ]
+    /// [ ][ ][ ][ ][ ][ ][ ][ ]
+    /// [ ][ ][ ][ ][•][•][•][ ]
+    /// [ ][ ][ ][•][•][•][•][ ]
+    /// [ ][ ][ ][ ][•][•][•][•]
+    /// [ ][ ][ ][ ][•][•][•][•]
+    /// [ ][ ][ ][ ][ ][•][•][ ]
+    /// [ ][ ][ ][ ][ ][ ][ ][ ]
+    /// ```
+    ///
+    /// - Parameters:
+    ///   - columns: Number of columns
+    ///   - rows: Number of rows
+    func printGrid(columns: Int = 8, rows: Int = 8) {
+        let grid = (1...columns).map { y in
+            (1...rows).map { x in
+                let bb = boundingBox()
+                if center.x == x && center.y == y {
+                    switch clusterSide {
+                    case .bottom:
+                        return " ⋁ "
+                    case .top:
+                        return " ⋀ "
+                    }
+                    
+                } else if bb.minX == x && bb.minY == y {
+                    return "┏  "
+                } else if bb.maxX == x && bb.minY == y {
+                    return "  ┓"
+                } else if bb.maxX == x && bb.maxY == y {
+                    return "  ┛"
+                } else if bb.minX == x && bb.maxY == y {
+                    return "┗  "
+                } else if pixels.contains(where: { $0.x == x && $0.y == y }) {
+                    return "▓▓▓"
+                }
+                
+                
+                return "░░░"
+                
+            }.joined()
         }
+        
+        print(grid.joined(separator: "\n"))
+    }
+}
+
+extension Cluster: CustomStringConvertible {
+    public var description: String {
+        "\(clusterSide.rawValue.capitalized) Cluser at \(center) of \(size)"
     }
 }
 
@@ -110,14 +168,14 @@ extension Array where Element: Cluster {
     }
     
     func largest() -> Cluster? {
-        self.reduce(nil) { result, cluster in
-            guard let previous = result else {
-                return cluster
-            }
-            if cluster.size > previous.size {
-                return cluster
-            }
-            return previous
-        }
+        self.sorted { $0.size > $1.size }
+            .first
     }
+    
+    func largest(minSize: Int) -> Cluster? {
+        self.filter { $0.size >= minSize }
+            .sorted { $0.size > $1.size }
+            .first
+    }
+
 }
