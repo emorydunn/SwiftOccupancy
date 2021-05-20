@@ -7,7 +7,7 @@
 
 import XCTest
 import Combine
-@testable import ThermalViewer
+@testable import RoomOccupancyKit
 
 class ClusterTests: XCTestCase {
     
@@ -26,7 +26,6 @@ class ClusterTests: XCTestCase {
         let senseExp = expectation(description: "Sensor Reading")
         
         mockSensor.$currentDelta
-            .dropFirst()
             .sink(receiveCompletion: { completion in
                 senseExp.fulfill()
             }, receiveValue: { change in
@@ -35,26 +34,25 @@ class ClusterTests: XCTestCase {
             .store(in: &cancellables)
         
         mockSensor.$currentCluster
-            .dropFirst()
             .sink { cluster in
-            cluster.printGrid()
-        }
-        .store(in: &cancellables)
+                cluster?.printGrid()
+            }
+            .store(in: &cancellables)
         
         mockSensor.monitorData()
         
         waitForExpectations(timeout: 10, handler: nil)
         
-//        twoPassData.enumerated().forEach { index, data in
-//            let pixels = sensor.findRelevantPixels(data)
-//
-//            print("Frame \(index)")
-//            if let cluster = sensor.clusterPixels(data).filter({ $0.size >= sensor.minClusterSize }).largest() {
-//                cluster.printGrid()
-//            } else {
-//                pixels.printGrid()
-//            }
-//        }
+        //        twoPassData.enumerated().forEach { index, data in
+        //            let pixels = sensor.findRelevantPixels(data)
+        //
+        //            print("Frame \(index)")
+        //            if let cluster = sensor.clusterPixels(data).filter({ $0.size >= sensor.minClusterSize }).largest() {
+        //                cluster.printGrid()
+        //            } else {
+        //                pixels.printGrid()
+        //            }
+        //        }
     }
     
     func testFindPixels() {
@@ -64,7 +62,7 @@ class ClusterTests: XCTestCase {
         
         pixels.printGrid()
         
-
+        
     }
     
     func testClustering() {
@@ -78,7 +76,7 @@ class ClusterTests: XCTestCase {
         
         
     }
-
+    
     func testBoundingBox() {
         let payload = SensorPayload(sensor: "AMG8833", data: "24.00,25.25,25.75,26.75,25.00,27.75,27.50,27.25,22.50,23.25,24.75,25.00,25.00,27.75,27.25,27.00,22.00,21.75,22.50,23.25,25.50,27.75,27.25,27.00,21.75,21.75,22.00,22.25,24.25,27.50,27.50,27.00,21.25,21.25,22.50,23.25,24.25,25.50,26.50,26.75,21.50,21.75,22.25,23.50,23.25,22.50,26.00,27.00,22.75,21.50,23.25,23.50,21.50,21.75,23.25,25.50,22.00,24.00,24.25,22.00,21.75,21.50,21.25,22.25")
         
@@ -90,7 +88,7 @@ class ClusterTests: XCTestCase {
         XCTAssertEqual(box.minY, 1)
         XCTAssertEqual(box.maxX, 8)
         XCTAssertEqual(box.maxY, 6)
-
+        
     }
     
     func testCenter() {
@@ -98,18 +96,18 @@ class ClusterTests: XCTestCase {
         
         let cluster = sensor.clusterPixels(payload).largest()!
         
-//        let box = cluster.boundingBox()
-        let center = cluster.center()
+        //        let box = cluster.boundingBox()
+        let center = cluster.center
         
         
-//        print(box.maxX - box.minX)
-//        print(box.maxY - box.minY)
+        //        print(box.maxX - box.minX)
+        //        print(box.maxY - box.minY)
         
         XCTAssertEqual(center.x, 5)
         XCTAssertEqual(center.y, 5)
-//        XCTAssertEqual(box.maxX, 7)
-//        XCTAssertEqual(box.maxY, 5)
+        //        XCTAssertEqual(box.maxX, 7)
+        //        XCTAssertEqual(box.maxY, 5)
         
     }
-
+    
 }

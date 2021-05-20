@@ -1,6 +1,6 @@
 import Foundation
 
-enum ClusterSide: String, Equatable {
+public enum ClusterSide: String, Equatable {
     case top, bottom
 }
 
@@ -122,7 +122,7 @@ public class Cluster: Identifiable, Hashable {
     /// - Parameters:
     ///   - columns: Number of columns
     ///   - rows: Number of rows
-    func printGrid(columns: Int = 8, rows: Int = 8) {
+    public func printGrid(columns: Int = 8, rows: Int = 8) {
         let grid = (1...columns).map { y in
             (1...rows).map { x in
                 let bb = boundingBox()
@@ -152,13 +152,15 @@ public class Cluster: Identifiable, Hashable {
             }.joined()
         }
         
+        print(self)
         print(grid.joined(separator: "\n"))
+        print()
     }
 }
 
 extension Cluster: CustomStringConvertible {
     public var description: String {
-        "\(clusterSide.rawValue.capitalized) Cluser at \(center) of \(size)"
+        "\(clusterSide.rawValue.capitalized) Cluser at \(center)"
     }
 }
 

@@ -9,10 +9,10 @@ import Foundation
 import Combine
 import SwiftUI
 
-class SensorManager: ObservableObject, Decodable {
+public class SensorManager: ObservableObject, Decodable {
     
-    var sensors: [Sensor]
-    let homeAssistant: HAConfig
+    public var sensors: [Sensor]
+    public let homeAssistant: HAConfig
     
     @Published var occupancy: [String: Int]
     @Published var deltasToSend: (room: String, status: Int)?
@@ -20,7 +20,7 @@ class SensorManager: ObservableObject, Decodable {
     
     var tokens: [AnyCancellable] = []
     
-    init(sensors: [Sensor], haConfig: HAConfig, occupancy: [String: Int]? = nil) {
+    public init(sensors: [Sensor], haConfig: HAConfig, occupancy: [String: Int]? = nil) {
         self.sensors = sensors
         self.homeAssistant = haConfig
         
@@ -39,10 +39,10 @@ class SensorManager: ObservableObject, Decodable {
     }
     
     // MARK: Codable
-    enum CodingKeys: String, CodingKey {
+    public enum CodingKeys: String, CodingKey {
         case sensors, homeAssitant
     }
-    required init(from decoder: Decoder) throws {
+    public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
         self.sensors = try container.decode([Sensor].self, forKey: .sensors)
@@ -51,7 +51,7 @@ class SensorManager: ObservableObject, Decodable {
         
     }
     
-    func monitorSensors() {
+    public func monitorSensors() {
 
         sensors.forEach {
             // Begin monitoring data
@@ -60,7 +60,6 @@ class SensorManager: ObservableObject, Decodable {
         
         let changes = sensors.publisher
             .flatMap { $0.$currentDelta }
-//            .print("SensorManager Sub")
             .applyOccupancyDelta(to: occupancy)
             .print("SensorManager Sub")
             .share()

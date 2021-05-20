@@ -2,28 +2,28 @@ import Foundation
 import Combine
 import SwiftUI
 
-struct OccupancyChange: CustomStringConvertible {
+public struct OccupancyChange: CustomStringConvertible {
     
-    static let `default` = OccupancyChange(action: "No Action", delta: [:])
+    public static let `default` = OccupancyChange(action: "No Action", delta: [:])
     
-    let action: String
-    let delta: [String: Int]
-    let absolute: Bool
+    public let action: String
+    public let delta: [String: Int]
+    public let absolute: Bool
     
-    init(action: String, delta: [String: Int], absolute: Bool = false) {
+    public init(action: String, delta: [String: Int], absolute: Bool = false) {
         self.action = action
         self.delta = delta
         self.absolute = absolute
     }
 
-    var description: String {
+    public var description: String {
         if absolute {
             return "\(action) -> Absolute \(delta)"
         }
         return "\(action) -> \(delta)"
     }
     
-    var hasAction: Bool {
+    public var hasAction: Bool {
         !delta.isEmpty
     }
 }
@@ -33,35 +33,35 @@ enum Direction {
     case toBottom
 }
 
-class Sensor: ObservableObject, Identifiable, Codable {
-    let url: URL
+public class Sensor: ObservableObject, Identifiable, Codable {
+    public let url: URL
     
-    let topName: String
-    let bottomName: String
+    public let topName: String
+    public let bottomName: String
     
-    var id: URL { url }
+    public var id: URL { url }
     
-    var title: String { "\(topName) / \(bottomName)" }
+    public var title: String { "\(topName) / \(bottomName)" }
     
-    @State var deltaThreshold: Double = 1.5
-    @State var minClusterSize: Int = 10
-    @State var averageFrameCount: Int = 2
-    @State var refreshInterval: TimeInterval = 0.1
+    @State public var deltaThreshold: Double = 1.5
+    @State public var minClusterSize: Int = 10
+    @State public var averageFrameCount: Int = 2
+    @State public var refreshInterval: TimeInterval = 0.1
     
-    @Published var currentState: SensorPayload = SensorPayload(sensor: "Fake Sensor", data: [])
-    @Published var currentCluster: Cluster?
-    @Published var currentDelta: OccupancyChange = OccupancyChange.default
-    @Published var averageTemperature: Double = 21
+    @Published public var currentState: SensorPayload = SensorPayload(sensor: "Fake Sensor", data: [])
+    @Published public var currentCluster: Cluster?
+    @Published public var currentDelta: OccupancyChange = OccupancyChange.default
+    @Published public var averageTemperature: Double = 21
 
 
-    init(_ url: URL, topName: String = "Top", bottomName: String = "Bottom") {
+    public init(_ url: URL, topName: String = "Top", bottomName: String = "Bottom") {
         self.url = url
         self.topName = topName
         self.bottomName = bottomName
     }
     
     // MARK: Codable
-    enum CodingKeys: String, CodingKey {
+    public enum CodingKeys: String, CodingKey {
         case url,
              topName,
              bottomName,
@@ -72,7 +72,7 @@ class Sensor: ObservableObject, Identifiable, Codable {
 
     }
 
-    required init(from decoder: Decoder) throws {
+    public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
         // Primary Info
@@ -88,7 +88,7 @@ class Sensor: ObservableObject, Identifiable, Codable {
         
     }
     
-    func encode(to encoder: Encoder) throws {
+    public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         
         // Primary Info
@@ -106,7 +106,7 @@ class Sensor: ObservableObject, Identifiable, Codable {
     // MARK: - Combine
     
     /// Continually read data from the sensor and update the counts.
-    func monitorData() {
+    public func monitorData() {
 
         // Create the timer publisher
         let pub = sensorPublisher()
@@ -139,11 +139,10 @@ class Sensor: ObservableObject, Identifiable, Codable {
         
         $currentCluster
             .compactMap { $0 } // Skip nil clusters
+            .logGrid()
             .pairwise()
             .parseDelta(currentDelta.action, top: topName, bottom: bottomName)
-//            .print("7. Parse Action")
             .filter { $0.hasAction }
-//            .print("8. Has Action")
             .receive(on: RunLoop.main)
             .assign(to: &$currentDelta)
         
@@ -173,7 +172,7 @@ class Sensor: ObservableObject, Identifiable, Codable {
     /// - Parameter interval: Time interval at which to refresh
     /// - Returns: A Publisher with time-averaged sensor data
     func sensorPublisher() -> AnyPublisher<SensorPayload, Never> {
-        return Timer.publish(every: refreshInterval, on: .main, in: .common)
+        return Timer.publish(every: refreshInterval, on: RunLoop.current, in: .common)
             .autoconnect()
             .flatMap { date in
                 return self.dataDownloadPublisher()

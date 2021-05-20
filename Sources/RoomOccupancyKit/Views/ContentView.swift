@@ -65,6 +65,8 @@ struct ContentView_Previews: PreviewProvider {
             Sensor(URL(string: "http://10.0.2.163/raw")!,
                    topName: "Hall",
                    bottomName: "Office")
-        ]))
+        ],
+        haConfig: HAConfig(url: URL(string: "homeassistant.local")!, token: "")
+        ))
     }
 }

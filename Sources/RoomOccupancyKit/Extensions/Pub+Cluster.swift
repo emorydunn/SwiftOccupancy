@@ -8,6 +8,18 @@
 import Foundation
 import  Combine
 
+extension Publisher where Output == Cluster, Failure == Never {
+    
+    func logGrid() -> AnyPublisher<Cluster, Never> {
+        self.map { cluster in
+            cluster.printGrid()
+            return cluster
+        }
+        .eraseToAnyPublisher()
+    }
+    
+}
+
 extension Publisher where Output == (Cluster, Cluster), Failure == Never {
     
     func parseDelta(_ previousAction: String, top: String, bottom: String) -> AnyPublisher<OccupancyChange, Never> {

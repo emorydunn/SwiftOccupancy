@@ -8,7 +8,7 @@
 import Foundation
 import Combine
 import SwiftUI
-//@testable import ThermalViewer
+@testable import RoomOccupancyKit
 
 class MockSensor: Sensor {
     
