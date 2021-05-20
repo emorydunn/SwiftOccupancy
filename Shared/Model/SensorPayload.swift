@@ -26,16 +26,26 @@ public struct SensorPayload: Decodable {
         self.rows = rows
         self.cols = cols
         
+        // Validate the data
+        guard data.count == rows * cols else {
+            self.data = []
+            self.pixels = []
+            self.rawData = []
+            self.mean = 0
+            return
+        }
+        
         var tempTotal: Double = 0
         var pixels = [Pixel]()
         
-        
         let arrayData: [[Pixel]] = (0..<cols).map { offset in
-            let row = data[0 + offset * rows..<rows + offset * rows]
+            let row = data[(0 + offset * rows)..<(rows + offset * rows)]
             
             return row.enumerated().map { index, value in
                 tempTotal += value
-                let p = Pixel(x: index + 1, y: offset + 1, temp: value)
+                let p = Pixel(x: index + 1,
+                              y: offset + 1,
+                              temp: value)
                 pixels.append(p)
                 return p
             }
@@ -52,7 +62,7 @@ public struct SensorPayload: Decodable {
         
         let rawData = data
             .components(separatedBy: ",")
-            .compactMap { Double($0) }
+            .compactMap { Double($0)?.rounded() }
         
         self.init(sensor: sensor,
                   rows: rows,
