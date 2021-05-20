@@ -10,7 +10,7 @@ import SwiftUI
 struct ThermalImageView: View {
     
     let data: SensorPayload
-    let clusters: [Cluster]
+    let cluster: Cluster?
     
     let minTemperature: Double = 16
     let maxTemperature: Double = 30
@@ -28,15 +28,25 @@ struct ThermalImageView: View {
                                                 brightness: 0.75))
                                     .hueRotation(Angle(degrees: 90))
                                   
-//                                Text("\(pixel.x), \(pixel.y)")
-//                                    .foregroundColor(.white)
-                                Text(pixel.tempString)
-                                    .foregroundColor(.white)
+                                VStack {
+                                    Text("\(pixel.x), \(pixel.y)")
+                                        .fontWeight(.thin)
+                                        .foregroundColor(.white)
+                                    if let cluster = cluster, cluster.center == pixel {
+                                        Text(cluster.clusterSide.rawValue)
+                                            .fontWeight(clusterFont(pixel))
+                                            .foregroundColor(.white)
+                                    } else {
+                                        Text(pixel.tempString)
+                                            .fontWeight(clusterFont(pixel))
+                                            .foregroundColor(.white)
+                                    }
+                                }
+                                
                             }
-                            
-                            .border(clusterColor(pixel), width: 1)
-                        
+
                             .frame(width: reader.size.width / CGFloat(data.cols))
+                            .border(clusterColor(pixel), width: 2)
   
                         }
                         
@@ -48,14 +58,22 @@ struct ThermalImageView: View {
         .navigationTitle(data.sensor)
     }
     
+    func clusterFont(_ pixel: Pixel) -> Font.Weight {
+        guard let cluster = cluster, cluster.contains(pixel) else {
+            return Font.Weight.regular
+        }
+
+        if cluster.center == pixel {
+            return Font.Weight.black
+        }
+        return Font.Weight.regular
+    }
+    
     func clusterColor(_ pixel: Pixel) -> Color {
-        guard let cluster = clusters.first(where: { $0.contains(pixel)} ) else {
+        guard let cluster = cluster, cluster.contains(pixel) else {
             return Color.clear
         }
-        
-        if cluster.tempCenter() == pixel {
-            return Color.red
-        }
+
         return Color.white
     }
 }
@@ -77,6 +95,6 @@ struct ThermalImageView_Previews: PreviewProvider {
 //        ThermalImageView(data: frame2,
 //                         clusters: sensor.clusterPixels(frame2))
         ThermalImageView(data: frame3,
-                         clusters: sensor.clusterPixels(frame3))
+                         cluster: sensor.clusterPixels(frame3).largest(minSize: 7))
     }
 }

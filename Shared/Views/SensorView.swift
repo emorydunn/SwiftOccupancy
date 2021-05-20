@@ -16,16 +16,57 @@ struct SensorView: View {
         Group {
             if let data = sensor.currentState {
                 VStack(alignment: .center) {
+                    
                     Text(sensor.currentDelta.action)
                         .font(.title)
+
+                    if let cluster = sensor.currentCluster {
+                        HStack {
+                            Text(cluster.clusterSide.rawValue.capitalized)
+                                .font(.headline)
+                            Text(verbatim: "Center: \(cluster.center)")
+                                .font(.subheadline)
+                        }
+                        
+                    } else {
+                        Text("No Clusters")
+                            .font(.headline)
+                    }
+                    
+                    
+                    HStack {
+                        Text("Rolling: \(sensor.averageTemperature) ºc")
+                        Spacer()
+                        Text("Mean: \(data.mean) ºc")
+                    }
                     Spacer()
 
-                    ThermalImageView(data: data, clusters: sensor.currentClusters)
+                    ThermalImageView(data: data, cluster: sensor.currentCluster)
                         .aspectRatio(contentMode: .fit)
                     
                     Spacer()
+                    
+                    Stepper(value: $sensor.deltaThreshold, in: 0...5, step: 0.5) {
+                        Text("Delta Threshold")
+                        Spacer()
+                        Text("\(sensor.deltaThreshold)")
+                    }
+                    Stepper(value: $sensor.minClusterSize, in: 1...10, step: 1) {
+                        Text("Min Cluster Size")
+                        Spacer()
+                        Text("\(sensor.minClusterSize)")
+                    }
+                    Stepper(value: $sensor.averageFrameCount, in: 1...5, step: 1) {
+                        Text("Frames to Average")
+                        Spacer()
+                        Text("\(sensor.averageFrameCount)")
+                    }
 
                     HStack {
+                        Button("Reset Sensor") {
+                            NSLog("Resetting \(sensor.title)")
+                            sensor.resetSensor()
+                        }
                         Spacer()
                         Button("Log Frame") {
                             data.logData()
