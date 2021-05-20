@@ -27,8 +27,51 @@ public class Pixel: Identifiable, Hashable, Codable {
         hasher.combine(temp)
     }
     
+    /// Normalize the temperature to a value between `0` and `1`
+    /// - Parameters:
+    ///   - min: Min temp (`0`)
+    ///   - max: Max temp (`1`)
+    /// - Returns: Normalized temp
     func normalize(_ min: Double, _ max: Double) -> Double {
         (temp - min) / (max - min)
     }
     
+}
+
+extension Pixel: CustomStringConvertible {
+    public var description: String {
+        "Pixel (\(x), \(y))"
+    }
+}
+
+extension Array where Element: Pixel {
+    /// Print a textual representation of a grid of pixels.
+    ///
+    /// ```
+    /// [ ][ ][ ][ ][ ][ ][ ][ ]
+    /// [ ][ ][ ][ ][ ][ ][ ][ ]
+    /// [ ][ ][ ][ ][•][•][•][ ]
+    /// [ ][ ][ ][•][•][•][•][ ]
+    /// [ ][ ][ ][ ][•][•][•][•]
+    /// [ ][ ][ ][ ][•][•][•][•]
+    /// [ ][ ][ ][ ][ ][•][•][ ]
+    /// [ ][ ][ ][ ][ ][ ][ ][ ]
+    /// ```
+    ///
+    /// - Parameters:
+    ///   - columns: Number of columns
+    ///   - rows: Number of rows
+    func printGrid(columns: Int = 8, rows: Int = 8) {
+        let grid = (1...columns).map { y in
+            (1...rows).map { x in
+                if self.contains(where: { $0.x == x && $0.y == y }) {
+                    return "▒▒▒"
+                }
+                return "░░░"
+                
+            }.joined()
+        }
+        
+        print(grid.joined(separator: "\n"))
+    }
 }
