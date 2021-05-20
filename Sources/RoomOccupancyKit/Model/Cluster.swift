@@ -1,25 +1,41 @@
-import Foundation
+//
+//  Cluster.swift
+//  ThermalViewer
+//
+//  Created by Emory Dunn on 5/20/21.
+//
 
-public enum ClusterSide: String, Equatable {
-    case top, bottom
-}
+
+import Foundation
 
 public class Cluster: Identifiable, Hashable {
     
+    /// The side of the frame the Cluster is on.
+    public enum ClusterSide: String, Equatable {
+        case top, bottom
+    }
+    
+    /// The Pixels that make up this cluster
     public var pixels: [Pixel] {
         didSet {
             centerCache = nil
         }
     }
     
+    /// The previously calculated center
     fileprivate var centerCache: Pixel?
+    
+    
+    /// The center of the Cluster
     public var center: Pixel {
         centerCache ?? calculateCenter()
     }
     
     
+    /// The size of the Cluster
     var size: Int { pixels.count }
     
+    /// Which side of the dividing line the Cluster is on
     var clusterSide: ClusterSide {
         if center.y > 4 {
             return .bottom
@@ -28,10 +44,15 @@ public class Cluster: Identifiable, Hashable {
         }
     }
     
+    /// Create a new Cluster
+    /// - Parameter pixels: Pixels in the Cluster
     public init(_ pixels: Pixel...) {
         self.pixels = pixels
     }
     
+    /// Determine whehter a Pixel neighbors the Cluster.
+    /// - Parameter pixel: The Pixel to test
+    /// - Returns: A boolean indicating whether the Pixel is a neighbor
     public func isNeighbored(to pixel: Pixel) -> Bool {
         pixels.first(where: {
             $0.x >= pixel.x - 1 &&
@@ -41,9 +62,16 @@ public class Cluster: Identifiable, Hashable {
         }) != nil
     }
     
+    /// Calculate the center of the Cluster.
+    ///
+    /// If the Pixel at the center of the Cluster is not actually in the Cluster,
+    /// which can happen with irregularly shaped Clusters, the Pixel
+    /// with the highest termpature is used.
+    ///
+    /// - Returns: The Pixel in the center
     func calculateCenter() -> Pixel {
         guard size > 0 else {
-            return tempCenter()
+            return temperatureCenter()
         }
         
         let box = boundingBox()
@@ -63,19 +91,23 @@ public class Cluster: Identifiable, Hashable {
         guard let center = pixels.first(where: {
             $0.x == centerX && $0.y == centerY
         }) else {
-            return tempCenter()
+            return temperatureCenter()
         }
         
         return center
 
     }
     
-    func tempCenter() -> Pixel {
+    /// The Pixel with the highest termpature, often aat the center of the Cluster.
+    /// - Returns: The Pixel in the center
+    func temperatureCenter() -> Pixel {
         return pixels.reduce(pixels[0]) { result, pixel in
             result.temp > pixel.temp ? result : pixel
         }
     }
-
+    
+    /// Calculate the bounding box of the cluster
+    /// - Returns: The four points making up the corners.
     func boundingBox() -> (minX: Int, minY: Int, maxX: Int, maxY: Int) {
         var minX: Int = Int.max
         var minY: Int = Int.max
@@ -101,6 +133,9 @@ public class Cluster: Identifiable, Hashable {
         hasher.combine(pixels)
     }
     
+    /// Convenience function to determine whether a Pixel is in the Cluster.
+    /// - Parameter pixel: The element to find in the sequence.
+    /// - Returns: true if the element was found in the sequence; otherwise, false.
     func contains(_ pixel: Pixel) -> Bool {
         pixels.contains(pixel)
     }
@@ -109,14 +144,15 @@ public class Cluster: Identifiable, Hashable {
     /// Print a textual representation of a grid of pixels.
     ///
     /// ```
-    /// [ ][ ][ ][ ][ ][ ][ ][ ]
-    /// [ ][ ][ ][ ][ ][ ][ ][ ]
-    /// [ ][ ][ ][ ][•][•][•][ ]
-    /// [ ][ ][ ][•][•][•][•][ ]
-    /// [ ][ ][ ][ ][•][•][•][•]
-    /// [ ][ ][ ][ ][•][•][•][•]
-    /// [ ][ ][ ][ ][ ][•][•][ ]
-    /// [ ][ ][ ][ ][ ][ ][ ][ ]
+    /// Bottom Cluser at Pixel (4, 5)
+    /// ░░░░░░░░░░░░░░░░░░░░░░░░
+    /// ░░░┏  ▓▓▓▓▓▓▓▓▓  ┓░░░░░░
+    /// ░░░░░░▓▓▓▓▓▓▓▓▓▓▓▓░░░░░░
+    /// ░░░▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░░░░░
+    /// ░░░░░░▓▓▓ ⋁ ▓▓▓░░░░░░░░░
+    /// ░░░░░░▓▓▓▓▓▓▓▓▓░░░░░░░░░
+    /// ░░░┗  ░░░▓▓▓░░░  ┛░░░░░░
+    /// ░░░░░░░░░░░░░░░░░░░░░░░░
     /// ```
     ///
     /// - Parameters:
@@ -164,7 +200,7 @@ extension Cluster: CustomStringConvertible {
     }
 }
 
-extension Array where Element: Cluster {
+public extension Array where Element: Cluster {
     func contains(_ element: Pixel) -> Bool {
         self.first(where: { $0.contains(element)} ) != nil
     }
