@@ -1,5 +1,13 @@
+//
+//  Sensor.swift
+//  ThermalViewer
+//
+//  Created by Emory Dunn on 5/20/21.
+//
+
+
 import Foundation
-import Combine
+import OpenCombineShim
 import SwiftUI
 
 public struct OccupancyChange: CustomStringConvertible {
@@ -139,7 +147,7 @@ public class Sensor: ObservableObject, Identifiable, Codable {
         
         $currentCluster
             .compactMap { $0 } // Skip nil clusters
-            .logGrid()
+//            .logGrid()
             .pairwise()
             .parseDelta(currentDelta.action, top: topName, bottom: bottomName)
             .filter { $0.hasAction }

@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import Combine
+import OpenCombineShim
 
 extension Publisher where Output == OccupancyChange, Failure == Never {
     

@@ -8,10 +8,8 @@
 // From https://github.com/CombineCommunity/CombineExt#pairwise
 //
 
-#if canImport(Combine)
-import Combine
+import OpenCombineShim
 
-@available(OSX 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public extension Publisher {
     /// Groups the elements of the source publisher into arrays of N consecutive elements.
     /// The resulting publisher:
@@ -43,4 +41,4 @@ public extension Publisher {
             .eraseToAnyPublisher()
     }
 }
-#endif
+

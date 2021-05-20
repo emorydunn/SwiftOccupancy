@@ -1,5 +1,11 @@
+//
+//  Pixel.swift
+//  ThermalViewer
+//
+//  Created by Emory Dunn on 5/20/21.
+//
+
 import Foundation
-import SwiftUI
 
 public class Pixel: Identifiable, Hashable, Codable {
     

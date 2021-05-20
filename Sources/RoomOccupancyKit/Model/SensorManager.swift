@@ -6,8 +6,7 @@
 //
 
 import Foundation
-import Combine
-import SwiftUI
+import OpenCombineShim
 
 public class SensorManager: ObservableObject, Decodable {
     
@@ -16,7 +15,6 @@ public class SensorManager: ObservableObject, Decodable {
     
     @Published var occupancy: [String: Int]
     @Published var deltasToSend: (room: String, status: Int)?
-    @State var publishUpdates: Bool = false
     
     var tokens: [AnyCancellable] = []
     

@@ -44,9 +44,6 @@ struct ContentView: View {
         }
         .toolbar {
             ToolbarItem {
-                Toggle("Publish", isOn: $manager.publishUpdates)
-            }
-            ToolbarItem {
                 Button("Reset Sensors") {
                     NSLog("Resetting All Sensors")
                     manager.sensors.forEach {
