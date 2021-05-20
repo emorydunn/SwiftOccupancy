@@ -2,11 +2,30 @@ import Foundation
 import Combine
 import SwiftUI
 
-struct OccupancyChange {
+struct OccupancyChange: CustomStringConvertible {
+    
+    static let `default` = OccupancyChange(action: "No Action", delta: [:])
+    
     let action: String
     let delta: [String: Int]
+    let absolute: Bool
+    
+    init(action: String, delta: [String: Int], absolute: Bool = false) {
+        self.action = action
+        self.delta = delta
+        self.absolute = absolute
+    }
 
-    static let `default` = OccupancyChange(action: "No Action", delta: [:])
+    var description: String {
+        if absolute {
+            return "\(action) -> Absolute \(delta)"
+        }
+        return "\(action) -> \(delta)"
+    }
+    
+    var hasAction: Bool {
+        !delta.isEmpty
+    }
 }
 
 enum Direction {
@@ -24,15 +43,16 @@ class Sensor: ObservableObject, Identifiable {
     
     var title: String { "\(topName) / \(bottomName)" }
     
-    @State var deltaThreshold: Double = 1
+    @State var deltaThreshold: Double = 1.5
     @State var minClusterSize: Int = 10
     @State var averageFrameCount: Int = 2
     @State var refreshInterval: TimeInterval = 0.1
     
-    @Published var currentState: SensorPayload?
-    @Published var currentClusters: [Cluster] = []
+    @Published var currentState: SensorPayload = SensorPayload(sensor: "Fake Sensor", data: [])
+    @Published var currentCluster: Cluster?// = Cluster()
     @Published var currentDelta: OccupancyChange = OccupancyChange.default
-    
+    @Published var averageTemperature: Double = 21
+
     public var token: AnyCancellable?
     
     init(_ url: URL, topName: String = "Top", bottomName: String = "Bottom") {
@@ -45,25 +65,7 @@ class Sensor: ObservableObject, Identifiable {
     
     // MARK: - Combine
     
-    /// A shared publisher that fetches data from the sensor.
-    /// - Returns: A Publisher with the latest sensor info
-    func sensorDataPublisher() -> AnyPublisher<SensorPayload, Error> {
-        URLSession.shared.dataTaskPublisher(for: url)
-            .tryMap { element in
-                guard let httpRespone = element.response as? HTTPURLResponse,
-                      httpRespone.statusCode == 200 else {
-                    throw URLError(.badServerResponse)
-                }
-                
-                return element.data
-            }
-            .decode(type: SensorPayload.self, decoder: JSONDecoder())
-            //            .share()
-            .eraseToAnyPublisher()
-    }
-    
     /// Continually read data from the sensor and update the counts.
-    /// - Parameter interval: Time interval at which to refresh
     func monitorData() {
         if token != nil {
             print("Cancelling existing read")
@@ -72,107 +74,85 @@ class Sensor: ObservableObject, Identifiable {
 
         // Create the timer publisher
         let pub = sensorPublisher()
-            .receive(on: RunLoop.main)
+            .averageFrames(averageFrameCount)
+//            .logSensorData()
             .share()
         
         // Assign to current state
-        pub.assign(to: &$currentState)
+        pub
+            .receive(on: RunLoop.main)
+            .assign(to: &$currentState)
+        
+        pub
+            .compactMap { $0.mean }
+            .collect(100)
+            .map { temps in
+                (temps.reduce(0, +) / Double(temps.count)).rounded()
+            }
+            .receive(on: RunLoop.main)
+            .assign(to: &$averageTemperature)
             
         // Assign to cluster
         pub
             .compactMap { $0 }
-            .map { data in
-                self.clusterPixels(data).filter { $0.size >= self.minClusterSize }
-            }
-            .assign(to: &$currentClusters)
+            .map { self.clusterPixels($0) }
+            .map { $0.largest(minSize: self.minClusterSize) } // Map the clusters to the largest
+            .receive(on: RunLoop.main)
+            .assign(to: &$currentCluster)
         
-        $currentClusters
-            .compactMap { $0.largest() } // Map the clusters to the largest
-            .collect(2) // Collect the two previous clusters
-            .filter { $0.count == 2 } // Ensure there are two clusters
-            .map { clusters -> (Cluster, Cluster) in
-                (clusters[0], clusters[1])
-            }
-            .print()
-            .map { (previousCluser, currentCluster) -> OccupancyChange in
-                var delta = [String: Int]()
-                var lastAction = self.currentDelta.action
-
-                // Parse cluster delta
-                switch (previousCluser.clusterSide, currentCluster.clusterSide) {
-                case (.bottom, .bottom):
-                    // Same side, nothing to do
-                    break
-                case (.top, .top):
-                    // Same side, nothing to do
-                    break
-                case (.bottom, .top):
-                    // Moved from bottom to top
-                    lastAction = "\(self.bottomName) to \(self.topName)"
         
-                    delta = [
-                        self.topName: 1,
-                        self.bottomName: -1
-                    ]
-        
-                case (.top, .bottom):
-                    // Moved from top to bottom
-                    lastAction = "\(self.topName) to \(self.bottomName)"
-        
-                    delta = [
-                        self.topName: -1,
-                        self.bottomName: 1
-                    ]
-                }
-                
-                return OccupancyChange(action: lastAction, delta: delta)
-            }
-            .print()
+        $currentCluster
+            .compactMap { $0 } // Skip nil clusters
+            .pairwise()
+            .parseDelta(currentDelta.action, top: topName, bottom: bottomName)
+//            .print("7. Parse Action")
+            .filter { $0.hasAction }
+//            .print("8. Has Action")
+            .receive(on: RunLoop.main)
             .assign(to: &$currentDelta)
         
+    }
+    
+    
+    /// A publisher that fetches data from the sensor.
+    /// - Returns: A Publisher with the latest sensor info
+    func dataDownloadPublisher() -> AnyPublisher<SensorPayload, Never> {
+        URLSession.shared.dataTaskPublisher(for: url)
+            .timeout(.milliseconds(100), scheduler: DispatchQueue.main)
+            .tryMap { element in
+                guard let httpRespone = element.response as? HTTPURLResponse,
+                      httpRespone.statusCode == 200 else {
+                    throw URLError(.badServerResponse)
+                }
+                
+                return element.data
+            }
+            .decode(type: SensorPayload?.self, decoder: JSONDecoder())
+            .replaceError(with: nil)
+            .compactMap { $0 }
+            .eraseToAnyPublisher()
     }
     
     /// Create a Publisher which repeatedly fetches data from the sensor.
     /// - Parameter interval: Time interval at which to refresh
     /// - Returns: A Publisher with time-averaged sensor data
-    func sensorPublisher() -> AnyPublisher<SensorPayload?, Never> {
+    func sensorPublisher() -> AnyPublisher<SensorPayload, Never> {
         return Timer.publish(every: refreshInterval, on: .main, in: .common)
             .autoconnect()
-            .flatMap { date -> AnyPublisher<SensorPayload, Error> in
-                return self.sensorDataPublisher()
+            .flatMap { date in
+                return self.dataDownloadPublisher()
             }
-            // Average a number of frames together to make the values more stable
-            .collect(averageFrameCount)
-            .map { buffer -> SensorPayload in
-                
-                // Create an empty array with the length from the first element
-                let emptyArray = Array(repeating: Double.zero, count: buffer[0].rows * buffer[0].cols)
-                
-                let totals: [Double] = buffer.reduce(emptyArray) { pixelTotal, payload in
-                    // Add all the values together
-                    return pixelTotal.enumerated().map { index, value in
-                        value + payload.rawData[index]
-                    }
-                }
-                
-                // Average the values with the frame buffer
-                let averageData = totals.map { $0 / Double(self.averageFrameCount) }
-                
-                // Return the first elemet with the new data
-                return SensorPayload(sensor: buffer[0].sensor,
-                                     rows: buffer[0].rows,
-                                     cols: buffer[0].cols,
-                                     data: averageData)
-            }
-            .catch({ _ in
-                Just(nil)
-            })
             .eraseToAnyPublisher()
             
     }
     
+    // MARK: - Data Processing
+    func resetSensor() {
+        currentDelta = OccupancyChange(action: "Reset", delta: [topName : 0, bottomName: 0], absolute: true)
+    }
+    
     func findRelevantPixels(_ data: SensorPayload) -> [Pixel] {
-        let threshold = data.mean + deltaThreshold
+        let threshold = averageTemperature + deltaThreshold
         
         return data.pixels.filter {
             $0.temp >= threshold
@@ -198,3 +178,4 @@ class Sensor: ObservableObject, Identifiable {
         return clusterPixels(pixels)
     }
 }
+
