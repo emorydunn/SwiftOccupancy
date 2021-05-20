@@ -11,7 +11,7 @@ import Combine
 struct ContentView: View {
     
     @ObservedObject var manager: SensorManager
-    @State var overviewActive: Bool = true
+    @State var overviewActive: Bool = false
 
     var body: some View {
         
@@ -41,6 +41,19 @@ struct ContentView: View {
         }
         .onAppear {
             manager.monitorSensors()
+        }
+        .toolbar {
+            ToolbarItem {
+                Toggle("Publish", isOn: $manager.publishUpdates)
+            }
+            ToolbarItem {
+                Button("Reset Sensors") {
+                    NSLog("Resetting All Sensors")
+                    manager.sensors.forEach {
+                        $0.resetSensor()
+                    }
+                }
+            }
         }
         
     }
