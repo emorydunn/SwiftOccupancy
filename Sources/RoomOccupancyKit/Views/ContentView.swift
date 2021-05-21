@@ -5,6 +5,7 @@
 //  Created by Emory Dunn on 5/16/21.
 //
 
+#if canImport(SwiftUI)
 import SwiftUI
 import Combine
 
@@ -67,3 +68,4 @@ struct ContentView_Previews: PreviewProvider {
         ))
     }
 }
+#endif

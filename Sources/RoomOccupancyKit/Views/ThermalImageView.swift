@@ -4,7 +4,7 @@
 //
 //  Created by Emory Dunn on 5/16/21.
 //
-
+#if canImport(SwiftUI)
 import SwiftUI
 
 struct ThermalImageView: View {
@@ -98,3 +98,4 @@ struct ThermalImageView_Previews: PreviewProvider {
                          cluster: sensor.clusterPixels(frame3).largest(minSize: 7))
     }
 }
+#endif

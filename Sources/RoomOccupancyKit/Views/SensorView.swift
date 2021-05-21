@@ -4,7 +4,7 @@
 //
 //  Created by Emory Dunn on 5/18/21.
 //
-
+#if canImport(SwiftUI)
 import SwiftUI
 
 struct SensorView: View {
@@ -96,3 +96,4 @@ struct SensorView_Previews: PreviewProvider {
                                   bottomName: .room("Office")))
     }
 }
+#endif

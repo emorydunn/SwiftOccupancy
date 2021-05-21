@@ -7,8 +7,8 @@
 
 
 import Foundation
+import FoundationNetworking
 import OpenCombineShim
-import SwiftUI
 
 public enum Room: CustomStringConvertible, Decodable, Hashable, Comparable {
     
@@ -89,10 +89,10 @@ public class Sensor: ObservableObject, Identifiable, Decodable {
     
     public var title: String { "\(topName) / \(bottomName)" }
     
-    @State public var deltaThreshold: Double = 1.5
-    @State public var minClusterSize: Int = 10
-    @State public var averageFrameCount: Int = 2
-    @State public var refreshInterval: TimeInterval = 0.1
+    public var deltaThreshold: Double = 1.5
+    public var minClusterSize: Int = 10
+    public var averageFrameCount: Int = 2
+    public var refreshInterval: TimeInterval = 0.1
     
     @Published public var currentState: SensorPayload = SensorPayload(sensor: "Fake Sensor", data: [])
     @Published public var currentCluster: Cluster?

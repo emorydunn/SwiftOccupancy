@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import FoundationNetworking
 import OpenCombineShim
 
 public class SensorManager: ObservableObject, Decodable {
