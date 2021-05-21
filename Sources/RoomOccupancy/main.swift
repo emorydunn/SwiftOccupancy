@@ -17,8 +17,24 @@ if CommandLine.arguments.count == 2 {
 }
 
 // Parse the file
-let data = try Data(contentsOf: configFile)
-let manager = try JSONDecoder().decode(SensorManager.self, from: data)
+let data: Data
+do {
+    data = try Data(contentsOf: configFile)
+} catch {
+    print("There was a problem reading \(configFile.path)")
+    print(error.localizedDescription)
+    exit(1)
+}
+
+let manager: SensorManager
+do {
+    manager = try JSONDecoder().decode(SensorManager.self, from: data)
+} catch {
+    print("There was a problem decoding the config file")
+    print(error.localizedDescription)
+    exit(1)
+}
+
 
 // Begin monitoring the sensors
 manager.monitorSensors()
