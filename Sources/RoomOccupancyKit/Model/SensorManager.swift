@@ -38,13 +38,13 @@ public class SensorManager: ObservableObject, Decodable {
     
     // MARK: Codable
     public enum CodingKeys: String, CodingKey {
-        case sensors, homeAssitant
+        case sensors, homeAssistant
     }
     public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
         self.sensors = try container.decode([Sensor].self, forKey: .sensors)
-        self.homeAssistant = try container.decode(HAConfig.self, forKey: .homeAssitant)
+        self.homeAssistant = try container.decodeIfPresent(HAConfig.self, forKey: .homeAssistant) ?? HAConfig.haAddOn
         self.occupancy = [:]
         
     }

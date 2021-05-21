@@ -8,24 +8,18 @@
 import Foundation
 import RoomOccupancyKit
 
+// Default to the Home Assistant add-on config
+var configFile: URL = URL(fileURLWithPath: "/data/options.json")
 
-let manager = SensorManager(
-    sensors: [
-        Sensor(URL(string: "http://10.0.2.163/raw")!,
-               topName: .room("Hall"),
-               bottomName: .room("Office"))
-//        Sensor(URL(string: "http://10.0.2.163/raw")!,
-//               topName: .æther,
-//               bottomName: .room("Office"))
-    ],
-    haConfig: HAConfig(
-        url: URL(string: "http://10.0.1.58:8123")!,
-        token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJkMDA0YmY0ODAxMTM0N2QzYmU4YTk3OWRmNDI0NjYwNSIsImlhdCI6MTYyMTM2NTg3NiwiZXhwIjoxOTM2NzI1ODc2fQ.npYPDmQFQNQ3GFSJS6DfdM5GWD6GVfaAaWnW-9yixWw")
-)
+// If the user specified a config, use that instead
+if CommandLine.arguments.count == 2 {
+    configFile = URL(fileURLWithPath: CommandLine.arguments[1])
+}
 
-//let running = DispatchSemaphore(value: 0)
+// Parse the file
+let data = try Data(contentsOf: configFile)
+let manager = try JSONDecoder().decode(SensorManager.self, from: data)
 
+// Begin monitoring the sensors
 manager.monitorSensors()
 RunLoop.main.run()
-
-//running.wait()
