@@ -10,15 +10,53 @@ import Foundation
 import OpenCombineShim
 import SwiftUI
 
+public enum Room: CustomStringConvertible, Decodable, Hashable, Comparable {
+    
+    case room(String)
+    case æther
+    
+    public var description: String {
+        switch self {
+        case let .room(name):
+            return name
+        case .æther:
+            return "Æther"
+        }
+    }
+    
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+
+        self = .room(try container.decode(String.self))
+    }
+    
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(description)
+    }
+    
+    func lowercased() -> String {
+        description.lowercased()
+    }
+    
+    var publishStateChanges: Bool {
+        switch self {
+        case .room:
+            return true
+        case .æther:
+            return false
+        }
+    }
+}
+
 public struct OccupancyChange: CustomStringConvertible {
     
     public static let `default` = OccupancyChange(action: "No Action", delta: [:])
     
     public let action: String
-    public let delta: [String: Int]
+    public let delta: [Room: Int]
     public let absolute: Bool
     
-    public init(action: String, delta: [String: Int], absolute: Bool = false) {
+    public init(action: String, delta: [Room: Int], absolute: Bool = false) {
         self.action = action
         self.delta = delta
         self.absolute = absolute
@@ -41,11 +79,11 @@ enum Direction {
     case toBottom
 }
 
-public class Sensor: ObservableObject, Identifiable, Codable {
+public class Sensor: ObservableObject, Identifiable, Decodable {
     public let url: URL
     
-    public let topName: String
-    public let bottomName: String
+    public let topName: Room
+    public let bottomName: Room
     
     public var id: URL { url }
     
@@ -62,7 +100,7 @@ public class Sensor: ObservableObject, Identifiable, Codable {
     @Published public var averageTemperature: Double = 21
 
 
-    public init(_ url: URL, topName: String = "Top", bottomName: String = "Bottom") {
+    public init(_ url: URL, topName: Room = .æther, bottomName: Room = .æther) {
         self.url = url
         self.topName = topName
         self.bottomName = bottomName
@@ -85,8 +123,8 @@ public class Sensor: ObservableObject, Identifiable, Codable {
 
         // Primary Info
         self.url = try container.decode(URL.self, forKey: .url)
-        self.topName = try container.decodeIfPresent(String.self, forKey: .topName) ?? "Top Room"
-        self.bottomName = try container.decodeIfPresent(String.self, forKey: .bottomName) ?? "Bottom Room"
+        self.topName = try container.decodeIfPresent(Room.self, forKey: .topName) ?? .æther
+        self.bottomName = try container.decodeIfPresent(Room.self, forKey: .bottomName) ?? .æther
 
         // Sensor Config
         self.deltaThreshold = try container.decodeIfPresent(Double.self, forKey: .deltaThreshold) ?? 1.5
@@ -95,21 +133,21 @@ public class Sensor: ObservableObject, Identifiable, Codable {
         self.refreshInterval = try container.decodeIfPresent(TimeInterval.self, forKey: .refreshInterval) ?? 0.1
         
     }
-    
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        
-        // Primary Info
-        try container.encode(url, forKey: .url)
-        try container.encode(topName, forKey: .topName)
-        try container.encode(bottomName, forKey: .bottomName)
-        
-        // Sensor Config
-        try container.encode(deltaThreshold, forKey: .deltaThreshold)
-        try container.encode(minClusterSize, forKey: .minClusterSize)
-        try container.encode(averageFrameCount, forKey: .averageFrameCount)
-        try container.encode(refreshInterval, forKey: .refreshInterval)
-    }
+//    
+//    public func encode(to encoder: Encoder) throws {
+//        var container = encoder.container(keyedBy: CodingKeys.self)
+//        
+//        // Primary Info
+//        try container.encode(url, forKey: .url)
+//        try container.encode(topName, forKey: .topName)
+//        try container.encode(bottomName, forKey: .bottomName)
+//        
+//        // Sensor Config
+//        try container.encode(deltaThreshold, forKey: .deltaThreshold)
+//        try container.encode(minClusterSize, forKey: .minClusterSize)
+//        try container.encode(averageFrameCount, forKey: .averageFrameCount)
+//        try container.encode(refreshInterval, forKey: .refreshInterval)
+//    }
     
     // MARK: - Combine
     

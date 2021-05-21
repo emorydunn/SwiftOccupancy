@@ -20,7 +20,7 @@ struct ContentView: View {
                 Section(header: Text("Rooms")) {
                     ForEach(manager.occupancy.sorted(by: { $0.key < $1.key }), id: \.key) { room in
                         HStack {
-                            Text(room.key)
+                            Text(room.key.description)
                             Spacer()
                             Text(String(format: "%0d", room.value))
                         }
@@ -60,8 +60,8 @@ struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView(manager: SensorManager(sensors: [
             Sensor(URL(string: "http://10.0.2.163/raw")!,
-                   topName: "Hall",
-                   bottomName: "Office")
+                   topName: .room("Hall"),
+                   bottomName: .room("Office"))
         ],
         haConfig: HAConfig(url: URL(string: "homeassistant.local")!, token: "")
         ))

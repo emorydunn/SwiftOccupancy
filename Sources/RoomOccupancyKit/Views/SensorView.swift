@@ -92,7 +92,7 @@ struct SensorView: View {
 struct SensorView_Previews: PreviewProvider {
     static var previews: some View {
         SensorView(sensor: Sensor(URL(string: "http://10.0.2.163/raw")!,
-                                  topName: "Hall",
-                                  bottomName: "Office"))
+                                  topName: .room("Hall"),
+                                  bottomName: .room("Office")))
     }
 }

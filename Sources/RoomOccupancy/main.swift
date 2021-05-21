@@ -12,8 +12,11 @@ import RoomOccupancyKit
 let manager = SensorManager(
     sensors: [
         Sensor(URL(string: "http://10.0.2.163/raw")!,
-               topName: "Hall",
-               bottomName: "Office")
+               topName: .room("Hall"),
+               bottomName: .room("Office"))
+//        Sensor(URL(string: "http://10.0.2.163/raw")!,
+//               topName: .æther,
+//               bottomName: .room("Office"))
     ],
     haConfig: HAConfig(
         url: URL(string: "http://10.0.1.58:8123")!,

@@ -13,12 +13,12 @@ public class SensorManager: ObservableObject, Decodable {
     public var sensors: [Sensor]
     public let homeAssistant: HAConfig
     
-    @Published var occupancy: [String: Int]
+    @Published var occupancy: [Room: Int]
     @Published var deltasToSend: (room: String, status: Int)?
     
     var tokens: [AnyCancellable] = []
     
-    public init(sensors: [Sensor], haConfig: HAConfig, occupancy: [String: Int]? = nil) {
+    public init(sensors: [Sensor], haConfig: HAConfig, occupancy: [Room: Int]? = nil) {
         self.sensors = sensors
         self.homeAssistant = haConfig
         
@@ -75,6 +75,7 @@ public class SensorManager: ObservableObject, Decodable {
                 $0.publisher
             }
             .print("HA State")
+            .filter { $0.key.publishStateChanges }
             .map { change -> URLRequest in
                 var request = URLRequest(url: self.homeAssistant.url.appendingPathComponent("/api/states/sensor.\(change.key.lowercased())_occupancy_count"))
                 request.httpMethod = "POST"
@@ -100,6 +101,7 @@ public class SensorManager: ObservableObject, Decodable {
             .compactMap { element -> HTTPURLResponse? in
                 element.response as? HTTPURLResponse
             }
+            .print()
             .sink {
                 print($0)
             } receiveValue: { value in
@@ -137,6 +139,6 @@ public class SensorManager: ObservableObject, Decodable {
 
 
 struct OccupancyUpdate {
-    let newValues: [String: Int]
-    let changes: [String: Int]
+    let newValues: [Room: Int]
+    let changes: [Room: Int]
 }

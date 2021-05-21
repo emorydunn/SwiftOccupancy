@@ -13,10 +13,10 @@ extension Publisher where Output == OccupancyChange, Failure == Never {
     /// Apply the published delta to the given occupancy count
     /// - Parameter occupancy: Current occpancy
     /// - Returns: A publisher with new totals
-    func applyOccupancyDelta(to occupancy: [String: Int]) -> AnyPublisher<OccupancyUpdate, Never> {
+    func applyOccupancyDelta(to occupancy: [Room: Int]) -> AnyPublisher<OccupancyUpdate, Never> {
         
         var localOccupancy = occupancy
-        var updated = [String: Int]()
+        var updated = [Room: Int]()
         
         return self.map { change in
             
