@@ -7,8 +7,11 @@
 
 
 import Foundation
-import FoundationNetworking
 import OpenCombineShim
+
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 public enum Room: CustomStringConvertible, Decodable, Hashable, Comparable {
     
@@ -94,7 +97,15 @@ public class Sensor: ObservableObject, Identifiable, Decodable {
     public var averageFrameCount: Int = 2
     public var refreshInterval: TimeInterval = 0.1
     
-    @Published public var currentState: SensorPayload = SensorPayload(sensor: "Fake Sensor", data: [])
+    public let rows: Int = 8
+    public let cols: Int = 8
+    
+    var tokens: [AnyCancellable] = []
+    @Published public var currentState: SensorPayload = SensorPayload(sensor: "Fake Sensor", data: []) {
+        didSet {
+            print("New Sensor Value Set")
+        }
+    }
     @Published public var currentCluster: Cluster?
     @Published public var currentDelta: OccupancyChange = OccupancyChange.default
     @Published public var averageTemperature: Double = 21
@@ -155,14 +166,31 @@ public class Sensor: ObservableObject, Identifiable, Decodable {
     public func monitorData() {
 
         // Create the timer publisher
-        let pub = sensorPublisher()
+        let pub = URLSession.shared.webSocketTaskPublisher(for: url)
+            .dropFirst() // Drop the welcome message from the socket
+            // We only need the string messages
+            .compactMap { message in
+                switch message {
+                case let .string(string):
+                    return SensorPayload(sensor: self.title,
+                                         rows: self.rows,
+                                         cols: self.cols,
+                                         data: string)
+                case .data:
+                    return nil
+                @unknown default:
+                    return nil
+                }
+            }
+            .replaceError(with: nil)
+            .compactMap { $0 }
             .averageFrames(averageFrameCount)
 //            .logSensorData()
+            .subscribe(on: RunLoop.main)
             .share()
         
         // Assign to current state
         pub
-            .receive(on: RunLoop.main)
             .assign(to: &$currentState)
         
         pub
@@ -171,15 +199,12 @@ public class Sensor: ObservableObject, Identifiable, Decodable {
             .map { temps in
                 (temps.reduce(0, +) / Double(temps.count)).rounded()
             }
-            .receive(on: RunLoop.main)
             .assign(to: &$averageTemperature)
             
         // Assign to cluster
         pub
-            .compactMap { $0 }
             .map { self.clusterPixels($0) }
             .map { $0.largest(minSize: self.minClusterSize) } // Map the clusters to the largest
-            .receive(on: RunLoop.main)
             .assign(to: &$currentCluster)
         
         
@@ -189,7 +214,7 @@ public class Sensor: ObservableObject, Identifiable, Decodable {
             .pairwise()
             .parseDelta(currentDelta.action, top: topName, bottom: bottomName)
             .filter { $0.hasAction }
-            .receive(on: RunLoop.main)
+//            .receive(on: RunLoop.main)
             .assign(to: &$currentDelta)
         
     }
@@ -198,6 +223,25 @@ public class Sensor: ObservableObject, Identifiable, Decodable {
     /// A publisher that fetches data from the sensor.
     /// - Returns: A Publisher with the latest sensor info
     func dataDownloadPublisher() -> AnyPublisher<SensorPayload, Never> {
+        URLSession.shared.dataTaskPublisher(for: url)
+            .timeout(.milliseconds(100), scheduler: DispatchQueue.main)
+            .tryMap { element in
+                guard let httpRespone = element.response as? HTTPURLResponse,
+                      httpRespone.statusCode == 200 else {
+                    throw URLError(.badServerResponse)
+                }
+                
+                return element.data
+            }
+            .decode(type: SensorPayload?.self, decoder: JSONDecoder())
+            .replaceError(with: nil)
+            .compactMap { $0 }
+            .eraseToAnyPublisher()
+    }
+    
+    /// A publisher that fetches data from the sensor.
+    /// - Returns: A Publisher with the latest sensor info
+    func webSocketPublisher() -> AnyPublisher<SensorPayload, Never> {
         URLSession.shared.dataTaskPublisher(for: url)
             .timeout(.milliseconds(100), scheduler: DispatchQueue.main)
             .tryMap { element in
