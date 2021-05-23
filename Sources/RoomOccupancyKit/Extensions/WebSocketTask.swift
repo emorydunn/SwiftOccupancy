@@ -38,45 +38,11 @@ public struct WebSocketTaskPublisher: Publisher {
         self.task = session.webSocketTask(with: url)
     }
     
-//    /// Reads a WebSocket message and passes the result to the subscriber.
-//    ///
-//    /// This method calls itself when finished to repeatedly read messages.
-//    ///
-//    /// - Parameter subscriber: The subscriber to forward the message to.
-//    func receiveMessage<S>(with subscriber: S) where S : Subscriber, Error == S.Failure, URLSessionWebSocketTask.Message == S.Input {
-//        task.receive { result in
-//            self.passResult(result, to: subscriber)
-//            self.receiveMessage(with: subscriber)
-//        }
-//    }
-//    
-//    /// Pass either the message or error to the subscriber.
-//    /// - Parameters:
-//    ///   - result: Result of a WebSocket
-//    ///   - subscriber: The subscriber to forward the message to.
-//    func passResult<S>(_ result: Result<URLSessionWebSocketTask.Message, Error>, to subscriber: S) where S : Subscriber, Error == S.Failure, URLSessionWebSocketTask.Message == S.Input {
-//        switch result {
-//        case let .success(message):
-//            subscriber.receive(message)
-//        case let .failure(error):
-//            subscriber.receive(completion: .failure(error))
-//        }
-//    }
-//    
     public func receive<S>(subscriber: S) where S : Subscriber, Error == S.Failure, URLSessionWebSocketTask.Message == S.Input {
         
         let subscrption = Subscription(task: task, target: subscriber)
         subscriber.receive(subscription: subscrption)
-        
-        
 
-        // Receive the first method
-//        task.receive { firstMessage in
-//            self.passResult(firstMessage, to: subscriber)
-//            self.receiveMessage(with: subscriber)
-//
-//        }
-        
     }
     
 }
