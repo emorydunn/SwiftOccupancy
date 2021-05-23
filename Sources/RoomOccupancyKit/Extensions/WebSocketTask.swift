@@ -86,9 +86,7 @@ extension WebSocketTaskPublisher {
         
         let task: URLSessionWebSocketTask
         var target: Target?
-        
-        var isRunning: Bool = false
-        
+
         init(task: URLSessionWebSocketTask, target: Target) {
             self.task = task
             self.target = target
@@ -100,25 +98,27 @@ extension WebSocketTaskPublisher {
             // Resume the task
             task.resume()
 
+            // Request new messages from the socket
             while let target = target, demand > 0 {
-                if !isRunning {
-                    
-                    isRunning = true
 
-                    self.task.receive { result in
-                        switch result {
-                        case let .success(message):
-                            demand -= 1
-                            demand += target.receive(message)
-                        case let .failure(error):
-                            target.receive(completion: .failure(error))
-                        }
-                        
-                        self.isRunning = false
+                // Only allow one request at once
+                let flag = DispatchSemaphore(value: 0)
 
+                self.task.receive { result in
+                    switch result {
+                    case let .success(message):
+                        demand -= 1
+                        demand += target.receive(message)
+                    case let .failure(error):
+                        target.receive(completion: .failure(error))
                     }
+                    
+                    flag.signal()
+
                 }
-                
+
+                flag.wait()
+
             }
         }
         

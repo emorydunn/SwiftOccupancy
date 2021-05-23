@@ -110,6 +110,7 @@ public class Sensor: ObservableObject, Identifiable, Decodable {
     @Published public var currentDelta: OccupancyChange = OccupancyChange.default
     @Published public var averageTemperature: Double = 21
 
+    let backgroundQueue = DispatchQueue(label: "WebSocketQueue", qos: .utility)
 
     public init(_ url: URL, topName: Room = .æther, bottomName: Room = .æther) {
         self.url = url
@@ -186,11 +187,13 @@ public class Sensor: ObservableObject, Identifiable, Decodable {
             .compactMap { $0 }
             .averageFrames(averageFrameCount)
 //            .logSensorData()
-            .subscribe(on: RunLoop.main)
+            .subscribe(on: backgroundQueue)
+            .receive(on: RunLoop.main)
             .share()
         
         // Assign to current state
         pub
+//            .receive(on: RunLoop.main)
             .assign(to: &$currentState)
         
         pub
@@ -199,12 +202,14 @@ public class Sensor: ObservableObject, Identifiable, Decodable {
             .map { temps in
                 (temps.reduce(0, +) / Double(temps.count)).rounded()
             }
+            
             .assign(to: &$averageTemperature)
             
         // Assign to cluster
         pub
             .map { self.clusterPixels($0) }
             .map { $0.largest(minSize: self.minClusterSize) } // Map the clusters to the largest
+//            .receive(on: RunLoop.main)
             .assign(to: &$currentCluster)
         
         
