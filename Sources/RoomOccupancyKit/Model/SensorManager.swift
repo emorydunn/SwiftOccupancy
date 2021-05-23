@@ -6,8 +6,11 @@
 //
 
 import Foundation
-import FoundationNetworking
 import OpenCombineShim
+
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 public class SensorManager: ObservableObject, Decodable {
     
@@ -75,7 +78,7 @@ public class SensorManager: ObservableObject, Decodable {
             .flatMap {
                 $0.publisher
             }
-            .print("HA State")
+            .print("Sending HA State")
             .filter { $0.key.publishStateChanges }
             .map { change -> URLRequest in
                 var request = URLRequest(url: self.homeAssistant.url.appendingPathComponent("/api/states/sensor.\(change.key.lowercased())_occupancy_count"))
@@ -102,7 +105,7 @@ public class SensorManager: ObservableObject, Decodable {
             .compactMap { element -> HTTPURLResponse? in
                 element.response as? HTTPURLResponse
             }
-            .print()
+//            .print()
             .sink {
                 print($0)
             } receiveValue: { value in

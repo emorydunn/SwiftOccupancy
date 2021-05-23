@@ -84,3 +84,9 @@ public struct SensorPayload: Decodable {
     }
     
 }
+
+extension SensorPayload: CustomStringConvertible {
+    public var description: String {
+        "\(sensor) Sensor Data \(mean) ºc"
+    }
+}

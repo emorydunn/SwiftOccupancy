@@ -46,7 +46,7 @@ public class Pixel: Identifiable, Hashable, Codable {
 
 extension Pixel: CustomStringConvertible {
     public var description: String {
-        "Pixel (\(x), \(y))"
+        "Pixel (\(x), \(y)) \(tempString)"
     }
 }
 

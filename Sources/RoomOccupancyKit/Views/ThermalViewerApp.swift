@@ -8,15 +8,14 @@
 #if canImport(SwiftUI)
 import SwiftUI
 
-@main
+//@main
 struct ThermalViewerApp: App {
+    
+    let manager: SensorManager = SensorManager(sensors: [], haConfig: .haAddOn)
+    
     var body: some Scene {
         WindowGroup {
-            ContentView(manager: SensorManager(sensors: [
-                Sensor(URL(string: "http://10.0.2.163/raw")!,
-                       topName: "Hall",
-                       bottomName: "Office")
-            ]))
+            ContentView(manager: manager)
         }
     }
 }
