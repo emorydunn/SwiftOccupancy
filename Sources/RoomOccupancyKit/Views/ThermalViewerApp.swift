@@ -8,10 +8,12 @@
 #if canImport(SwiftUI)
 import SwiftUI
 
-//@main
+@main
 struct ThermalViewerApp: App {
     
-    let manager: SensorManager = SensorManager(sensors: [], haConfig: .haAddOn)
+    let manager: SensorManager = SensorManager(sensors: [
+        
+    ], haConfig: .haAddOn)
     
     var body: some Scene {
         WindowGroup {

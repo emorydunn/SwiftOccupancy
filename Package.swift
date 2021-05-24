@@ -4,7 +4,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "RoomOccupancy",
+    name: "SwiftOccupancy",
     platforms: [.macOS(.v11), .iOS(.v14)],
     products: [
         // Products define the executables and libraries a package produces, and make them visible to other packages.
@@ -12,8 +12,8 @@ let package = Package(
             name: "RoomOccupancyKit",
             targets: ["RoomOccupancyKit"]),
         .executable(
-            name: "RoomOccupancy",
-            targets: ["RoomOccupancy"])
+            name: "SwiftOccupancy",
+            targets: ["SwiftOccupancy"])
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
@@ -33,7 +33,7 @@ let package = Package(
             name: "RoomOccupancyKitTests",
             dependencies: ["RoomOccupancyKit"]),
         .target(
-            name: "RoomOccupancy",
+            name: "SwiftOccupancy",
             dependencies: ["RoomOccupancyKit"]),
     ]
 )
