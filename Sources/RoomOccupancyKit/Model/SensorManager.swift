@@ -15,14 +15,14 @@ import FoundationNetworking
 public class SensorManager: ObservableObject, Decodable {
     
     public var sensors: [Sensor]
-    public let homeAssistant: HAConfig
+    public let homeAssistant: HAConfig?
     
     @Published public private(set) var occupancy: [Room: Int]
     @Published var deltasToSend: (room: String, status: Int)?
     
     var tokens: [AnyCancellable] = []
     
-    public init(sensors: [Sensor], haConfig: HAConfig, occupancy: [Room: Int]? = nil) {
+    public init(sensors: [Sensor], haConfig: HAConfig?, occupancy: [Room: Int]? = nil) {
         self.sensors = sensors
         self.homeAssistant = haConfig
         
@@ -72,6 +72,11 @@ public class SensorManager: ObservableObject, Decodable {
             .removeDuplicates()
             .assign(to: &$occupancy)
         
+        guard let homeAssistant = homeAssistant else {
+            print("No Home Assistant Config Provided")
+            return
+        }
+        
         // Publish the changed values
         changes
             .map { $0.changes }
@@ -81,9 +86,9 @@ public class SensorManager: ObservableObject, Decodable {
             .print("Sending HA State")
             .filter { $0.key.publishStateChanges }
             .map { change -> URLRequest in
-                var request = URLRequest(url: self.homeAssistant.url.appendingPathComponent("/api/states/sensor.\(change.key.slug)_occupancy_count"))
+                var request = URLRequest(url: homeAssistant.url.appendingPathComponent("/api/states/sensor.\(change.key.slug)_occupancy_count"))
                 request.httpMethod = "POST"
-                request.setValue("Bearer \(self.homeAssistant.token)", forHTTPHeaderField: "Authorization")
+                request.setValue("Bearer \(homeAssistant.token)", forHTTPHeaderField: "Authorization")
                 
                 let jsonBody: [String: Any] = [
                     "state": change.value,
@@ -105,7 +110,6 @@ public class SensorManager: ObservableObject, Decodable {
             .compactMap { element -> HTTPURLResponse? in
                 element.response as? HTTPURLResponse
             }
-//            .print()
             .sink {
                 print($0)
             } receiveValue: { value in
@@ -115,6 +119,10 @@ public class SensorManager: ObservableObject, Decodable {
             .store(in: &tokens)
 
             
+    }
+    
+    func publishToHomeAssistant() {
+        
     }
     
     func unit(for count: Int) -> String {
