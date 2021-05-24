@@ -8,7 +8,7 @@
 #if canImport(SwiftUI)
 import SwiftUI
 
-@main
+//@main
 struct ThermalViewerApp: App {
     
     let manager: SensorManager = SensorManager(sensors: [
