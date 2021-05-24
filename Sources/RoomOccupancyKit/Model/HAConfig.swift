@@ -16,7 +16,7 @@ public struct HAConfig: Codable {
         self.token = token
     }
     
-    static let haAddOn = HAConfig(url: URL(string: "http://supervisor/core/api")!,
+    public static let haAddOn = HAConfig(url: URL(string: "http://supervisor/core/api")!,
                                   token: supervisorToken)
     
     static var supervisorToken: String {
