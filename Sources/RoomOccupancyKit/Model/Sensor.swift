@@ -277,11 +277,11 @@ public class Sensor: ObservableObject, Identifiable, Decodable {
     }
     
     // MARK: - Data Processing
-    func resetSensor() {
+    public func resetSensor() {
         currentDelta = OccupancyChange(action: "Reset", delta: [topName : 0, bottomName: 0], absolute: true)
     }
     
-    func findRelevantPixels(_ data: SensorPayload) -> [Pixel] {
+    public func findRelevantPixels(_ data: SensorPayload) -> [Pixel] {
         let threshold = averageTemperature + deltaThreshold
         
         return data.pixels.filter {
@@ -289,7 +289,7 @@ public class Sensor: ObservableObject, Identifiable, Decodable {
         }
     }
     
-    func clusterPixels(_ pixels: [Pixel]) -> [Cluster] {
+    public func clusterPixels(_ pixels: [Pixel]) -> [Cluster] {
         var clusters = [Cluster]()
         
         pixels.forEach { pixel in
@@ -303,7 +303,7 @@ public class Sensor: ObservableObject, Identifiable, Decodable {
         return clusters
     }
     
-    func clusterPixels(_ data: SensorPayload) -> [Cluster] {
+    public func clusterPixels(_ data: SensorPayload) -> [Cluster] {
         let pixels = findRelevantPixels(data)
         return clusterPixels(pixels)
     }

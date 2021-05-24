@@ -33,10 +33,10 @@ public class Cluster: Identifiable, Hashable {
     
     
     /// The size of the Cluster
-    var size: Int { pixels.count }
+    public var size: Int { pixels.count }
     
     /// Which side of the dividing line the Cluster is on
-    var clusterSide: ClusterSide {
+    public var clusterSide: ClusterSide {
         if center.y > 4 {
             return .bottom
         } else {
@@ -136,7 +136,7 @@ public class Cluster: Identifiable, Hashable {
     /// Convenience function to determine whether a Pixel is in the Cluster.
     /// - Parameter pixel: The element to find in the sequence.
     /// - Returns: true if the element was found in the sequence; otherwise, false.
-    func contains(_ pixel: Pixel) -> Bool {
+    public func contains(_ pixel: Pixel) -> Bool {
         pixels.contains(pixel)
     }
 

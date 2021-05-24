@@ -17,7 +17,7 @@ public class SensorManager: ObservableObject, Decodable {
     public var sensors: [Sensor]
     public let homeAssistant: HAConfig
     
-    @Published var occupancy: [Room: Int]
+    @Published public private(set) var occupancy: [Room: Int]
     @Published var deltasToSend: (room: String, status: Int)?
     
     var tokens: [AnyCancellable] = []
