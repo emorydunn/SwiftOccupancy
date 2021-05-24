@@ -1,2 +1,3 @@
-const char* ssid="Casita IoT";
-const char* password="lory-mollusk-phobia-canful";
+const char* hostName="";
+const char* ssid="";
+const char* password="";
