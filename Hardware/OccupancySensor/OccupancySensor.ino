@@ -134,7 +134,7 @@ void sendReadings() {
 
 // MARK: - Sensor
 String handleRaw() {
-  Serial.println("Reading raw sensor data");
+//  Serial.println("Reading raw sensor data");
   String payload;
   float pixels[AMG88xx_PIXEL_ARRAY_SIZE];
   amg.readPixels(pixels);
