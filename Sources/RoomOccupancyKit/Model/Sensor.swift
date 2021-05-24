@@ -37,8 +37,8 @@ public enum Room: CustomStringConvertible, Decodable, Hashable, Comparable {
         hasher.combine(description)
     }
     
-    func lowercased() -> String {
-        description.lowercased()
+    var slug: String {
+        description.slug
     }
     
     var publishStateChanges: Bool {
@@ -165,7 +165,7 @@ public class Sensor: ObservableObject, Identifiable, Decodable {
     
     /// Continually read data from the sensor and update the counts.
     public func monitorData() {
-
+        print("Connecting to \(url)")
         // Create the timer publisher
         let pub = URLSession.shared.webSocketTaskPublisher(for: url)
             .dropFirst() // Drop the welcome message from the socket

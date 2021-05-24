@@ -81,7 +81,7 @@ public class SensorManager: ObservableObject, Decodable {
             .print("Sending HA State")
             .filter { $0.key.publishStateChanges }
             .map { change -> URLRequest in
-                var request = URLRequest(url: self.homeAssistant.url.appendingPathComponent("/api/states/sensor.\(change.key.lowercased())_occupancy_count"))
+                var request = URLRequest(url: self.homeAssistant.url.appendingPathComponent("/api/states/sensor.\(change.key.slug)_occupancy_count"))
                 request.httpMethod = "POST"
                 request.setValue("Bearer \(self.homeAssistant.token)", forHTTPHeaderField: "Authorization")
                 
@@ -109,12 +109,8 @@ public class SensorManager: ObservableObject, Decodable {
             .sink {
                 print($0)
             } receiveValue: { value in
-                if value.statusCode == 200 {
-//                    print("State Updated")
-                } else {
-                    print("ERROR: \(value.statusCode)")
-                }
-                
+                guard value.statusCode != 200 else { return }
+                print("ERROR: \(value.statusCode)")
             }
             .store(in: &tokens)
 
