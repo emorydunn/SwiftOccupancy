@@ -20,13 +20,10 @@ public class MQTTSensor: Decodable {
     public let topName: Room
     public let bottomName: Room
     
-//    public var sensorData: PassthroughSubject<PublishPacket, Error> = PassthroughSubject()
-//    @Published public var deltas: OccupancyChange = OccupancyChange.default
-    
-//    @Published public var currentData: SensorPayload = SensorPayload(sensor: "Fake Sensor", data: [])
-//    @Published public var currentCluster: Cluster?
+    @Published public var sensorData: SensorPayload?// = SensorPayload(sensor: "Fake Sensor", data: [])
+    @Published public var currentCluster: Cluster?
 //    @Published public var currentDelta: OccupancyChange = OccupancyChange.default
-    public var averageTemp: Double = 27.0 //CurrentValueSubject<Double, Never>(21)
+    @Published public var averageTemp: Double = 27.0 //CurrentValueSubject<Double, Never>(21)
     
     var tokens: [AnyCancellable] = []
     
@@ -44,7 +41,7 @@ public class MQTTSensor: Decodable {
     
     func monitorData(from packets: AnyPublisher<PublishPacket, Error>) -> AnyPublisher<OccupancyChange, Never> {
         
-        let sensorData = packets
+        packets
             // Filter packets for this sensor
             .filter { packet in
                 packet.topic.hasSuffix(self.sensorName)
@@ -53,43 +50,33 @@ public class MQTTSensor: Decodable {
             .map { packet in
                 SensorPayload(sensor: self.sensorName, data: packet.payload)
             }
-//            .print("\(sensorName) Payload")
             .breakpointOnError()
             .replaceError(with: nil)
-//            .catch { error -> SensorPayload? in
-//                print(error)
-//                return Just(nil)
-//            }
-            .compactMap { $0 }
-            .share()
-        
-//        sensorData.assign(to: &$currentData)
-            
+            .assign(to: &$sensorData)
+
         // Collect rolling average temp
-        sensorData
+        $sensorData
+            .compactMap { $0 }
             .compactMap { $0.mean }
             .collect(100)
             .map { temps in
                 (temps.reduce(0, +) / Double(temps.count)).rounded()
             }
             .print("Average Temp")
-            .assign(to: \.averageTemp, on: self)
-            .store(in: &tokens)
-//            .assign(to: &$averageTemp)
+            .assign(to: &$averageTemp)
             
         // Process Clusters
-        return sensorData
+        $sensorData
+            .compactMap { $0 }
             .averageFrames(2)
             .findRelevantPixels(averageTemperature: averageTemp, deltaThreshold: 2)
-//            .logGrid()
-//            .print("Pixels")
             .clusterPixels()
-//            .print("Clusters")
             .map { $0.largest(minSize: 10) } // Map the clusters to the largest
+            .assign(to: &$currentCluster)
+            
+        return $currentCluster
             .compactMap { $0 }
             .removeDuplicates()
-            .logGrid()
-//            .print("Largest Cluster")
             .pairwise()
             .print("Clusters")
             .parseDelta("", top: topName, bottom: bottomName)
