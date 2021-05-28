@@ -76,15 +76,26 @@ public class SensorManager: ObservableObject, Decodable {
     
     public func monitorMQTT() {
         // Begin monitoring data
-        mqttBroker.makeClient().packetPublisher()
-            .subscribe(topic: "swift-occupancy/sensor/+", qos: .atMostOnce)
-            .filterForSubscriptions()
-            .retry(3)
+        let client = mqttBroker.makeClient()
+        
+        connectToClient(client)
+            .catch { error -> AnyPublisher<PublishPacket, Error> in
+                print("MQTT Error:", error)
+                client.disconnect()
+                return self.connectToClient(client)
+            }
             .mapToChange(using: sensors)
             .applyOccupancyDelta(to: &occupancy)
             .assign(to: &$deltasToSend)
 
-        
+    }
+
+    func connectToClient(_ client: MQTTClient) -> AnyPublisher<PublishPacket, Error> {
+        return client
+            .packetPublisher()
+            .subscribe(topic: "swift-occupancy/sensor/+", qos: .atMostOnce)
+            .filterForSubscriptions()
+            .eraseToAnyPublisher()
     }
     
 //    public func publishToHomeAssistant(using config: HAConfig) {
