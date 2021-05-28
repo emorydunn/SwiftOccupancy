@@ -93,15 +93,7 @@ extension Publisher where Output == SensorPayload, Failure == Never {
             }
             .eraseToAnyPublisher()
     }
-    
-//    func findRelevantPixels(averageTemp: Double, deltaThreshold: Double) {
-//        let threshold = averageTemperature + deltaThreshold
-//
-//        self.map { data in
-//            data.pixels
-//        }
-//    }
-    
+
     func findRelevantPixels(averageTemperature: Double, deltaThreshold: Double) -> AnyPublisher<[Pixel], Failure> {
         let threshold = averageTemperature + deltaThreshold
         
@@ -110,43 +102,6 @@ extension Publisher where Output == SensorPayload, Failure == Never {
         }
         .eraseToAnyPublisher()
     }
-    
-//    func parseDelta(averageTemperature: Double, deltaThreshold: Double) {
-//        
-//        
-//        
-//        self
-////            .
-//            .findRelevantPixels(averageTemperature: averageTemperature, deltaThreshold: deltaThreshold)
-//            .clusterPixels()
-////            .map { self.clusterPixels($0) }
-//            .map { $0.largest(minSize: self.minClusterSize) } // Map the clusters to the largest
-//            .compactMap { $0 }
-//            .pairwise()
-//            .parseDelta("", top: <#T##Room#>, bottom: <#T##Room#>)
-////            .pairwise()
-////            .p
-//    }
-    
-//    public func clusterPixels() -> AnyPublisher<[Cluster], Never> {
-//
-//        self.map { pixels in
-//            var clusters = [Cluster]()
-//
-//            pixels.forEach { pixel in
-//                if let neighbor = clusters.first(where: { $0.isNeighbored(to: pixel) }) {
-//                    neighbor.pixels.append(pixel)
-//                } else {
-//                    clusters.append(Cluster(pixel))
-//                }
-//            }
-//
-//            return clusters
-//        }
-//
-//        .eraseToAnyPublisher()
-//
-//    }
     
 }
 
