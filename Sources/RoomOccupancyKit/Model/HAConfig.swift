@@ -48,12 +48,11 @@ public struct HAMQTTConfig: Decodable {
     func makeClient() -> MQTTClient {
         MQTTClient(host: host,
                    port: port,
-                   clientID: "SwiftOccupancy",
+                   clientID: "SwiftOccupancy-\(ProcessInfo().hostName)",
                    cleanSession: true,
                    keepAlive: 30,
                    username: username,
                    password: password)
     }
     
-//    public static let haAddOn = HAMQTTConfig(host: <#T##String#>, port: <#T##Int#>, username: <#T##String?#>, password: <#T##String?#>)
 }
