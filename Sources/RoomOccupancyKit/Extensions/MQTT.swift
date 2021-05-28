@@ -108,7 +108,13 @@ extension MQTTPublisher {
         
         public func mqttClient(_: MQTTClient, didCatchError error: Error) {
             Swift.print("MQTT Client Error:", error)
-            client.connect()
+            switch client.state {
+            case .disconnected:
+                client.connect()
+            default:
+                break
+            }
+            
 //            target?.receive(completion: .failure(error))
         }
     }
