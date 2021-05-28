@@ -17,7 +17,8 @@ let package = Package(
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
-        .package(url: "https://github.com/OpenCombine/OpenCombine.git", from: "0.12.0")
+        .package(url: "https://github.com/OpenCombine/OpenCombine.git", from: "0.12.0"),
+        .package(url: "https://github.com/matsune/swift-mqtt.git", from: "1.0.0")
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
@@ -27,7 +28,7 @@ let package = Package(
             dependencies: [
                 .product(name: "OpenCombine", package: "OpenCombine"),
                 .product(name: "OpenCombineShim", package: "OpenCombine"),
-//                .product(name: "OpenCombineDispatch", package: "OpenCombine")
+                .product(name: "MQTT", package: "swift-mqtt")
             ]),
         .testTarget(
             name: "RoomOccupancyKitTests",
