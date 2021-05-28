@@ -70,6 +70,7 @@ public class SensorManager: ObservableObject, Decodable {
                 client.disconnect()
                 return self.connectToClient(client)
             }
+            .share()
             .mapToChange(using: sensors)
             .applyOccupancyDelta(to: &occupancy)
             .assign(to: &$deltasToSend)
