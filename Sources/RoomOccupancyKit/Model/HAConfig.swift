@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import MQTT
 
 public struct HAConfig: Codable {
     public let url: URL
@@ -28,4 +29,31 @@ public struct HAConfig: Codable {
         return token
     }
 
+}
+
+public struct HAMQTTConfig: Decodable {
+    
+    public let host: String
+    public let port: Int
+    public let username: String?
+    public let password: String?
+    
+    public init(host: String = "homeassistant.local", port: Int = 1883, username: String?, password: String?) {
+        self.host = host
+        self.port = port
+        self.username = username
+        self.password = password
+    }
+    
+    func makeClient() -> MQTTClient {
+        MQTTClient(host: host,
+                   port: port,
+                   clientID: "SwiftOccupancy",
+                   cleanSession: true,
+                   keepAlive: 30,
+                   username: username,
+                   password: password)
+    }
+    
+//    public static let haAddOn = HAMQTTConfig(host: <#T##String#>, port: <#T##Int#>, username: <#T##String?#>, password: <#T##String?#>)
 }
