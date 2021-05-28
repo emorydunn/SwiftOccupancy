@@ -28,7 +28,7 @@ public class MQTTSensor: ObservableObject, Decodable, Identifiable {
     @Published public var sensorData: SensorPayload?// = SensorPayload(sensor: "Fake Sensor", data: [])
     @Published public var currentCluster: Cluster?
 //    @Published public var currentDelta: OccupancyChange = OccupancyChange.default
-    @Published public var averageTemp: Double = 27.0 //CurrentValueSubject<Double, Never>(21)
+    @Published public var averageTemp: Double = 22.0 //CurrentValueSubject<Double, Never>(21)
     
     var tokens: [AnyCancellable] = []
     
@@ -57,6 +57,7 @@ public class MQTTSensor: ObservableObject, Decodable, Identifiable {
             }
             .breakpointOnError()
             .replaceError(with: nil)
+//            .logSensorData()
             .assign(to: &$sensorData)
 
         // Collect rolling average temp
@@ -75,15 +76,17 @@ public class MQTTSensor: ObservableObject, Decodable, Identifiable {
             .compactMap { $0 }
             .averageFrames(2)
             .findRelevantPixels(averageTemperature: averageTemp, deltaThreshold: 2)
+//            .logGrid()
             .clusterPixels()
             .map { $0.largest(minSize: 10) } // Map the clusters to the largest
             .assign(to: &$currentCluster)
             
         return $currentCluster
             .compactMap { $0 }
+//            .logGrid()
             .removeDuplicates()
             .pairwise()
-            .print("Clusters")
+//            .print("Clusters")
             .parseDelta("", top: topName, bottom: bottomName)
             .filter { $0.hasAction }
             .print("New delta")
