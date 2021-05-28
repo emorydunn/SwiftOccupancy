@@ -10,10 +10,22 @@ import OpenCombineShim
 
 extension Publisher where Output == Cluster, Failure == Never {
     
-    func logGrid() -> AnyPublisher<Cluster, Never> {
+    func logGrid() -> AnyPublisher<Output, Failure> {
         self.map { cluster in
             cluster.printGrid()
             return cluster
+        }
+        .eraseToAnyPublisher()
+    }
+    
+}
+
+extension Publisher where Output == [Pixel], Failure == Never {
+    
+    func logGrid() -> AnyPublisher<Output, Failure> {
+        self.map { pixels in
+            pixels.printGrid()
+            return pixels
         }
         .eraseToAnyPublisher()
     }
