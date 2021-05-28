@@ -92,7 +92,9 @@ extension MQTTPublisher {
             }
             
             if packet is ConnAckPacket {
+                Swift.print("Subscribing to topics with broker:")
                 futureTopics.forEach { topic, qos in
+                    Swift.print("\t- \(topic) \(qos)")
                     client.subscribe(topic: topic, qos: qos)
                 }
             }
@@ -105,8 +107,9 @@ extension MQTTPublisher {
         }
         
         public func mqttClient(_: MQTTClient, didCatchError error: Error) {
-//            Swift.print("MQTT Client Error:", error)
-            target?.receive(completion: .failure(error))
+            Swift.print("MQTT Client Error:", error)
+            client.connect()
+//            target?.receive(completion: .failure(error))
         }
     }
     
