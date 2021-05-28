@@ -43,20 +43,6 @@ public class SensorManager: ObservableObject, Decodable {
                 self.occupancy[$0.bottomName] = 0
             }
         }
-        
-        if let config = haConfig {
-            print("Publishing changes to HA")
-            $deltasToSend
-                .print("New Change")
-                .publishtoHomeAssistant(using: config)
-                .sink {
-                    print("HA Completion", $0)
-                } receiveValue: { value in
-                    guard value.statusCode != 200 else { return }
-                    print("ERROR: \(value.statusCode)")
-                }
-                .store(in: &tokens)
-        }
 
     }
     
@@ -96,6 +82,26 @@ public class SensorManager: ObservableObject, Decodable {
             .subscribe(topic: "swift-occupancy/sensor/+", qos: .atMostOnce)
             .filterForSubscriptions()
             .eraseToAnyPublisher()
+    }
+    
+    public func publishToHA() {
+        guard let config = homeAssistant else {
+            print("No Home Assistant config provided, updates will not be published.")
+            return
+        }
+        
+        print("Publishing changes to Home Assistant")
+        $deltasToSend
+            .print("New Change")
+            .publishtoHomeAssistant(using: config)
+            .sink {
+                print("HA Completion", $0)
+            } receiveValue: { value in
+                guard value.statusCode != 200 else { return }
+                print("ERROR: \(value.statusCode)")
+            }
+            .store(in: &tokens)
+    
     }
     
 //    public func publishToHomeAssistant(using config: HAConfig) {
