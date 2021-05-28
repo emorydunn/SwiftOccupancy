@@ -196,7 +196,7 @@ public class Cluster: Identifiable, Hashable {
 
 extension Cluster: CustomStringConvertible {
     public var description: String {
-        "\(clusterSide.rawValue.capitalized) Cluser at \(center)"
+        "\(clusterSide.rawValue.capitalized) Cluser at \(center) size \(size)"
     }
 }
 
