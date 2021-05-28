@@ -48,7 +48,7 @@ public struct HAMQTTConfig: Decodable {
     func makeClient() -> MQTTClient {
         MQTTClient(host: host,
                    port: port,
-                   clientID: "SwiftOccupancy-\(ProcessInfo().hostName)",
+                   clientID: "SwiftOccupancy-\(ProcessInfo.processInfo.hostName)-\(ProcessInfo.processInfo.processIdentifier)",
                    cleanSession: true,
                    keepAlive: 30,
                    username: username,
