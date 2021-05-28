@@ -87,7 +87,6 @@ public class MQTTSensor: ObservableObject, Decodable, Identifiable {
             .map { temps in
                 (temps.reduce(0, +) / Double(temps.count)).rounded()
             }
-            .print("Average Temp")
             .assign(to: &$averageTemp)
             
         // Process Clusters
@@ -95,20 +94,16 @@ public class MQTTSensor: ObservableObject, Decodable, Identifiable {
             .compactMap { $0 }
             .averageFrames(averageFrameCount)
             .findRelevantPixels(averageTemperature: averageTemp, deltaThreshold: deltaThreshold)
-//            .logGrid()
             .clusterPixels()
             .map { $0.largest(minSize: self.minClusterSize) } // Map the clusters to the largest
             .assign(to: &$currentCluster)
             
         return $currentCluster
             .compactMap { $0 }
-//            .logGrid()
             .removeDuplicates()
             .pairwise()
-//            .print("Clusters")
             .parseDelta("", top: topName, bottom: bottomName)
             .filter { $0.hasAction }
-            .print("New delta")
             .eraseToAnyPublisher()
     
     }
