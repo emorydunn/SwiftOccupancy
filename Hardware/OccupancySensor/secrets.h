@@ -1,8 +1,8 @@
 #define hostName "SensorName"
 
 // WiFi Info
-#define ssid "...your SSID..."
-#define password "...your password..."
+#define WLAN_SSID "...your SSID..."
+#define WLAN_PASS "...your password..."
 
 // MQTT Info
 #define mqttHost      "homeassistant.local"
