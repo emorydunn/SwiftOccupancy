@@ -10,34 +10,34 @@ import Combine
 import SwiftUI
 @testable import RoomOccupancyKit
 
-class MockSensor: Sensor {
+class MockSensor: MQTTSensor {
     
     var currentIndex = 0
     
     init() {
-        super.init(URL(string: "http://lol.local")!)
+        super.init(sensorName: "MockSensor", topName: .æther, bottomName: .æther)
     }
     
     required init(from decoder: Decoder) throws {
         fatalError("init(from:) has not been implemented")
     }
     
-    override func sensorPublisher() -> AnyPublisher<SensorPayload, Never> {
-
-        return Timer.publish(every: refreshInterval, on: .main, in: .common)
-            .autoconnect()
-            .map { date in
-                print(date)
-                let data = twoPassData[self.currentIndex]
-                self.currentIndex += 1
-                
-                if self.currentIndex == twoPassData.count {
-                    self.currentIndex = 0
-                }
-                return data
-            }
-            .eraseToAnyPublisher()
-    }
+//    override func sensorPublisher() -> AnyPublisher<SensorPayload, Never> {
+//
+//        return Timer.publish(every: refreshInterval, on: .main, in: .common)
+//            .autoconnect()
+//            .map { date in
+//                print(date)
+//                let data = twoPassData[self.currentIndex]
+//                self.currentIndex += 1
+//                
+//                if self.currentIndex == twoPassData.count {
+//                    self.currentIndex = 0
+//                }
+//                return data
+//            }
+//            .eraseToAnyPublisher()
+//    }
 }
 
 let twoPassData = [
