@@ -6,7 +6,11 @@
 //
 
 import Foundation
-import Combine
+import OpenCombineShim
+
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 extension URLSession {
     
