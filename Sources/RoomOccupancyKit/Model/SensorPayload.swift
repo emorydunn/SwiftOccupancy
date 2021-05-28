@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct SensorPayload: Decodable {
+public struct SensorPayload {
     public let sensor: String
     public let rows: Int
     public let cols: Int
@@ -21,7 +21,7 @@ public struct SensorPayload: Decodable {
         case sensor, rows, cols, data
     }
     
-    public init(sensor: String, rows: Int = 8, cols: Int = 8, data: [Double]) {
+    public init?(sensor: String, rows: Int = 8, cols: Int = 8, data: [Double]) {
         self.sensor = sensor
         self.rows = rows
         self.cols = cols
@@ -32,7 +32,7 @@ public struct SensorPayload: Decodable {
             self.pixels = []
             self.rawData = []
             self.mean = 0
-            return
+            return nil
         }
         
         var tempTotal: Double = 0
@@ -58,11 +58,20 @@ public struct SensorPayload: Decodable {
         self.mean = tempTotal / Double(rawData.count)
     }
     
-    public init(sensor: String, rows: Int = 8, cols: Int = 8, data: String) {
-        
-        let rawData = data
-            .components(separatedBy: ",")
-            .compactMap { Double($0)?.rounded() }
+    public init?(sensor: String, rows: Int = 8, cols: Int = 8, data: String) {
+
+        let rawData = stride(from: 0, to: data.count, by: 4).map { offset in
+            let chunkStart = data.index(data.startIndex, offsetBy: offset)
+            let chunkEnd = data.index(chunkStart, offsetBy: 4)
+            
+            return data[chunkStart..<chunkEnd]
+        }
+        .compactMap { Double($0)?.rounded() }
+
+//        data.
+//        let rawData = data
+//            .components(separatedBy: ",")
+//            .compactMap { Double($0)?.rounded() }
         
         self.init(sensor: sensor,
                   rows: rows,
@@ -70,14 +79,27 @@ public struct SensorPayload: Decodable {
                   data: rawData)
     }
     
-    public init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
+    public init?(sensor: String, rows: Int = 8, cols: Int = 8, data: Data) {
+
+        guard let rawData = String(data: data, encoding: .utf8) else {
+            return nil
+        }
         
-        self.init(sensor: try container.decode(String.self, forKey: .sensor),
-                  rows: try container.decode(Int.self, forKey: .cols),
-                  cols: try container.decode(Int.self, forKey: .cols),
-                  data: try container.decode(String.self, forKey: .data))
+        self.init(sensor: sensor,
+                  rows: rows,
+                  cols: cols,
+                  data: rawData)
     }
+    
+//    public init(from decoder: Decoder) throws {
+//        let container = try decoder.container(keyedBy: CodingKeys.self)
+//
+//
+//        guard let payload = (sensor: try container.decode(String.self, forKey: .sensor),
+//                  rows: try container.decode(Int.self, forKey: .cols),
+//                  cols: try container.decode(Int.self, forKey: .cols),
+//                  data: try container.decode(String.self, forKey: .data))
+//    }
     
     public func logData() {
         print("FrameData:", rawData.map { String($0) }.joined(separator: ","))
