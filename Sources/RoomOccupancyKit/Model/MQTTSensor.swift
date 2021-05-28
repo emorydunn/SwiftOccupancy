@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  MQTTSensor.swift
 //  
 //
 //  Created by Emory Dunn on 5/25/21.
@@ -12,11 +12,8 @@ import MQTT
 public class MQTTSensor: ObservableObject, Decodable, Identifiable {
     
     public enum CodingKeys: String, CodingKey {
-        case name, topName, bottomName
+        case name, topName, bottomName, deltaThreshold, minClusterSize, averageFrameCount
     }
-    
-    @available(*, renamed: "name")
-    public var sensorName: String { name }
     
     public let name: String
     
@@ -24,6 +21,10 @@ public class MQTTSensor: ObservableObject, Decodable, Identifiable {
     
     public let topName: Room
     public let bottomName: Room
+    
+    public var deltaThreshold: Double = 2
+    public var minClusterSize: Int = 10
+    public var averageFrameCount: Int = 2
     
     @Published public var sensorData: SensorPayload?// = SensorPayload(sensor: "Fake Sensor", data: [])
     @Published public var currentCluster: Cluster?
@@ -36,6 +37,20 @@ public class MQTTSensor: ObservableObject, Decodable, Identifiable {
         self.name = sensorName
         self.topName = topName
         self.bottomName = bottomName
+    }
+    
+    public required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        // Primary Info
+        self.name = try container.decode(String.self, forKey: .name)
+        self.topName = try container.decodeIfPresent(Room.self, forKey: .topName) ?? .æther
+        self.bottomName = try container.decodeIfPresent(Room.self, forKey: .bottomName) ?? .æther
+
+        // Sensor Config
+        self.deltaThreshold = try container.decodeIfPresent(Double.self, forKey: .deltaThreshold) ?? 2
+        self.minClusterSize = try container.decodeIfPresent(Int.self, forKey: .minClusterSize) ?? 10
+        self.averageFrameCount = try container.decodeIfPresent(Int.self, forKey: .averageFrameCount) ?? 2
 
     }
     
@@ -49,11 +64,15 @@ public class MQTTSensor: ObservableObject, Decodable, Identifiable {
         packets
             // Filter packets for this sensor
             .filter { packet in
-                packet.topic.hasSuffix(self.sensorName)
+                packet.topic.hasSuffix(self.name)
             }
+//            .map { packet -> PublishPacket in
+//                Swift.print(self.name, packet.topic)
+//                return packet
+//            }
             // Map to SensorPayload
             .map { packet in
-                SensorPayload(sensor: self.sensorName, data: packet.payload)
+                SensorPayload(sensor: self.name, data: packet.payload)
             }
             .breakpointOnError()
             .replaceError(with: nil)
@@ -74,11 +93,11 @@ public class MQTTSensor: ObservableObject, Decodable, Identifiable {
         // Process Clusters
         $sensorData
             .compactMap { $0 }
-            .averageFrames(2)
-            .findRelevantPixels(averageTemperature: averageTemp, deltaThreshold: 2)
+            .averageFrames(averageFrameCount)
+            .findRelevantPixels(averageTemperature: averageTemp, deltaThreshold: deltaThreshold)
 //            .logGrid()
             .clusterPixels()
-            .map { $0.largest(minSize: 10) } // Map the clusters to the largest
+            .map { $0.largest(minSize: self.minClusterSize) } // Map the clusters to the largest
             .assign(to: &$currentCluster)
             
         return $currentCluster
