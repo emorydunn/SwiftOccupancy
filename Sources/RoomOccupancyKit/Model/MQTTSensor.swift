@@ -9,7 +9,7 @@ import Foundation
 import OpenCombineShim
 import MQTT
 
-public class MQTTSensor: Decodable, Identifiable {
+public class MQTTSensor: ObservableObject, Decodable, Identifiable {
     
     public enum CodingKeys: String, CodingKey {
         case name, topName, bottomName
