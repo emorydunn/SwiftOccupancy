@@ -80,7 +80,7 @@ public class SensorManager: ObservableObject, Decodable {
     func connectToClient(_ client: MQTTClient) -> AnyPublisher<PublishPacket, Error> {
         return client
             .packetPublisher()
-            .subscribe(topic: "swift-occupancy/sensor/+", qos: .atMostOnce)
+            .subscribe(topic: "swift-occupancy/sensor/+", qos: .atLeastOnce)
             .filterForSubscriptions()
             .eraseToAnyPublisher()
     }
