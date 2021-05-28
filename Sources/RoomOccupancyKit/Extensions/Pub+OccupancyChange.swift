@@ -8,6 +8,10 @@
 import Foundation
 import OpenCombineShim
 
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
+
 extension Publisher where Output == OccupancyChange, Failure == Never {
     
     /// Apply the published delta to the given occupancy count

@@ -9,6 +9,10 @@ import Foundation
 import MQTT
 import OpenCombineShim
 
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
+
 
 extension MQTTClient {
     
