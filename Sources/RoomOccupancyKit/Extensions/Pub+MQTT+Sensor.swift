@@ -23,7 +23,11 @@ extension Publisher where Output == PublishPacket, Failure == Error {
 //    }
 //    
     func mapToChange(using sensors: [MQTTSensor]) -> AnyPublisher<OccupancyChange, Never> {
-        return Publishers.MergeMany(sensors.map { $0.monitorData(from: self.eraseToAnyPublisher()) })
+        return Publishers.MergeMany(sensors.map { sensor -> AnyPublisher<OccupancyChange, Never> in
+            Swift.print("Merging \(sensor.name) Data")
+            return sensor.monitorData(from: self.eraseToAnyPublisher())
+            
+        })
             .eraseToAnyPublisher()
     }
 }
