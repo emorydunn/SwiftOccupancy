@@ -60,6 +60,8 @@ public struct SensorPayload {
     
     public init?(sensor: String, rows: Int = 8, cols: Int = 8, data: String) {
 
+        // The data is returned in 4 byte temperature chunks: 31.8
+        guard data.count == rows * cols * 4 else { return nil }
         let rawData = stride(from: 0, to: data.count, by: 4).map { offset in
             let chunkStart = data.index(data.startIndex, offsetBy: offset)
             let chunkEnd = data.index(chunkStart, offsetBy: 4)
