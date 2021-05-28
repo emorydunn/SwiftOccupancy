@@ -50,13 +50,13 @@ public class MQTTPublisher: Publisher {
     // MARK: Combine
     public func receive<S>(subscriber: S) where S : Subscriber, Failure == S.Failure, Output == S.Input {
         Swift.print("MQTTPublisher", #function)
-        let subscrption = Subscription(client: client, target: subscriber, futureTopics: futureTopics)
+        let subscrption = MQTTSubscription(client: client, target: subscriber, futureTopics: futureTopics)
         subscriber.receive(subscription: subscrption)
     }
 }
 
 extension MQTTPublisher {
-    class Subscription<Target: Subscriber>: MQTTClientDelegate, Combine.Subscription where Target.Input == Output, Target.Failure == Failure {
+    class MQTTSubscription<Target: Subscriber>: MQTTClientDelegate, Subscription where Target.Input == Output, Target.Failure == Failure {
         
         let client: MQTTClient
         var target: Target?
