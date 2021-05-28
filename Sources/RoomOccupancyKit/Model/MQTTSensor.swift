@@ -9,13 +9,18 @@ import Foundation
 import OpenCombineShim
 import MQTT
 
-public class MQTTSensor: Decodable {
+public class MQTTSensor: Decodable, Identifiable {
     
     public enum CodingKeys: String, CodingKey {
-        case sensorName, topName, bottomName
+        case name, topName, bottomName
     }
     
-    public let sensorName: String
+    @available(*, renamed: "name")
+    public var sensorName: String { name }
+    
+    public let name: String
+    
+    public var id: String { name }
     
     public let topName: Room
     public let bottomName: Room
@@ -27,8 +32,8 @@ public class MQTTSensor: Decodable {
     
     var tokens: [AnyCancellable] = []
     
-    public init(sensorName: String, topName: Room, bottomName: Room) {
-        self.sensorName = sensorName
+    public init(_ sensorName: String, topName: Room = .room("Top Room"), bottomName: Room = .room("Bottom Room")) {
+        self.name = sensorName
         self.topName = topName
         self.bottomName = bottomName
 

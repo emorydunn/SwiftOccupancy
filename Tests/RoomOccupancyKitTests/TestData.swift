@@ -15,7 +15,7 @@ class MockSensor: MQTTSensor {
     var currentIndex = 0
     
     init() {
-        super.init(sensorName: "MockSensor", topName: .æther, bottomName: .æther)
+        super.init("MockSensor")
     }
     
     required init(from decoder: Decoder) throws {

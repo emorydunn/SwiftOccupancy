@@ -18,8 +18,8 @@ class SensorManagerTests: XCTestCase {
         let manager = SensorManager(sensors: [], broker: HAMQTTConfig(username: nil, password: nil), haConfig: nil)
         
         manager.sensors = [
-            MQTTSensor(sensorName: "office-hall", topName: .room("Hall"), bottomName: .room("Office")),
-            MQTTSensor(sensorName: "bedroom-hall", topName: .room("Hall"), bottomName: .room("Bedroom")),
+            MQTTSensor("office-hall", topName: .room("Hall"), bottomName: .room("Office")),
+            MQTTSensor("bedroom-hall", topName: .room("Hall"), bottomName: .room("Bedroom")),
         ]
         
         let exp = expectation(description: "MQTT")
