@@ -76,7 +76,6 @@ public class MQTTSensor: ObservableObject, Decodable, Identifiable {
             }
             .breakpointOnError()
             .replaceError(with: nil)
-//            .logSensorData()
             .assign(to: &$sensorData)
 
         // Collect rolling average temp

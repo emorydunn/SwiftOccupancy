@@ -54,7 +54,7 @@ extension Publisher where Output == [Pixel], Failure == Never {
         
         // Start with the hottest pixel
         self.map { pixels in
-            pixels.printGrid()
+            
             let hottestPixel = pixels.reduce(into: Pixel(x: 0, y: 0, temp: 0)) { currentHottest, pixel in
                 currentHottest = pixel.temp > currentHottest.temp ? pixel : currentHottest
             }
