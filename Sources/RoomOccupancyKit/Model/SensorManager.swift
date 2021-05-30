@@ -15,14 +15,14 @@ import FoundationNetworking
 
 public class SensorManager: ObservableObject, Decodable {
     
-//    public var sensors: [Sensor]
     public var sensors: [MQTTSensor] = []
     public let mqttBroker: HAMQTTConfig
     public let homeAssistant: HAConfig?
     
+    /// The current room occupancy counts.
     @Published public private(set) var occupancy: [Room: Int]
-//    public private(set) var occupancy: [Room: Int]
-//    @Published public var occupancyUpdates: OccupancyUpdate = OccupancyChange.default
+    
+    /// Occupancy changes to publish
     @Published var deltasToSend = [Room: Int]()
     
     var tokens: [AnyCancellable] = []
@@ -60,6 +60,7 @@ public class SensorManager: ObservableObject, Decodable {
         
     }
     
+    /// Create and MQTT client and subscribe to the sensor topic.
     public func monitorMQTT() {
         // Begin monitoring data
         let client = mqttBroker.makeClient()
@@ -85,6 +86,7 @@ public class SensorManager: ObservableObject, Decodable {
             .eraseToAnyPublisher()
     }
     
+    /// Subscribe to occupancy changes and send them to the Home Assistant HTTP API.
     public func publishToHA() {
         guard let config = homeAssistant else {
             print("No Home Assistant config provided, updates will not be published.")
@@ -93,6 +95,7 @@ public class SensorManager: ObservableObject, Decodable {
         
         print("Publishing changes to Home Assistant")
         $deltasToSend
+            .filter { !$0.isEmpty }
             .print("New Change")
             .publishtoHomeAssistant(using: config)
             .sink {
@@ -104,146 +107,5 @@ public class SensorManager: ObservableObject, Decodable {
             .store(in: &tokens)
     
     }
-    
-//    public func publishToHomeAssistant(using config: HAConfig) {
-//        // Publish the changed values
-//        $occupancy
-//            .map { $0.changes }
-//            .flatMap {
-//                $0.publisher
-//            }
-//            .print("Sending HA State")
-//            .filter { $0.key.publishStateChanges }
-//            .map { change -> URLRequest in
-//                var request = URLRequest(url: homeAssistant.url.appendingPathComponent("/api/states/sensor.\(change.key.slug)_occupancy_count"))
-//                request.httpMethod = "POST"
-//                request.setValue("Bearer \(homeAssistant.token)", forHTTPHeaderField: "Authorization")
-//
-//                let jsonBody: [String: Any] = [
-//                    "state": change.value,
-//                    "attributes": [
-//                        "friendly_name": "\(change.key) Occupancy",
-//                        "unit_of_measurement": self.unit(for: change.value),
-//                        "icon": self.icon(for: change.value)
-//                    ]
-//                ]
-//
-//                request.httpBody = try? JSONSerialization.data(withJSONObject: jsonBody, options: [])
-//
-//                return request
-//            }
-//            .flatMap { request -> URLSession.DataTaskPublisher in
-//                URLSession.shared.dataTaskPublisher(for: request)
-//            }
-//            .retry(3)
-//            .compactMap { element -> HTTPURLResponse? in
-//                element.response as? HTTPURLResponse
-//            }
-//            .sink {
-//                print($0)
-//            } receiveValue: { value in
-//                guard value.statusCode != 200 else { return }
-//                print("ERROR: \(value.statusCode)")
-//            }
-//            .store(in: &tokens)
-//    }
-//
-    
-//
-//    public func monitorSensors() {
-//
-//        sensors.forEach {
-//            // Begin monitoring data
-//            $0.monitorData()
-//        }
-//
-//        let changes = sensors.publisher
-//            .flatMap { $0.$currentDelta }
-//            .applyOccupancyDelta(to: occupancy)
-//            .print("SensorManager Sub")
-//            .share()
-//
-//        // Update the occupancy
-////        changes
-////            .map { $0.newValues }
-////            .removeDuplicates()
-////            .assign(to: &$occupancy)
-//
-//        guard let homeAssistant = homeAssistant else {
-//            print("No Home Assistant Config Provided")
-//            return
-//        }
-//
-//        // Publish the changed values
-//        changes
-//            .map { $0.changes }
-//            .flatMap {
-//                $0.publisher
-//            }
-//            .print("Sending HA State")
-//            .filter { $0.key.publishStateChanges }
-//            .map { change -> URLRequest in
-//                var request = URLRequest(url: homeAssistant.url.appendingPathComponent("/api/states/sensor.\(change.key.slug)_occupancy_count"))
-//                request.httpMethod = "POST"
-//                request.setValue("Bearer \(homeAssistant.token)", forHTTPHeaderField: "Authorization")
-//
-//                let jsonBody: [String: Any] = [
-//                    "state": change.value,
-//                    "attributes": [
-//                        "friendly_name": "\(change.key) Occupancy",
-//                        "unit_of_measurement": self.unit(for: change.value),
-//                        "icon": self.icon(for: change.value)
-//                    ]
-//                ]
-//
-//                request.httpBody = try? JSONSerialization.data(withJSONObject: jsonBody, options: [])
-//
-//                return request
-//            }
-//            .flatMap { request -> URLSession.DataTaskPublisher in
-//                URLSession.shared.dataTaskPublisher(for: request)
-//            }
-//            .retry(3)
-//            .compactMap { element -> HTTPURLResponse? in
-//                element.response as? HTTPURLResponse
-//            }
-//            .sink {
-//                print($0)
-//            } receiveValue: { value in
-//                guard value.statusCode != 200 else { return }
-//                print("ERROR: \(value.statusCode)")
-//            }
-//            .store(in: &tokens)
-//
-//
-//    }
-//
-//    func publishToHomeAssistant() {
-//
-//    }
-//
-//    func unit(for count: Int) -> String {
-//        count == 1 ? "person" : "people"
-//    }
-//
-//    func icon(for count: Int) -> String {
-//        switch count {
-//        case 0:
-//            return "mdi:account-outline"
-//        case 1:
-//            return "mdi:account"
-//        case 2:
-//            return "mdi:account-multiple"
-//        default:
-//            return "mdi:account-group"
-//        }
-//    }
-        
-}
-
-
-
-struct OccupancyUpdate {
-    let newValues: [Room: Int]
-    let changes: [Room: Int]
+     
 }

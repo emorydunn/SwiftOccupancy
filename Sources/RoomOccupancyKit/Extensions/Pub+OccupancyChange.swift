@@ -14,39 +14,12 @@ import FoundationNetworking
 
 extension Publisher where Output == OccupancyChange, Failure == Never {
     
-    /// Apply the published delta to the given occupancy count
+    /// Apply the published delta to the given occupancy count.
+    ///
+    /// The current occpancy passed to this method is updated to reflect the new
+    /// room totals.
     /// - Parameter occupancy: Current occpancy
-    /// - Returns: A publisher with new totals
-    func applyOccupancyDelta(to occupancy: [Room: Int]) -> AnyPublisher<OccupancyUpdate, Never> {
-        
-        var localOccupancy = occupancy
-        var updated = [Room: Int]()
-        
-        return self.map { change in
-            
-            change.delta.forEach { room, delta in
-                let newCount: Int
-                
-                if change.absolute {
-                    newCount = delta
-                } else {
-                    let currentCount = localOccupancy[room] ?? 0 // Find the room, or default to 0
-                    newCount = Swift.max(0, currentCount + delta) // Apply the delta, clamping to 0
-                }
-                
-                // Update or create the room
-                localOccupancy[room] = newCount
-                updated[room] = newCount
-            }
-            
-            return OccupancyUpdate(newValues: localOccupancy, changes: updated)
-        }
-        .eraseToAnyPublisher()
-    }
-    
-    /// Apply the published delta to the given occupancy count
-    /// - Parameter occupancy: Current occpancy
-    /// - Returns: A publisher with new totals
+    /// - Returns: A publisher with only the rooms who's occupancy changed. 
     func applyOccupancyDelta(to occupancy: inout [Room: Int]) -> AnyPublisher<[Room: Int], Never> {
         
         var localOccupancy = occupancy
@@ -68,7 +41,6 @@ extension Publisher where Output == OccupancyChange, Failure == Never {
                 localOccupancy[room] = newCount
                 updated[room] = newCount
             }
-            
 
             return updated
         }
@@ -117,12 +89,6 @@ extension Publisher where Output == [Room: Int], Failure == Never {
                 element.response as? HTTPURLResponse
             }
             .eraseToAnyPublisher()
-//            .sink {
-//                print($0)
-//            } receiveValue: { value in
-//                guard value.statusCode != 200 else { return }
-//                print("ERROR: \(value.statusCode)")
-//            }
     }
     
 }

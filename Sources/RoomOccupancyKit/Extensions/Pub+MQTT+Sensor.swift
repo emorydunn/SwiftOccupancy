@@ -11,24 +11,12 @@ import MQTT
 
 extension Publisher where Output == PublishPacket, Failure == Error {
     
-//    func mapToPayload(topicPrefix: String, rows: Int = 8, columns: Int = 8) -> AnyPublisher<SensorPayload, Failure> {
-//        self.map { packet in
-//            
-//            let sensor = packet.topic.replacingOccurrences(of: topicPrefix, with: "")
-//            return SensorPayload(sensor: sensor, rows: rows, cols: columns, data: packet.payload)
-//            
-//        }
-//        .eraseToAnyPublisher()
-//        
-//    }
-//    
     func mapToChange(using sensors: [MQTTSensor]) -> AnyPublisher<OccupancyChange, Never> {
         return Publishers.MergeMany(sensors.map { sensor -> AnyPublisher<OccupancyChange, Never> in
-            Swift.print("Merging \(sensor.name) Data")
             return sensor.monitorData(from: self.eraseToAnyPublisher())
-            
         })
             .eraseToAnyPublisher()
     }
+    
 }
 
