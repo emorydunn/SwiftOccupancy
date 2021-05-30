@@ -76,6 +76,7 @@ public class MQTTSensor: ObservableObject, Decodable, Identifiable {
             }
             .breakpointOnError()
             .replaceError(with: nil)
+            .averageFrames(averageFrameCount)
             .assign(to: &$sensorData)
 
         // Collect rolling average temp
@@ -91,7 +92,7 @@ public class MQTTSensor: ObservableObject, Decodable, Identifiable {
         // Process Clusters
         $sensorData
             .compactMap { $0 }
-            .averageFrames(averageFrameCount)
+//            .averageFrames(averageFrameCount)
             .findRelevantPixels(averageTemperature: averageTemp, deltaThreshold: deltaThreshold)
             .clusterHotestPixels()
             .filter { $0?.size ?? 0 >= self.minClusterSize }
