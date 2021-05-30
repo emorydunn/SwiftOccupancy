@@ -145,14 +145,14 @@ public class Cluster: Identifiable, Hashable {
     ///
     /// ```
     /// Bottom Cluser at Pixel (4, 5)
-    /// ░░░░░░░░░░░░░░░░░░░░░░░░
-    /// ░░░┏  ▓▓▓▓▓▓▓▓▓  ┓░░░░░░
-    /// ░░░░░░▓▓▓▓▓▓▓▓▓▓▓▓░░░░░░
-    /// ░░░▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░░░░░
-    /// ░░░░░░▓▓▓ ⋁ ▓▓▓░░░░░░░░░
-    /// ░░░░░░▓▓▓▓▓▓▓▓▓░░░░░░░░░
-    /// ░░░┗  ░░░▓▓▓░░░  ┛░░░░░░
-    /// ░░░░░░░░░░░░░░░░░░░░░░░░
+    /// ░░ ░░ ░░ ░░ ░░ ░░ ░░ ░░
+    /// ░░ ░░ ░░ ░░ ░░ ░░ ░░ ░░
+    /// ░░ ░░ ░░ ░░ ░░ ░░ ░░ ░░
+    /// ░░ ┏  ▓▓ ▓▓ ▓▓  ┓ ░░ ░░
+    /// ░░ ░░ ▓▓ ▓▓ ▓▓ ▓▓ ░░ ░░
+    /// ░░ ░░ ▓▓ ╲╱ ▓▓ ░░ ░░ ░░
+    /// ░░ ┗  ░░ ▓▓ ▓▓  ┛ ░░ ░░
+    /// ░░ ░░ ░░ ░░ ░░ ░░ ░░ ░░
     /// ```
     ///
     /// - Parameters:
@@ -165,27 +165,27 @@ public class Cluster: Identifiable, Hashable {
                 if center.x == x && center.y == y {
                     switch clusterSide {
                     case .bottom:
-                        return " ⋁ "
+                        return "╲╱"
                     case .top:
-                        return " ⋀ "
+                        return "╱╲"
                     }
                     
                 } else if bb.minX == x && bb.minY == y {
-                    return "┏  "
+                    return "┏ "
                 } else if bb.maxX == x && bb.minY == y {
-                    return "  ┓"
+                    return " ┓"
                 } else if bb.maxX == x && bb.maxY == y {
-                    return "  ┛"
+                    return " ┛"
                 } else if bb.minX == x && bb.maxY == y {
-                    return "┗  "
+                    return "┗ "
                 } else if pixels.contains(where: { $0.x == x && $0.y == y }) {
-                    return "▓▓▓"
+                    return "▓▓"
                 }
                 
                 
-                return "░░░"
+                return "░░"
                 
-            }.joined()
+            }.joined(separator: " ")
         }
         
         print(self)

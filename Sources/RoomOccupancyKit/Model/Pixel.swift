@@ -50,6 +50,14 @@ extension Pixel: CustomStringConvertible {
     }
 }
 
+extension Pixel: Comparable {
+    public static func < (lhs: Pixel, rhs: Pixel) -> Bool {
+        lhs.x < rhs.x && lhs.y < rhs.y
+    }
+    
+    
+}
+
 extension Array where Element: Pixel {
     /// Print a textual representation of a grid of pixels.
     ///
@@ -71,11 +79,11 @@ extension Array where Element: Pixel {
         let grid = (1...columns).map { y in
             (1...rows).map { x in
                 if self.contains(where: { $0.x == x && $0.y == y }) {
-                    return "▒▒▒"
+                    return "▒▒"
                 }
-                return "░░░"
+                return "░░"
                 
-            }.joined()
+            }.joined(separator: " ")
         }
         
         print(grid.joined(separator: "\n"))
