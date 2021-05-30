@@ -54,29 +54,33 @@ extension Publisher where Output == [Pixel], Failure == Never {
         
         // Start with the hottest pixel
         self.map { pixels in
+            pixels.printGrid()
             let hottestPixel = pixels.reduce(into: Pixel(x: 0, y: 0, temp: 0)) { currentHottest, pixel in
                 currentHottest = pixel.temp > currentHottest.temp ? pixel : currentHottest
             }
             
             let cluster = Cluster(hottestPixel)
-            
             var newPixels: Set<Pixel> = [hottestPixel]
-            var keepSearching: Bool = true
             
+            var keepSearching: Bool = true
             while keepSearching {
+                
                 let oldCount = newPixels.count
+
                 newPixels.forEach { pixel in
                     // Locate the neighbor pixels
                     let newNeighbors = pixels.filter {
-                        $0.x == pixel.x - 1 ||
-                            $0.x == pixel.x + 1 ||
-                            $0.y == pixel.y - 1 ||
-                            $0.y == pixel.y + 1
+
+                        ($0.x == pixel.x - 1 && $0.y == pixel.y) || // Left
+                            ($0.x == pixel.x + 1 && $0.y == pixel.y) || // Right
+                            ($0.x == pixel.x && $0.y - 1 == pixel.y) || // Bottom
+                            ($0.x == pixel.x && $0.y + 1 == pixel.y) // Top
+                            
                     }
                     
                     newPixels.formUnion(newNeighbors)
                 }
-                
+
                 keepSearching = newPixels.count != oldCount
             }
             
