@@ -73,11 +73,14 @@ extension Publisher where Output == [Pixel], Failure == Never {
                             $0.y == pixel.y - 1 ||
                             $0.y == pixel.y + 1
                     }
+                    
                     newPixels.formUnion(newNeighbors)
                 }
                 
                 keepSearching = newPixels.count != oldCount
             }
+            
+            cluster.pixels.append(contentsOf: newPixels)
             return cluster
         }
         .eraseToAnyPublisher()
