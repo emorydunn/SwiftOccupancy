@@ -26,7 +26,6 @@ let package = Package(
         .target(
             name: "RoomOccupancyKit",
             dependencies: [
-                .product(name: "OpenCombine", package: "OpenCombine"),
                 .product(name: "OpenCombineShim", package: "OpenCombine"),
                 .product(name: "MQTT", package: "swift-mqtt")
             ]),
