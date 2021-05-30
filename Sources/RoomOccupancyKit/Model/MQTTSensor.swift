@@ -22,9 +22,9 @@ public class MQTTSensor: ObservableObject, Decodable, Identifiable {
     public let topName: Room
     public let bottomName: Room
     
-    public var deltaThreshold: Double = 2
-    public var minClusterSize: Int = 10
-    public var averageFrameCount: Int = 2
+    public var deltaThreshold: Double
+    public var minClusterSize: Int
+    public var averageFrameCount: Int
     
     @Published public var sensorData: SensorPayload?// = SensorPayload(sensor: "Fake Sensor", data: [])
     @Published public var currentCluster: Cluster?
@@ -33,10 +33,18 @@ public class MQTTSensor: ObservableObject, Decodable, Identifiable {
     
     var tokens: [AnyCancellable] = []
     
-    public init(_ sensorName: String, topName: Room = .room("Top Room"), bottomName: Room = .room("Bottom Room")) {
+    public init(_ sensorName: String,
+                topName: Room = .room("Top Room"),
+                bottomName: Room = .room("Bottom Room"),
+                deltaThreshold: Double = 2,
+                minClusterSize: Int = 10,
+                averageFrameCount: Int = 2) {
         self.name = sensorName
         self.topName = topName
         self.bottomName = bottomName
+        self.deltaThreshold = deltaThreshold
+        self.minClusterSize = minClusterSize
+        self.averageFrameCount = averageFrameCount
     }
     
     public required init(from decoder: Decoder) throws {
