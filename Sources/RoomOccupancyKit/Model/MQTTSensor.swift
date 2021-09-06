@@ -98,17 +98,35 @@ public class MQTTSensor: ObservableObject, Decodable, Identifiable {
             .compactMap { $0 }
             .findRelevantPixels(averageTemperature: averageTemp, deltaThreshold: deltaThreshold)
             .clusterHotestPixels()
-            .filter { $0?.size ?? 0 >= self.minClusterSize }
-            .filter {
-                guard let cluster = $0 else { return false }
+            .map {
+                guard let cluster = $0 else { return nil }
+                
+                // Ensure the cluster meets the min size
+                guard cluster.size >= self.minClusterSize else {
+                    return nil
+                }
+                
                 let box = cluster.boundingBox()
                 let width = Double(box.maxX - box.minX)
                 let height = Double(box.maxY - box.minY)
 
-                return width >= 4 && height >= 4
-            }
+                // Ensure the cluser has minimum dimensions
+                guard width >= 4 && height >= 4 else {
+                    return nil
+                }
 
-            // TODO: Add min width/height rather than just size
+                return cluster
+            }
+//            .filter { $0?.size ?? 0 >= self.minClusterSize }
+//            .filter {
+//                guard let cluster = $0 else { return false }
+//                let box = cluster.boundingBox()
+//                let width = Double(box.maxX - box.minX)
+//                let height = Double(box.maxY - box.minY)
+//
+//                return width >= 4 && height >= 4
+//            }
+
             .assign(to: &$currentCluster)
             
         return $currentCluster
