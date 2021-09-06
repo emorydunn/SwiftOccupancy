@@ -4,6 +4,6 @@
 /*.xcodeproj
 xcuserdata/
 DerivedData/
-.swiftpm/xcode/package.xcworkspace/contents.xcworkspacedata
-/Hardware/OccupancySensor/secrets-complete.h
+/Hardware/OccupancySensor/secrets.h
 /.swiftpm
+

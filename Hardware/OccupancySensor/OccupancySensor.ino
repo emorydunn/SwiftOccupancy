@@ -2,7 +2,7 @@
 #include <Adafruit_AMG88xx.h>
 #include <ArduinoMqttClient.h>
 
-#include "secrets-complete.h"
+#include "secrets.h"
 
 #define MQTT_DEBUG
 
