@@ -139,7 +139,6 @@ public class Cluster: Identifiable, Hashable {
     public func contains(_ pixel: Pixel) -> Bool {
         pixels.contains(pixel)
     }
-
     
     /// Print a textual representation of a grid of pixels.
     ///
@@ -158,7 +157,7 @@ public class Cluster: Identifiable, Hashable {
     /// - Parameters:
     ///   - columns: Number of columns
     ///   - rows: Number of rows
-    public func printGrid(columns: Int = 8, rows: Int = 8) {
+    public func generateGrid(columns: Int = 8, rows: Int = 8) -> String {
         let grid = (1...columns).map { y in
             (1...rows).map { x in
                 let bb = boundingBox()
@@ -188,8 +187,30 @@ public class Cluster: Identifiable, Hashable {
             }.joined(separator: " ")
         }
         
+        return grid.joined(separator: "\n")
+    }
+
+    
+    /// Print a textual representation of a grid of pixels.
+    ///
+    /// ```
+    /// Bottom Cluser at Pixel (4, 5)
+    /// ░░ ░░ ░░ ░░ ░░ ░░ ░░ ░░
+    /// ░░ ░░ ░░ ░░ ░░ ░░ ░░ ░░
+    /// ░░ ░░ ░░ ░░ ░░ ░░ ░░ ░░
+    /// ░░ ┏  ▓▓ ▓▓ ▓▓  ┓ ░░ ░░
+    /// ░░ ░░ ▓▓ ▓▓ ▓▓ ▓▓ ░░ ░░
+    /// ░░ ░░ ▓▓ ╲╱ ▓▓ ░░ ░░ ░░
+    /// ░░ ┗  ░░ ▓▓ ▓▓  ┛ ░░ ░░
+    /// ░░ ░░ ░░ ░░ ░░ ░░ ░░ ░░
+    /// ```
+    ///
+    /// - Parameters:
+    ///   - columns: Number of columns
+    ///   - rows: Number of rows
+    public func printGrid(columns: Int = 8, rows: Int = 8) {
         print(self)
-        print(grid.joined(separator: "\n"))
+        print(generateGrid(columns: columns, rows: rows))
         print()
     }
 }
