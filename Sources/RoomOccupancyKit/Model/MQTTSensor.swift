@@ -30,7 +30,6 @@ public class MQTTSensor: ObservableObject, Decodable, Identifiable {
     
     @Published public var sensorData: SensorPayload?// = SensorPayload(sensor: "Fake Sensor", data: [])
     @Published public var currentCluster: Cluster?
-//    @Published public var currentDelta: OccupancyChange = OccupancyChange.default
     @Published public var averageTemp: Double = 22.0 //CurrentValueSubject<Double, Never>(21)
     
     var tokens: [AnyCancellable] = []
@@ -125,16 +124,6 @@ public class MQTTSensor: ObservableObject, Decodable, Identifiable {
 
                 return cluster
             }
-//            .filter { $0?.size ?? 0 >= self.minClusterSize }
-//            .filter {
-//                guard let cluster = $0 else { return false }
-//                let box = cluster.boundingBox()
-//                let width = Double(box.maxX - box.minX)
-//                let height = Double(box.maxY - box.minY)
-//
-//                return width >= 4 && height >= 4
-//            }
-
             .assign(to: &$currentCluster)
             
         return $currentCluster

@@ -70,11 +70,6 @@ public struct SensorPayload {
         }
         .compactMap { Double($0)?.rounded() }
 
-//        data.
-//        let rawData = data
-//            .components(separatedBy: ",")
-//            .compactMap { Double($0)?.rounded() }
-        
         self.init(sensor: sensor,
                   rows: rows,
                   cols: cols,
@@ -92,17 +87,7 @@ public struct SensorPayload {
                   cols: cols,
                   data: rawData)
     }
-    
-//    public init(from decoder: Decoder) throws {
-//        let container = try decoder.container(keyedBy: CodingKeys.self)
-//
-//
-//        guard let payload = (sensor: try container.decode(String.self, forKey: .sensor),
-//                  rows: try container.decode(Int.self, forKey: .cols),
-//                  cols: try container.decode(Int.self, forKey: .cols),
-//                  data: try container.decode(String.self, forKey: .data))
-//    }
-    
+
     public func logData() {
         print("FrameData:", rawData.map { String($0) }.joined(separator: ","))
     }

@@ -148,10 +148,4 @@ extension MQTTPublisher {
         return self
     }
     
-//    func print(_ prefix: String = "", to stream: TextOutputStream? = nil) -> MQTTPublisher {
-//        self.print(prefix, to: stream)
-//        return self
-//    }
-    
-    
 }
