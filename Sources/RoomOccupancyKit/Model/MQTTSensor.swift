@@ -12,7 +12,7 @@ import MQTT
 public class MQTTSensor: ObservableObject, Decodable, Identifiable {
     
     public enum CodingKeys: String, CodingKey {
-        case name, topName, bottomName, deltaThreshold, minClusterSize, averageFrameCount
+        case name, topName, bottomName, deltaThreshold, minClusterSize, averageFrameCount, minWidth, minHeight
     }
     
     public let name: String
@@ -24,6 +24,8 @@ public class MQTTSensor: ObservableObject, Decodable, Identifiable {
     
     public var deltaThreshold: Double
     public var minClusterSize: Int
+    public var minWidth: Int
+    public var minHeight: Int
     public var averageFrameCount: Int
     
     @Published public var sensorData: SensorPayload?// = SensorPayload(sensor: "Fake Sensor", data: [])
@@ -38,12 +40,16 @@ public class MQTTSensor: ObservableObject, Decodable, Identifiable {
                 bottomName: Room = .room("Bottom Room"),
                 deltaThreshold: Double = 2,
                 minClusterSize: Int = 10,
+                minWidth: Int = 3,
+                minHeight: Int = 3,
                 averageFrameCount: Int = 2) {
         self.name = sensorName
         self.topName = topName
         self.bottomName = bottomName
         self.deltaThreshold = deltaThreshold
         self.minClusterSize = minClusterSize
+        self.minWidth = minWidth
+        self.minHeight = minHeight
         self.averageFrameCount = averageFrameCount
     }
     
@@ -58,6 +64,8 @@ public class MQTTSensor: ObservableObject, Decodable, Identifiable {
         // Sensor Config
         self.deltaThreshold = try container.decodeIfPresent(Double.self, forKey: .deltaThreshold) ?? 2
         self.minClusterSize = try container.decodeIfPresent(Int.self, forKey: .minClusterSize) ?? 10
+        self.minWidth = try container.decodeIfPresent(Int.self, forKey: .minWidth) ?? 3
+        self.minHeight = try container.decodeIfPresent(Int.self, forKey: .minHeight) ?? 3
         self.averageFrameCount = try container.decodeIfPresent(Int.self, forKey: .averageFrameCount) ?? 2
 
     }
@@ -107,11 +115,11 @@ public class MQTTSensor: ObservableObject, Decodable, Identifiable {
                 }
                 
                 let box = cluster.boundingBox()
-                let width = Double(box.maxX - box.minX)
-                let height = Double(box.maxY - box.minY)
+                let width = box.maxX - box.minX
+                let height = box.maxY - box.minY
 
                 // Ensure the cluser has minimum dimensions
-                guard width >= 4 && height >= 4 else {
+                guard width >= self.minWidth && height >= self.minWidth else {
                     return nil
                 }
 
