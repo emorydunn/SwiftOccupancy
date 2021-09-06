@@ -108,7 +108,7 @@ public class Cluster: Identifiable, Hashable {
     
     /// Calculate the bounding box of the cluster
     /// - Returns: The four points making up the corners.
-    func boundingBox() -> (minX: Int, minY: Int, maxX: Int, maxY: Int) {
+    public func boundingBox() -> (minX: Int, minY: Int, maxX: Int, maxY: Int) {
         var minX: Int = Int.max
         var minY: Int = Int.max
         var maxX: Int = Int.min
