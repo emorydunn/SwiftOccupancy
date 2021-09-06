@@ -41,7 +41,7 @@ class ClusterTests: XCTestCase {
 //
 //        mockSensor.monitorData()
 //
-        waitForExpectations(timeout: 10, handler: nil)
+//        waitForExpectations(timeout: 10, handler: nil)
         
         //        twoPassData.enumerated().forEach { index, data in
         //            let pixels = sensor.findRelevantPixels(data)
@@ -82,6 +82,24 @@ class ClusterTests: XCTestCase {
             .store(in: &cancellables)
 
     }
+    
+    func testClustering_EdgeOfFrame() {
+        let payload = SensorPayload(sensor: "AMG8833", data: [20.0,21.0,24.333333333333332,25.0,24.666666666666668,24.333333333333332,23.0,22.0,20.666666666666668,22.333333333333332,24.0,25.0,25.0,23.0,22.333333333333332,21.0,21.0,25.0,24.0,24.0,24.666666666666668,24.333333333333332,21.0,20.0,21.0,23.333333333333332,24.0,24.0,26.0,26.0,22.0,20.0,21.666666666666668,20.666666666666668,20.666666666666668,21.0,22.0,21.666666666666668,20.0,20.666666666666668,20.0,20.0,20.0,20.0,20.0,20.0,19.666666666666668,20.0,19.0,19.666666666666668,19.333333333333332,19.666666666666668,20.0,19.666666666666668,20.0,19.666666666666668,19.666666666666668,20.0,19.666666666666668,19.666666666666668,20.0,19.333333333333332,19.0,19.666666666666668])!
+        Just(payload.pixels)
+            .findRelevantPixels(averageTemperature: 21, deltaThreshold: 2)
+            .clusterHotestPixels()
+            .sink { cluster in
+                cluster?.printGrid()
+                XCTAssertNotNil(cluster)
+                
+                XCTAssertEqual(cluster?.center.x, 5)
+                XCTAssertEqual(cluster?.center.y, 3)
+            }
+            .store(in: &cancellables)
+
+    }
+    
+    
     
     func testBoundingBox() {
         let payload = SensorPayload(sensor: "AMG8833", data: "21.020.021.021.021.021.521.022.019.520.020.019.520.020.020.521.019.520.020.021.520.020.020.521.020.020.021.022.521.520.521.021.520.021.024.025.026.023.021.021.520.521.026.026.026.526.023.022.021.020.025.026.526.026.022.521.520.020.021.022.023.022.521.021.0")!
