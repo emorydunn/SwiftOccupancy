@@ -38,6 +38,7 @@ public class Pixel: Identifiable, Hashable, Codable {
     ///   - min: Min temp (`0`)
     ///   - max: Max temp (`1`)
     /// - Returns: Normalized temp
+    @available(*, deprecated, renamed: "temp.normalize(_:_:)", message: "Use the method on Double.")
     public func normalize(_ min: Double, _ max: Double) -> Double {
         (temp - min) / (max - min)
     }

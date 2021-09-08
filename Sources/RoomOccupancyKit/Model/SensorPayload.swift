@@ -11,6 +11,7 @@ public struct SensorPayload {
     public let sensor: String
     public let rows: Int
     public let cols: Int
+    @available(*, deprecated, message: "Use Pixels")
     public let data: [[Pixel]]
     public let pixels: [Pixel]
     public let rawData: [Double]
@@ -90,6 +91,52 @@ public struct SensorPayload {
 
     public func logData() {
         print("FrameData:", rawData.map { String($0) }.joined(separator: ","))
+    }
+    
+    public func createImage(columns: Int = 8,
+                            pixelSize: Int = 10,
+                            minTemperature: Double = 16,
+                            maxTemperature: Double = 30) -> String {
+        let side = columns * pixelSize
+        
+        let svg = XMLElement(kind: .element)
+        
+        svg.name = "svg"
+        svg.addAttribute(side, forKey: "width")
+        svg.addAttribute(side, forKey: "height")
+        svg.addAttribute("http://www.w3.org/2000/svg", forKey: "xmlns")
+
+        stride(from: 0, to: columns, by: 1).forEach { currentPage in
+            print("Rendering Page:", currentPage)
+            let verticalOffset = currentPage * pixelSize
+            
+            let row = rawData[(currentPage * columns)..<(currentPage * columns) + columns]
+            
+            row.enumerated().forEach { offset, datum in
+                let element = XMLElement(name: "rect")
+                
+                element.addAttribute(offset * pixelSize, forKey: "x")
+                element.addAttribute(verticalOffset, forKey: "y")
+                element.addAttribute(pixelSize, forKey: "width")
+                element.addAttribute(pixelSize, forKey: "height")
+                let hue = datum.temp(minTemperature, maxTemperature)
+                element.addAttribute("hsl(\(hue), 100%, 50%)", forKey: "fill")
+                svg.addChild(element)
+
+            }
+            
+        }
+        
+        let doc = XMLDocument(kind: .document)
+
+        doc.setRootElement(svg)
+        doc.characterEncoding = "UTF-8"
+        doc.isStandalone = false
+        doc.documentContentKind = .xml
+        doc.version = "1.0"
+        
+        return doc.xmlString(options: [.documentTidyXML, .nodePrettyPrint])
+
     }
     
 }
