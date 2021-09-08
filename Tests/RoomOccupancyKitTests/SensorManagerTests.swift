@@ -26,11 +26,11 @@ class SensorManagerTests: XCTestCase {
         
         manager.monitorMQTT()
         
-        manager.$occupancy.sink { newValue in
-            print(newValue)
-//            exp.fulfill()
-        }
-        .store(in: &tokens)
+//        manager.$occupancy.sink { newValue in
+//            print(newValue)
+////            exp.fulfill()
+//        }
+//        .store(in: &tokens)
         
         waitForExpectations(timeout: 120)
     }
