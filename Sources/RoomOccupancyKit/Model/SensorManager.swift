@@ -20,14 +20,14 @@ public class SensorManager: ObservableObject, Decodable {
     public let homeAssistant: HAConfig?
     
     /// The current room occupancy counts.
-    @Published public private(set) var occupancy: [Room: Int]
+    public private(set) var occupancy: House
     
     /// Occupancy changes to publish
-    @Published var deltasToSend = [Room: Int]()
+//    @Published var deltasToSend = [Room: Int]()
     
     var tokens: [AnyCancellable] = []
     
-    public init(sensors: [MQTTSensor], broker: HAMQTTConfig, haConfig: HAConfig?, occupancy: [Room: Int]? = nil) {
+    public init(sensors: [MQTTSensor], broker: HAMQTTConfig, haConfig: HAConfig?, occupancy: House? = nil) {
         self.sensors = sensors
         self.mqttBroker = broker
         self.homeAssistant = haConfig
@@ -37,13 +37,30 @@ public class SensorManager: ObservableObject, Decodable {
         if let occupancy = occupancy {
             self.occupancy = occupancy
         } else {
-            self.occupancy = [:]
-            sensors.forEach {
-                self.occupancy[$0.topName] = 0
-                self.occupancy[$0.bottomName] = 0
-            }
+            self.occupancy = House(sensors: sensors)
         }
 
+    }
+    
+    static func manager(configFile: URL) -> SensorManager {
+        // Parse the file
+        let data: Data
+        do {
+            data = try Data(contentsOf: configFile)
+        } catch {
+            print("There was a problem reading \(configFile.path).")
+            print(error.localizedDescription)
+            exit(1)
+        }
+
+        do {
+            return try JSONDecoder().decode(SensorManager.self, from: data)
+
+        } catch {
+            print("There was a problem decoding the config file.")
+            print(error)
+            exit(1)
+        }
     }
     
     // MARK: Codable
@@ -56,12 +73,8 @@ public class SensorManager: ObservableObject, Decodable {
         self.sensors = try container.decode([MQTTSensor].self, forKey: .sensors)
         self.mqttBroker = try container.decode(HAMQTTConfig.self, forKey: .mqtt)
         self.homeAssistant = try container.decodeIfPresent(HAConfig.self, forKey: .homeAssistant) ?? HAConfig.haAddOn
-        self.occupancy = [:]
-        
-        sensors.forEach {
-            self.occupancy[$0.topName] = 0
-            self.occupancy[$0.bottomName] = 0
-        }
+
+        self.occupancy = House(sensors: sensors)
         
     }
     
@@ -78,8 +91,7 @@ public class SensorManager: ObservableObject, Decodable {
             }
             .share()
             .mapToChange(using: sensors)
-            .applyOccupancyDelta(to: &occupancy)
-            .assign(to: &$deltasToSend)
+            .applyOccupancyDelta(to: occupancy)
 
     }
 
@@ -99,7 +111,7 @@ public class SensorManager: ObservableObject, Decodable {
         }
         
         print("Publishing changes to Home Assistant")
-        $deltasToSend
+        occupancy.$rooms
             .filter { !$0.isEmpty }
             .print("New Change")
             .publishtoHomeAssistant(using: config)
@@ -110,8 +122,23 @@ public class SensorManager: ObservableObject, Decodable {
                 print("ERROR: \(value.statusCode)")
             }
             .store(in: &tokens)
+        
+//        sensors.forEach { sensor in
+//            sensor
+//                .$sensorSVG
+//                .publishState(sensor.name, domain: "camera", using: config)
+//                .sink {
+//                    print("HA Completion", $0)
+//                } receiveValue: { value in
+//                    guard value.statusCode != 200 else { return }
+//                    print("ERROR: \(value.statusCode)")
+//                }
+//                .store(in: &tokens)
+//
+//        }
+        
         print("Sending initial empty state:", occupancy)
-        deltasToSend = occupancy
+//        deltasToSend = occupancy
     
     }
      

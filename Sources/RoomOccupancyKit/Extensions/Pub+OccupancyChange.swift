@@ -20,64 +20,74 @@ extension Publisher where Output == OccupancyChange, Failure == Never {
     /// room totals.
     /// - Parameter occupancy: Current occpancy
     /// - Returns: A publisher with only the rooms who's occupancy changed. 
-    func applyOccupancyDelta(to occupancy: inout [Room: Int]) -> AnyPublisher<[Room: Int], Never> {
-        
-        var localOccupancy = occupancy
-        var updated = [Room: Int]()
-        
-        let pub: AnyPublisher<[Room: Int], Never> = self.map { change in
-            
-            change.delta.forEach { room, delta in
-                let newCount: Int
-                
-                if change.absolute {
-                    newCount = delta
-                } else {
-                    let currentCount = localOccupancy[room] ?? 0 // Find the room, or default to 0
-                    newCount = Swift.max(0, currentCount + delta) // Apply the delta, clamping to 0
-                }
-                
-                // Update or create the room
-                localOccupancy[room] = newCount
-                updated[room] = newCount
-            }
-
-            return updated
+    func applyOccupancyDelta(to house: House) {
+        self.sink { change in
+            change.update(house)
         }
-        .eraseToAnyPublisher()
-        
-        occupancy = localOccupancy
-        return pub
+        .store(in: &house.tokens)
+
+    }
+
+}
+
+struct HAState: CustomStringConvertible {
+    let domain: String
+    let name: String
+    let state: Any
+    let attributes: [String: Any]
+    
+    var description: String {
+        "\(domain).\(name)"
     }
     
-    
-    
+    var payload: [String: Any] {
+        [
+            "state": state,
+            "attributes": attributes
+        ]
+    }
 }
 
 extension Publisher where Output == [Room: Int], Failure == Never {
     
     func publishtoHomeAssistant(using config: HAConfig) -> AnyPublisher<HTTPURLResponse, URLError> {
         self
+            .pairwise()
+            .map { previous, new in
+                new.filter { previous[$0.key] != $0.value }
+            }
             .flatMap {
                 $0.publisher
             }
-            .print("Sending HA State")
+//            .print("Sending HA State")
             .filter { $0.key.publishStateChanges }
-            .map { change -> URLRequest in
-                var request = URLRequest(url: config.url.appendingPathComponent("/api/states/sensor.\(change.key.slug)_occupancy_count"))
+            .map { change in
+                HAState(domain: "sensor",
+                        name: change.key.sensorName,
+                        state: change.value,
+                        attributes: [
+                                "friendly_name": "\(change.key) Occupancy",
+                                "unit_of_measurement": change.value.personUnitCount,
+                                "icon": change.value.icon
+                            ]
+                        )
+            }
+            .publishState(using: config)
+    }
+    
+    
+}
+
+extension Publisher where Output == HAState, Failure == Never {
+    func publishState(using config: HAConfig) -> AnyPublisher<HTTPURLResponse, URLError> {
+        self
+            .print("Sending State to HA")
+            .map { state -> URLRequest in
+                var request = URLRequest(url: config.url.appendingPathComponent("/api/states/\(state)"))
                 request.httpMethod = "POST"
                 request.setValue("Bearer \(config.token)", forHTTPHeaderField: "Authorization")
-                
-                let jsonBody: [String: Any] = [
-                    "state": change.value,
-                    "attributes": [
-                        "friendly_name": "\(change.key) Occupancy",
-                        "unit_of_measurement": change.value.personUnitCount,
-                        "icon": change.value.icon
-                    ]
-                ]
-                
-                request.httpBody = try? JSONSerialization.data(withJSONObject: jsonBody, options: [])
+
+                request.httpBody = try? JSONSerialization.data(withJSONObject: state.payload, options: [])
                 
                 return request
             }
@@ -90,5 +100,4 @@ extension Publisher where Output == [Room: Int], Failure == Never {
             }
             .eraseToAnyPublisher()
     }
-    
 }

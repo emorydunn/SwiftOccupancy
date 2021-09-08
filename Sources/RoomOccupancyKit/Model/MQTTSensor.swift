@@ -9,6 +9,25 @@ import Foundation
 import OpenCombineShim
 import MQTT
 
+@propertyWrapper
+struct RoomCount {
+    var count: Int
+    
+    init(count: Int) {
+        self.count = count
+    }
+    
+    public var wrappedValue: Int {
+        get {
+            count
+        }
+        
+        set {
+            count = max(0, newValue)
+        }
+    }
+}
+
 public class MQTTSensor: ObservableObject, Decodable, Identifiable {
     
     public enum CodingKeys: String, CodingKey {
@@ -22,15 +41,20 @@ public class MQTTSensor: ObservableObject, Decodable, Identifiable {
     public let topName: Room
     public let bottomName: Room
     
+//    @RoomCount public var topRoomCount: Int = 0
+//    @RoomCount public var bottomRoomCount: Int = 0
+    
     public var deltaThreshold: Double
     public var minClusterSize: Int
     public var minWidth: Int
     public var minHeight: Int
     public var averageFrameCount: Int
     
-    @Published public var sensorData: SensorPayload?// = SensorPayload(sensor: "Fake Sensor", data: [])
+    @Published public var sensorData: SensorPayload?
     @Published public var currentCluster: Cluster?
-    @Published public var averageTemp: Double = 22.0 //CurrentValueSubject<Double, Never>(21)
+    @Published public var averageTemp: Double = 22.0
+    @Published public var sensorSVG: String = ""
+//    @Published public var lastAction: Direction?
     
     var tokens: [AnyCancellable] = []
     
@@ -73,6 +97,8 @@ public class MQTTSensor: ObservableObject, Decodable, Identifiable {
         self.monitorData(from: packets).assign(to: &published)
     }
     
+//    func monitorData(from packets: AnyPublisher<PublishPacket, Error>) -> AnyPublisher<Direction, Never> {
+//    }
     
     func monitorData(from packets: AnyPublisher<PublishPacket, Error>) -> AnyPublisher<OccupancyChange, Never> {
         
@@ -99,6 +125,10 @@ public class MQTTSensor: ObservableObject, Decodable, Identifiable {
                 (temps.reduce(0, +) / Double(temps.count)).rounded()
             }
             .assign(to: &$averageTemp)
+        
+//        $sensorData
+//            .compactMap { $0?.createImage() }
+//            .assign(to: &$sensorSVG)
             
         // Process Clusters
         $sensorData
@@ -131,8 +161,8 @@ public class MQTTSensor: ObservableObject, Decodable, Identifiable {
             .logGrid()
             .removeDuplicates()
             .pairwise()
-            .parseDelta("", top: topName, bottom: bottomName)
-            .filter { $0.hasAction }
+            .parseDelta(top: topName, bottom: bottomName)
+//            .filter { $0.hasAction }
             .eraseToAnyPublisher()
     
     }
