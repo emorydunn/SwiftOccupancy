@@ -58,6 +58,11 @@ public class SensorManager: ObservableObject, Decodable {
         self.homeAssistant = try container.decodeIfPresent(HAConfig.self, forKey: .homeAssistant) ?? HAConfig.haAddOn
         self.occupancy = [:]
         
+        sensors.forEach {
+            self.occupancy[$0.topName] = 0
+            self.occupancy[$0.bottomName] = 0
+        }
+        
     }
     
     /// Create and MQTT client and subscribe to the sensor topic.
@@ -105,6 +110,8 @@ public class SensorManager: ObservableObject, Decodable {
                 print("ERROR: \(value.statusCode)")
             }
             .store(in: &tokens)
+        print("Sending initial empty state:", occupancy)
+        deltasToSend = occupancy
     
     }
      
