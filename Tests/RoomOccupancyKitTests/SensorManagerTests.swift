@@ -24,7 +24,7 @@ class SensorManagerTests: XCTestCase {
         
         let exp = expectation(description: "MQTT")
         
-        manager.monitorMQTT()
+        manager.monitorMQTT(publishToHA: false)
         
 //        manager.$occupancy.sink { newValue in
 //            print(newValue)

@@ -8,6 +8,7 @@
 
 import Foundation
 import OpenCombineShim
+import MQTT
 
 #if canImport(FoundationNetworking)
 import FoundationNetworking
@@ -45,6 +46,10 @@ public enum Room: CustomStringConvertible, Decodable, Hashable, Comparable {
         "\(slug)_occupancy_count"
     }
     
+    var mqttTopic: String {
+        "homeassistant/sensor/swift-occupancy/\(sensorName)"
+    }
+    
     var publishStateChanges: Bool {
         switch self {
         case .room:
@@ -52,6 +57,36 @@ public enum Room: CustomStringConvertible, Decodable, Hashable, Comparable {
         case .æther:
             return false
         }
+    }
+    
+    func publishSensorConfig(_ client:  MQTTClient) {
+        let config: [String: Any] = [
+            "name": "\(description) Occupancy Count",
+            "unique_id": sensorName,
+            "state_topic": "\(mqttTopic)/state",
+            "unit_of_measurement": "person",
+            "icon": 0.icon,
+            "device": [
+                "name": "\(slug)-occupancy-sensor",
+                "model": "AMG88xx",
+                "manufacturer": "Emory Dunn",
+                "identifiers": "\(slug)-occupancy-sensor"
+            ]
+        ]
+        
+        do {
+            let payload = try JSONSerialization.data(withJSONObject: config, options: [])
+            client.publish(topic: "\(mqttTopic)/config", retain: true, qos: .atLeastOnce, payload: payload)
+            print("Published MQTT discovery topic for \(self)")
+        } catch {
+            print("Could not encode MQTT discovery config for \(self)")
+            print(error)
+        }
+
+    }
+    
+    func publishState(_ count: Int, with client:  MQTTClient) {
+        client.publish(topic: "\(mqttTopic)/state", retain: false, qos: .atLeastOnce, payload: String(describing: count))
     }
 }
 
@@ -87,6 +122,7 @@ public class House: ObservableObject {
             rooms[room] = max(0, newValue)
         }
     }
+
 }
 
 public struct OccupancyChange: CustomStringConvertible {

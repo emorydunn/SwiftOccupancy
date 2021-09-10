@@ -37,6 +37,6 @@ do {
 
 
 // Begin monitoring the sensors
-manager.monitorMQTT()
-manager.publishToHA()
+manager.monitorMQTT(publishToHA: true)
+//manager.publishToHA()
 RunLoop.main.run()

@@ -79,7 +79,7 @@ public class SensorManager: ObservableObject, Decodable {
     }
     
     /// Create and MQTT client and subscribe to the sensor topic.
-    public func monitorMQTT() {
+    public func monitorMQTT(publishToHA: Bool) {
         // Begin monitoring data
         let client = mqttBroker.makeClient()
         
@@ -91,8 +91,20 @@ public class SensorManager: ObservableObject, Decodable {
             }
             .share()
             .mapToChange(using: sensors)
-            .applyOccupancyDelta(to: occupancy)
-
+            .applyOccupancy(to: occupancy)
+        
+        guard publishToHA else { return }
+        
+        occupancy.rooms.keys.forEach {
+            $0.publishSensorConfig(client)
+        }
+        
+        print("Publishing changes to Home Assistant")
+        occupancy.$rooms
+            .filter { !$0.isEmpty }
+            .publishtoHomeAssistant(using: client)
+            .store(in: &tokens)
+        
     }
 
     func connectToClient(_ client: MQTTClient) -> AnyPublisher<PublishPacket, Error> {
@@ -102,6 +114,7 @@ public class SensorManager: ObservableObject, Decodable {
             .filterForSubscriptions()
             .eraseToAnyPublisher()
     }
+
     
     /// Subscribe to occupancy changes and send them to the Home Assistant HTTP API.
     public func publishToHA() {
@@ -113,7 +126,6 @@ public class SensorManager: ObservableObject, Decodable {
         print("Publishing changes to Home Assistant")
         occupancy.$rooms
             .filter { !$0.isEmpty }
-            .print("New Change")
             .publishtoHomeAssistant(using: config)
             .sink {
                 print("HA Completion", $0)

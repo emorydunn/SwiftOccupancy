@@ -7,6 +7,7 @@
 
 import Foundation
 import OpenCombineShim
+import MQTT
 
 #if canImport(FoundationNetworking)
 import FoundationNetworking
@@ -20,12 +21,11 @@ extension Publisher where Output == OccupancyChange, Failure == Never {
     /// room totals.
     /// - Parameter occupancy: Current occpancy
     /// - Returns: A publisher with only the rooms who's occupancy changed. 
-    func applyOccupancyDelta(to house: House) {
+    func applyOccupancy(to house: House) {
         self.sink { change in
             change.update(house)
         }
         .store(in: &house.tokens)
-
     }
 
 }
@@ -75,6 +75,29 @@ extension Publisher where Output == [Room: Int], Failure == Never {
             .publishState(using: config)
     }
     
+    func publishtoHomeAssistant(using client: MQTTClient) -> AnyCancellable {
+        self
+            .pairwise()
+            .map { previous, new in
+                new.filter { previous[$0.key] != $0.value }
+            }
+            .flatMap {
+                $0.publisher
+            }
+            .filter { $0.key.publishStateChanges }
+            .sink  { change in
+                let room = change.key
+                room.publishState(change.value, with: client)
+            }
+//            .map { change in
+//                let room = change.key
+//                room.publishState(change.value, with: client)
+//            }
+
+    }
+    
+    
+    
     
 }
 
@@ -100,4 +123,28 @@ extension Publisher where Output == HAState, Failure == Never {
             }
             .eraseToAnyPublisher()
     }
+    
+//    func publishState(using client: MQTTClient) -> AnyPublisher<HTTPURLResponse, URLError> {
+//        self
+//            .print("Sending State to HA")
+//            .map { state in
+//
+//
+////                var request = URLRequest(url: config.url.appendingPathComponent("/api/states/\(state)"))
+////                request.httpMethod = "POST"
+////                request.setValue("Bearer \(config.token)", forHTTPHeaderField: "Authorization")
+////
+////                request.httpBody = try? JSONSerialization.data(withJSONObject: state.payload, options: [])
+////
+////                return request
+//            }
+////            .flatMap { request -> URLSession.DataTaskPublisher in
+////                URLSession.shared.dataTaskPublisher(for: request)
+////            }
+////            .retry(3)
+////            .compactMap { element -> HTTPURLResponse? in
+////                element.response as? HTTPURLResponse
+////            }
+////            .eraseToAnyPublisher()
+//    }
 }

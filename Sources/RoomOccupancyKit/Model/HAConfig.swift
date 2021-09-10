@@ -22,7 +22,7 @@ public struct HAConfig: Codable {
     
     static var supervisorToken: String {
         guard let token = ProcessInfo.processInfo.environment["SUPERVISOR_TOKEN"] else {
-            assertionFailure("SUPERVISOR_TOKEN was not found in the environment")
+//            assertionFailure("SUPERVISOR_TOKEN was not found in the environment")
             return "missing env"
         }
         
