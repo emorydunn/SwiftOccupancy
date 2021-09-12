@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import MQTT
 import AMG88xx
 import SwiftyGPIO
 import OpenCombine

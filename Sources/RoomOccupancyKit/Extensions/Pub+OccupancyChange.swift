@@ -7,7 +7,7 @@
 
 import Foundation
 import OpenCombine
-import MQTT
+//import MQTT
 
 #if canImport(FoundationNetworking)
 import FoundationNetworking
@@ -75,26 +75,26 @@ extension OpenCombine.Publisher where Output == [Room: Int], Failure == Never {
 //            .publishState(using: config)
 //    }
     
-    func publishtoHomeAssistant(using client: MQTTClient) -> AnyCancellable {
-        self
-            .pairwise()
-            .map { previous, new in
-                new.filter { previous[$0.key] != $0.value }
-            }
-            .flatMap {
-                $0.publisher
-            }
-            .filter { $0.key.publishStateChanges }
-            .sink  { change in
-                let room = change.key
-//                room.publishState(change.value, with: client)
-            }
-//            .map { change in
-//                let room = change.key
-//                room.publishState(change.value, with: client)
+//    func publishtoHomeAssistant(using client: MQTTClient) -> AnyCancellable {
+//        self
+//            .pairwise()
+//            .map { previous, new in
+//                new.filter { previous[$0.key] != $0.value }
 //            }
-
-    }
+//            .flatMap {
+//                $0.publisher
+//            }
+//            .filter { $0.key.publishStateChanges }
+//            .sink  { change in
+//                let room = change.key
+////                room.publishState(change.value, with: client)
+//            }
+////            .map { change in
+////                let room = change.key
+////                room.publishState(change.value, with: client)
+////            }
+//
+//    }
     
     
     

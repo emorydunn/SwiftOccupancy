@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import MQTT
+//import MQTT
 
 public struct HAConfig: Codable {
     public let url: URL
@@ -45,14 +45,14 @@ public struct HAMQTTConfig: Decodable {
         self.password = password
     }
     
-    func makeClient() -> MQTTClient {
-        MQTTClient(host: host,
-                   port: port,
-                   clientID: "SwiftOccupancy-\(ProcessInfo.processInfo.hostName)-\(ProcessInfo.processInfo.processIdentifier)",
-                   cleanSession: true,
-                   keepAlive: 30,
-                   username: username,
-                   password: password)
-    }
+//    func makeClient() -> MQTTClient {
+//        MQTTClient(host: host,
+//                   port: port,
+//                   clientID: "SwiftOccupancy-\(ProcessInfo.processInfo.hostName)-\(ProcessInfo.processInfo.processIdentifier)",
+//                   cleanSession: true,
+//                   keepAlive: 30,
+//                   username: username,
+//                   password: password)
+//    }
     
 }

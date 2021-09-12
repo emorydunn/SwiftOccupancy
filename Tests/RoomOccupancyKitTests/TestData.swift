@@ -10,12 +10,12 @@ import Combine
 import SwiftUI
 @testable import RoomOccupancyKit
 
-class MockSensor: MQTTSensor {
+class MockSensor {
     
     var currentIndex = 0
     
     init() {
-        super.init("MockSensor")
+//        super.init("MockSensor")
     }
     
     required init(from decoder: Decoder) throws {

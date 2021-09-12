@@ -8,7 +8,6 @@
 
 import Foundation
 import OpenCombine
-import MQTT
 
 #if canImport(FoundationNetworking)
 import FoundationNetworking
@@ -126,13 +125,13 @@ public class House {
         }
     }
     
-    public init(sensors: [MQTTSensor]) {
-        self.rooms = [Room: Int]()
-        sensors.forEach {
-            self.rooms[$0.topName] = 0
-            self.rooms[$0.bottomName] = 0
-        }
-    }
+//    public init(sensors: [MQTTSensor]) {
+//        self.rooms = [Room: Int]()
+//        sensors.forEach {
+//            self.rooms[$0.topName] = 0
+//            self.rooms[$0.bottomName] = 0
+//        }
+//    }
     
     public subscript(_ room: Room) -> Int {
         get {
