@@ -6,9 +6,9 @@
 //
 
 import Foundation
-import OpenCombineShim
+import OpenCombine
 
-extension Publisher where Output == Cluster, Failure == Never {
+extension OpenCombine.Publisher where Output == Cluster, Failure == Never {
     
     func logGrid() -> AnyPublisher<Output, Failure> {
         self.map { cluster in
@@ -20,7 +20,7 @@ extension Publisher where Output == Cluster, Failure == Never {
     
 }
 
-extension Publisher where Output == [Pixel], Failure == Never {
+extension OpenCombine.Publisher where Output == [Pixel], Failure == Never {
     
     func logGrid() -> AnyPublisher<Output, Failure> {
         self.map { pixels in
@@ -32,7 +32,7 @@ extension Publisher where Output == [Pixel], Failure == Never {
     
 }
 
-extension Publisher where Output == (Cluster, Cluster), Failure == Never {
+extension OpenCombine.Publisher where Output == (Cluster, Cluster), Failure == Never {
     
 //    func parseDelta(_ previousAction: String, top: Room, bottom: Room) -> AnyPublisher<OccupancyChange, Never> {
 //    }

@@ -1,11 +1,11 @@
-// swift-tools-version:5.3
+// swift-tools-version:5.1
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
 
 let package = Package(
     name: "SwiftOccupancy",
-    platforms: [.macOS(.v11), .iOS(.v14)],
+//    platforms: [.macOS(.v11), .iOS(.v14)],
     products: [
         // Products define the executables and libraries a package produces, and make them visible to other packages.
         .library(
@@ -19,7 +19,8 @@ let package = Package(
         // Dependencies declare other packages that this package depends on.
         .package(url: "https://github.com/OpenCombine/OpenCombine.git", from: "0.12.0"),
         .package(url: "https://github.com/matsune/swift-mqtt.git", from: "1.0.0"),
-        .package(name: "AMG88xx", url: "https://github.com/emorydunn/AMG88xx.swift.git", .branch("main")),
+//        .package(name: "AMG88xx", url: "https://github.com/emorydunn/AMG88xx.swift.git", .branch("main")),
+        .package(url: "https://github.com/emorydunn/AMG88xx.swift.git", .branch("main")),
         
     ],
     targets: [

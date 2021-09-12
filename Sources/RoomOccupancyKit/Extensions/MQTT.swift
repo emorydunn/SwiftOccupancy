@@ -7,7 +7,7 @@
 
 import Foundation
 import MQTT
-import OpenCombineShim
+import OpenCombine
 
 #if canImport(FoundationNetworking)
 import FoundationNetworking
@@ -50,8 +50,8 @@ public class MQTTPublisher: Publisher {
     // MARK: Combine
     public func receive<S>(subscriber: S) where S : Subscriber, Failure == S.Failure, Output == S.Input {
         Swift.print("MQTTPublisher", #function)
-        let subscrption = MQTTSubscription(client: client, target: subscriber, futureTopics: futureTopics)
-        subscriber.receive(subscription: subscrption)
+        let subscription = MQTTSubscription(client: client, target: subscriber, futureTopics: futureTopics)
+        subscriber.receive(subscription: subscription)
     }
 }
 

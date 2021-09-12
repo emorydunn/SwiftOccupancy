@@ -6,17 +6,17 @@
 //
 
 import Foundation
-import OpenCombineShim
+import OpenCombine
 import MQTT
 
-extension Publisher where Output == PublishPacket, Failure == Error {
+extension OpenCombine.Publisher where Output == PublishPacket, Failure == Error {
     
-    func mapToChange(using sensors: [MQTTSensor]) -> AnyPublisher<OccupancyChange, Never> {
-        return Publishers.MergeMany(sensors.map { sensor -> AnyPublisher<OccupancyChange, Never> in
-            return sensor.monitorData(from: self.eraseToAnyPublisher())
-        })
-            .eraseToAnyPublisher()
-    }
+//    func mapToChange(using sensors: [MQTTSensor]) -> AnyPublisher<OccupancyChange, Never> {
+//        return OpenCombine.Publishers.MergeMany(sensors.map { sensor -> AnyPublisher<OccupancyChange, Never> in
+//            return sensor.monitorData(from: self.eraseToAnyPublisher())
+//        })
+//            .eraseToAnyPublisher()
+//    }
     
 }
 

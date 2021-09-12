@@ -62,13 +62,15 @@ public struct SensorPayload {
 
         // The data is returned in 4 byte temperature chunks: 31.8
         guard data.count == rows * cols * 4 else { return nil }
-        let rawData = stride(from: 0, to: data.count, by: 4).map { offset in
+        let rawData: [Float] = stride(from: 0, to: data.count, by: 4).map { offset -> String in
             let chunkStart = data.index(data.startIndex, offsetBy: offset)
             let chunkEnd = data.index(chunkStart, offsetBy: 4)
             
-            return data[chunkStart..<chunkEnd]
+            return String(data[chunkStart..<chunkEnd])
         }
-        .compactMap { Float($0)?.rounded() }
+        .compactMap { temp in
+            return Float(temp)?.rounded()
+        }
 
         self.init(sensor: sensor,
                   rows: rows,

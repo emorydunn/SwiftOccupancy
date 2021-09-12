@@ -6,14 +6,14 @@
 //
 
 import Foundation
-import OpenCombineShim
+import OpenCombine
 import MQTT
 
 #if canImport(FoundationNetworking)
 import FoundationNetworking
 #endif
 
-public class SensorManager: ObservableObject, Decodable {
+public class SensorManager: Decodable {
     
     public var sensors: [MQTTSensor] = []
     public let mqttBroker: HAMQTTConfig
@@ -83,15 +83,15 @@ public class SensorManager: ObservableObject, Decodable {
         // Begin monitoring data
         let client = mqttBroker.makeClient()
         
-        connectToClient(client)
-            .catch { error -> AnyPublisher<PublishPacket, Error> in
-                print("MQTT Error:", error)
-                client.disconnect()
-                return self.connectToClient(client)
-            }
-            .share()
-            .mapToChange(using: sensors)
-            .applyOccupancy(to: occupancy)
+//        connectToClient(client)
+//            .catch { error -> AnyPublisher<PublishPacket, Error> in
+//                print("MQTT Error:", error)
+//                client.disconnect()
+//                return self.connectToClient(client)
+//            }
+//            .share()
+//            .mapToChange(using: sensors)
+//            .applyOccupancy(to: occupancy)
         
         guard publishToHA else { return }
         
@@ -124,16 +124,16 @@ public class SensorManager: ObservableObject, Decodable {
         }
         
         print("Publishing changes to Home Assistant")
-        occupancy.$rooms
-            .filter { !$0.isEmpty }
-            .publishtoHomeAssistant(using: config)
-            .sink {
-                print("HA Completion", $0)
-            } receiveValue: { value in
-                guard value.statusCode != 200 else { return }
-                print("ERROR: \(value.statusCode)")
-            }
-            .store(in: &tokens)
+//        occupancy.$rooms
+//            .filter { !$0.isEmpty }
+//            .publishtoHomeAssistant(using: config)
+//            .sink {
+//                print("HA Completion", $0)
+//            } receiveValue: { value in
+//                guard value.statusCode != 200 else { return }
+//                print("ERROR: \(value.statusCode)")
+//            }
+//            .store(in: &tokens)
         
 //        sensors.forEach { sensor in
 //            sensor

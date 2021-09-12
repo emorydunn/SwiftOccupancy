@@ -7,7 +7,7 @@
 
 
 import Foundation
-import OpenCombineShim
+import OpenCombine
 import MQTT
 
 #if canImport(FoundationNetworking)
@@ -107,8 +107,8 @@ public enum Room: CustomStringConvertible, Decodable, Hashable, Comparable {
     }
 }
 
-public class House: ObservableObject {
-    @Published public private(set) var rooms: [Room: Int]
+public class House {
+    @OpenCombine.Published public private(set) var rooms: [Room: Int]
     var tokens: [AnyCancellable] = []
     
     public init(rooms: [Room: Int]) {

@@ -9,7 +9,8 @@ import Foundation
 import MQTT
 import AMG88xx
 import SwiftyGPIO
-import OpenCombineShim
+import OpenCombine
+import OpenCombineFoundation
 
 public class PiSensor: Decodable {
     public var topRoom: Room = .æther
@@ -47,12 +48,12 @@ public class PiSensor: Decodable {
         self.averageFrameCount = averageFrameCount
     }
     
-    @Published public var sensorData: SensorPayload?
-    @Published public var currentCluster: Cluster?
-    @Published public var averageTemp: Float = 22.0
+    @OpenCombine.Published public var sensorData: SensorPayload?
+    @OpenCombine.Published public var currentCluster: Cluster?
+    @OpenCombine.Published public var averageTemp: Float = 22.0
     
-    @Published public var topRoomCount: Int = 0
-    @Published public var bottomRoomCount: Int = 0
+    @OpenCombine.Published public var topRoomCount: Int = 0
+    @OpenCombine.Published public var bottomRoomCount: Int = 0
     
     var tokens: [AnyCancellable] = []
     
@@ -98,7 +99,7 @@ public class PiSensor: Decodable {
             }
             .breakpointOnError()
             .replaceError(with: nil)
-            .averageFrames(averageFrameCount)
+//            .averageFrames(averageFrameCount)
             .assign(to: &$sensorData)
         
         // Collect rolling average temp

@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import OpenCombineShim
+import OpenCombine
 import MQTT
 
 @propertyWrapper
@@ -28,7 +28,7 @@ public struct RoomCount {
     }
 }
 
-public class MQTTSensor: ObservableObject, Decodable, Identifiable {
+public class MQTTSensor: OpenCombine.ObservableObject, Decodable, Identifiable {
     
     public enum CodingKeys: String, CodingKey {
         case name, topName, bottomName, deltaThreshold, minClusterSize, averageFrameCount, minWidth, minHeight
@@ -50,10 +50,10 @@ public class MQTTSensor: ObservableObject, Decodable, Identifiable {
     public var minHeight: Int
     public var averageFrameCount: Int
     
-    @Published public var sensorData: SensorPayload?
-    @Published public var currentCluster: Cluster?
-    @Published public var averageTemp: Float = 22.0
-    @Published public var sensorSVG: String = ""
+    @OpenCombine.Published public var sensorData: SensorPayload?
+    @OpenCombine.Published public var currentCluster: Cluster?
+    @OpenCombine.Published public var averageTemp: Float = 22.0
+    @OpenCombine.Published public var sensorSVG: String = ""
 //    @Published public var lastAction: Direction?
     
     var tokens: [AnyCancellable] = []
@@ -93,7 +93,7 @@ public class MQTTSensor: ObservableObject, Decodable, Identifiable {
 
     }
     
-    func parseData(from packets: AnyPublisher<PublishPacket, Error>, assigningTo published: inout Published<OccupancyChange>.Publisher) {
+    func parseData(from packets: AnyPublisher<PublishPacket, Error>, assigningTo published: inout OpenCombine.Published<OccupancyChange>.Publisher) {
         self.monitorData(from: packets).assign(to: &published)
     }
     

@@ -11,14 +11,16 @@ extension String {
     /// The normalized URL slug.
     ///
     /// The title of the gallery is:
-    /// 1. Strpped of diacritics
+    /// 1. Stripped of diacritics
     /// 2. Lower-cased
     /// 3. Spaces are replaced with hyphens
     var slug: String {
-        let normString = self.applyingTransform(.stripDiacritics, reverse: false)?
-            .applyingTransform(.stripCombiningMarks, reverse: false) ?? self
+//        self.replacingCharacters(in: <#T##RangeExpression#>, with: <#T##StringProtocol#>)
         
-        return normString
+//        let normString = self.applyingTransform(.stripDiacritics, reverse: false)?
+//            .applyingTransform(.stripCombiningMarks, reverse: false) ?? self
+        
+        return self
             .lowercased()
             .replacingOccurrences(of: " ", with: "_")
     }

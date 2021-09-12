@@ -6,14 +6,14 @@
 //
 
 import Foundation
-import OpenCombineShim
+import OpenCombine
 import MQTT
 
 #if canImport(FoundationNetworking)
 import FoundationNetworking
 #endif
 
-extension Publisher where Output == OccupancyChange, Failure == Never {
+extension OpenCombine.Publisher where Output == OccupancyChange, Failure == Never {
     
     /// Apply the published delta to the given occupancy count.
     ///
@@ -48,32 +48,32 @@ struct HAState: CustomStringConvertible {
     }
 }
 
-extension Publisher where Output == [Room: Int], Failure == Never {
+extension OpenCombine.Publisher where Output == [Room: Int], Failure == Never {
     
-    func publishtoHomeAssistant(using config: HAConfig) -> AnyPublisher<HTTPURLResponse, URLError> {
-        self
-            .pairwise()
-            .map { previous, new in
-                new.filter { previous[$0.key] != $0.value }
-            }
-            .flatMap {
-                $0.publisher
-            }
-//            .print("Sending HA State")
-            .filter { $0.key.publishStateChanges }
-            .map { change in
-                HAState(domain: "sensor",
-                        name: change.key.sensorName,
-                        state: change.value,
-                        attributes: [
-                                "friendly_name": "\(change.key) Occupancy",
-                                "unit_of_measurement": change.value.personUnitCount,
-                                "icon": change.value.icon
-                            ]
-                        )
-            }
-            .publishState(using: config)
-    }
+//    func publishtoHomeAssistant(using config: HAConfig) -> AnyPublisher<HTTPURLResponse, URLError> {
+//        self
+//            .pairwise()
+//            .map { previous, new in
+//                new.filter { previous[$0.key] != $0.value }
+//            }
+//            .flatMap {
+//                $0.publisher
+//            }
+////            .print("Sending HA State")
+//            .filter { $0.key.publishStateChanges }
+//            .map { change in
+//                HAState(domain: "sensor",
+//                        name: change.key.sensorName,
+//                        state: change.value,
+//                        attributes: [
+//                                "friendly_name": "\(change.key) Occupancy",
+//                                "unit_of_measurement": change.value.personUnitCount,
+//                                "icon": change.value.icon
+//                            ]
+//                        )
+//            }
+//            .publishState(using: config)
+//    }
     
     func publishtoHomeAssistant(using client: MQTTClient) -> AnyCancellable {
         self
@@ -101,28 +101,28 @@ extension Publisher where Output == [Room: Int], Failure == Never {
     
 }
 
-extension Publisher where Output == HAState, Failure == Never {
-    func publishState(using config: HAConfig) -> AnyPublisher<HTTPURLResponse, URLError> {
-        self
-            .print("Sending State to HA")
-            .map { state -> URLRequest in
-                var request = URLRequest(url: config.url.appendingPathComponent("/api/states/\(state)"))
-                request.httpMethod = "POST"
-                request.setValue("Bearer \(config.token)", forHTTPHeaderField: "Authorization")
-
-                request.httpBody = try? JSONSerialization.data(withJSONObject: state.payload, options: [])
-                
-                return request
-            }
-            .flatMap { request -> URLSession.DataTaskPublisher in
-                URLSession.shared.dataTaskPublisher(for: request)
-            }
-            .retry(3)
-            .compactMap { element -> HTTPURLResponse? in
-                element.response as? HTTPURLResponse
-            }
-            .eraseToAnyPublisher()
-    }
+extension OpenCombine.Publisher where Output == HAState, Failure == Never {
+//    func publishState(using config: HAConfig) -> AnyPublisher<HTTPURLResponse, URLError> {
+//        self
+//            .print("Sending State to HA")
+//            .map { state -> URLRequest in
+//                var request = URLRequest(url: config.url.appendingPathComponent("/api/states/\(state)"))
+//                request.httpMethod = "POST"
+//                request.setValue("Bearer \(config.token)", forHTTPHeaderField: "Authorization")
+//
+//                request.httpBody = try? JSONSerialization.data(withJSONObject: state.payload, options: [])
+//
+//                return request
+//            }
+//            .flatMap { request -> URLSession.DataTaskPublisher in
+//                URLSession.shared.dataTaskPublisher(for: request)
+//            }
+//            .retry(3)
+//            .compactMap { element -> HTTPURLResponse? in
+//                element.response as? HTTPURLResponse
+//            }
+//            .eraseToAnyPublisher()
+//    }
     
 //    func publishState(using client: MQTTClient) -> AnyPublisher<HTTPURLResponse, URLError> {
 //        self

@@ -6,17 +6,17 @@
 //
 
 import XCTest
-import Combine
+import OpenCombine
 @testable import RoomOccupancyKit
 
 class ClusterTests: XCTestCase {
     
 //    let sensor = Sensor(URL(string: "localhost")!)
     
-    var cancellables: Set<AnyCancellable>!
+    var tokens: Set<AnyCancellable>!
     
     override func setUp() {
-        cancellables = []
+        tokens = []
     }
     
     func testPlayback() {
@@ -57,13 +57,13 @@ class ClusterTests: XCTestCase {
     
     func testFindPixels() {
         let payload = SensorPayload(sensor: "AMG8833", data: "21.020.021.021.021.021.521.022.019.520.020.019.520.020.020.521.019.520.020.021.520.020.020.521.020.020.021.022.521.520.521.021.520.021.024.025.026.023.021.021.520.521.026.026.026.526.023.022.021.020.025.026.526.026.022.521.520.020.021.022.023.022.521.021.0")!
-        Just(payload.pixels)
+        OpenCombine.Just(payload.pixels)
             .findRelevantPixels(averageTemperature: 21, deltaThreshold: 2)
             .sink { pixels in
                 pixels.printGrid()
                 XCTAssertEqual(pixels.count, 17)
             }
-            .store(in: &cancellables)
+            .store(in: &tokens)
  
     }
     
@@ -79,7 +79,7 @@ class ClusterTests: XCTestCase {
                 XCTAssertEqual(cluster?.center.x, 4)
                 XCTAssertEqual(cluster?.center.y, 3)
             }
-            .store(in: &cancellables)
+            .store(in: &tokens)
 
     }
     
@@ -95,7 +95,7 @@ class ClusterTests: XCTestCase {
                 XCTAssertEqual(cluster?.center.x, 5)
                 XCTAssertEqual(cluster?.center.y, 3)
             }
-            .store(in: &cancellables)
+            .store(in: &tokens)
 
     }
     
@@ -103,7 +103,7 @@ class ClusterTests: XCTestCase {
     
     func testBoundingBox() {
         let payload = SensorPayload(sensor: "AMG8833", data: "21.020.021.021.021.021.521.022.019.520.020.019.520.020.020.521.019.520.020.021.520.020.020.521.020.020.021.022.521.520.521.021.520.021.024.025.026.023.021.021.520.521.026.026.026.526.023.022.021.020.025.026.526.026.022.521.520.020.021.022.023.022.521.021.0")!
-        Just(payload.pixels)
+        OpenCombine.Just(payload.pixels)
             .findRelevantPixels(averageTemperature: 21, deltaThreshold: 2)
             .clusterHotestPixels()
             .compactMap { $0 }
@@ -116,13 +116,13 @@ class ClusterTests: XCTestCase {
                 XCTAssertEqual(bb.minY, 4)
 
             }
-            .store(in: &cancellables)
+            .store(in: &tokens)
         
     }
     
     func testCenter() {
         let payload = SensorPayload(sensor: "AMG8833", data: "21.020.021.021.021.021.521.022.019.520.020.019.520.020.020.521.019.520.020.021.520.020.020.521.020.020.021.022.521.520.521.021.520.021.024.025.026.023.021.021.520.521.026.026.026.526.023.022.021.020.025.026.526.026.022.521.520.020.021.022.023.022.521.021.0")!
-        Just(payload.pixels)
+        OpenCombine.Just(payload.pixels)
             .findRelevantPixels(averageTemperature: 21, deltaThreshold: 2)
             .clusterHotestPixels()
             .compactMap { $0 }
@@ -131,7 +131,7 @@ class ClusterTests: XCTestCase {
                 XCTAssertEqual(cluster.center.y, 6)
                 
             }
-            .store(in: &cancellables)
+            .store(in: &tokens)
         
         
     }

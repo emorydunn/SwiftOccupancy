@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import OpenCombineShim
+import OpenCombine
 
 //extension Publisher where Output == [Double], Failure == Never {
 //
@@ -19,7 +19,7 @@ import OpenCombineShim
 //    }
 //}
 
-extension Publisher where Output == [Pixel], Failure == Never {
+extension OpenCombine.Publisher where Output == [Pixel], Failure == Never {
     
     func findRelevantPixels(averageTemperature: Float, deltaThreshold: Float) -> AnyPublisher<Output, Failure> {
         let threshold = averageTemperature + deltaThreshold
@@ -93,7 +93,7 @@ extension Publisher where Output == [Pixel], Failure == Never {
     
 }
 
-extension Publisher where Output == SensorPayload, Failure == Never {
+extension OpenCombine.Publisher where Output == SensorPayload, Failure == Never {
     
     func logSensorData() -> AnyPublisher<SensorPayload, Never> {
         self.map { data -> SensorPayload in
@@ -146,7 +146,7 @@ extension Publisher where Output == SensorPayload, Failure == Never {
     
 }
 
-extension Publisher where Output == SensorPayload?, Failure == Never {
+extension OpenCombine.Publisher where Output == SensorPayload?, Failure == Never {
     func logSensorData() -> AnyPublisher<SensorPayload?, Never> {
         self.map { data -> SensorPayload? in
             if let data = data {

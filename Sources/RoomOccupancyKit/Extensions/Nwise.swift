@@ -8,7 +8,7 @@
 // From https://github.com/CombineCommunity/CombineExt#pairwise
 //
 
-import OpenCombineShim
+import OpenCombine
 
 public extension Publisher {
     /// Groups the elements of the source publisher into arrays of N consecutive elements.
