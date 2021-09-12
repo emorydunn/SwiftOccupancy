@@ -88,6 +88,23 @@ public enum Room: CustomStringConvertible, Decodable, Hashable, Comparable {
     func publishState(_ count: Int, with client:  MQTTClient) {
         client.publish(topic: "\(mqttTopic)/state", retain: false, qos: .atLeastOnce, payload: String(describing: count))
     }
+    
+    /// Subscribe to the state of this room.
+    /// - Parameter client: The MQTT client.
+    /// - Returns: A Publisher indicating the number of people in the room. 
+    func subscribe(with client: MQTTClient) -> AnyPublisher<Int, MQTTPublisher.Failure> {
+        client
+            .packetPublisher()
+            .subscribe(topic: "\(mqttTopic)/state", qos: .atLeastOnce)
+            .filterForSubscriptions()
+            .compactMap { packet in
+                String(data: packet.payload, encoding: .utf8)
+            }
+            .compactMap {
+                Int($0)
+            }
+            .eraseToAnyPublisher()
+    }
 }
 
 public class House: ObservableObject {

@@ -26,17 +26,26 @@ do {
     exit(1)
 }
 
-let manager: SensorManager
 do {
-    manager = try JSONDecoder().decode(SensorManager.self, from: data)
+    let manager = try JSONDecoder().decode(PiSensorManager.self, from: data)
+    manager.begin()
 } catch {
     print("There was a problem decoding the config file.")
     print(error)
     exit(1)
 }
 
-
-// Begin monitoring the sensors
-manager.monitorMQTT(publishToHA: true)
+//let manager: SensorManager
+//do {
+//    manager = try JSONDecoder().decode(SensorManager.self, from: data)
+//} catch {
+//    print("There was a problem decoding the config file.")
+//    print(error)
+//    exit(1)
+//}
+//
+//
+//// Begin monitoring the sensors
+//manager.monitorMQTT(publishToHA: true)
 //manager.publishToHA()
-RunLoop.main.run()
+//RunLoop.main.run()
