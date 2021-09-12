@@ -21,7 +21,7 @@ import OpenCombineShim
 
 extension Publisher where Output == [Pixel], Failure == Never {
     
-    func findRelevantPixels(averageTemperature: Double, deltaThreshold: Double) -> AnyPublisher<Output, Failure> {
+    func findRelevantPixels(averageTemperature: Float, deltaThreshold: Float) -> AnyPublisher<Output, Failure> {
         let threshold = averageTemperature + deltaThreshold
         
         return self.map { pixels in
@@ -114,9 +114,9 @@ extension Publisher where Output == SensorPayload, Failure == Never {
                 }
                 
                 // Create an empty array with the length from the first element
-                let emptyArray = Array(repeating: Double.zero, count: maxLength)
+                let emptyArray = Array(repeating: Float.zero, count: maxLength)
                 
-                let totals: [Double] = buffer.reduce(emptyArray) { pixelTotal, payload in
+                let totals: [Float] = buffer.reduce(emptyArray) { pixelTotal, payload in
                     // Add all the values together
                     return pixelTotal.enumerated().map { index, value in
                         value + payload.rawData[index]
@@ -124,7 +124,7 @@ extension Publisher where Output == SensorPayload, Failure == Never {
                 }
                 
                 // Average the values with the frame buffer
-                let averageData = totals.map { $0 / Double(count) }
+                let averageData = totals.map { $0 / Float(count) }
                 
                 // Return the first elemet with the new data
                 return SensorPayload(sensor: buffer[0].sensor,
@@ -135,7 +135,7 @@ extension Publisher where Output == SensorPayload, Failure == Never {
             .eraseToAnyPublisher()
     }
 
-    func findRelevantPixels(averageTemperature: Double, deltaThreshold: Double) -> AnyPublisher<[Pixel], Failure> {
+    func findRelevantPixels(averageTemperature: Float, deltaThreshold: Float) -> AnyPublisher<[Pixel], Failure> {
         let threshold = averageTemperature + deltaThreshold
         
         return self.map { data in
@@ -171,9 +171,9 @@ extension Publisher where Output == SensorPayload?, Failure == Never {
                 }
                 
                 // Create an empty array with the length from the first element
-                let emptyArray = Array(repeating: Double.zero, count: maxLength)
+                let emptyArray = Array(repeating: Float.zero, count: maxLength)
                 
-                let totals: [Double] = buffer.reduce(emptyArray) { pixelTotal, payload in
+                let totals: [Float] = buffer.reduce(emptyArray) { pixelTotal, payload in
                     // Add all the values together
                     return pixelTotal.enumerated().map { index, value in
                         value + payload.rawData[index]
@@ -181,7 +181,7 @@ extension Publisher where Output == SensorPayload?, Failure == Never {
                 }
                 
                 // Average the values with the frame buffer
-                let averageData = totals.map { $0 / Double(count) }
+                let averageData = totals.map { $0 / Float(count) }
                 
                 // Return the first elemet with the new data
                 return SensorPayload(sensor: buffer[0].sensor,

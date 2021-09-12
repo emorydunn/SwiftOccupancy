@@ -11,52 +11,51 @@ public struct SensorPayload {
     public let sensor: String
     public let rows: Int
     public let cols: Int
-    @available(*, deprecated, message: "Use Pixels")
-    public let data: [[Pixel]]
+//    @available(*, deprecated, message: "Use Pixels")
+//    public let data: [[Pixel]]
     public let pixels: [Pixel]
-    public let rawData: [Double]
+    public let rawData: [Float]
     
-    public let mean: Double
+    public let mean: Float
     
     public enum CodingKeys: String, CodingKey {
         case sensor, rows, cols, data
     }
     
-    public init?(sensor: String, rows: Int = 8, cols: Int = 8, data: [Double]) {
+    public init?(sensor: String, rows: Int = 8, cols: Int = 8, data: [Float]) {
         self.sensor = sensor
         self.rows = rows
         self.cols = cols
         
         // Validate the data
         guard data.count == rows * cols else {
-            self.data = []
+//            self.data = []
             self.pixels = []
             self.rawData = []
             self.mean = 0
             return nil
         }
         
-        var tempTotal: Double = 0
+        var tempTotal: Float = 0
         var pixels = [Pixel]()
         
-        let arrayData: [[Pixel]] = (0..<cols).map { offset in
+        (0..<cols).forEach { offset in
             let row = data[(0 + offset * rows)..<(rows + offset * rows)]
             
-            return row.enumerated().map { index, value in
+            row.enumerated().forEach { index, value in
                 tempTotal += value
                 let p = Pixel(x: index + 1,
                               y: offset + 1,
                               temp: value)
                 pixels.append(p)
-                return p
             }
         }
         
         self.rawData = data
-        self.data = arrayData
+//        self.data = arrayData
         self.pixels = pixels
         
-        self.mean = tempTotal / Double(rawData.count)
+        self.mean = tempTotal / Float(rawData.count)
     }
     
     public init?(sensor: String, rows: Int = 8, cols: Int = 8, data: String) {
@@ -69,7 +68,7 @@ public struct SensorPayload {
             
             return data[chunkStart..<chunkEnd]
         }
-        .compactMap { Double($0)?.rounded() }
+        .compactMap { Float($0)?.rounded() }
 
         self.init(sensor: sensor,
                   rows: rows,
@@ -95,8 +94,8 @@ public struct SensorPayload {
     
     public func createImage(columns: Int = 8,
                             pixelSize: Int = 10,
-                            minTemperature: Double = 16,
-                            maxTemperature: Double = 30) -> String {
+                            minTemperature: Float = 16,
+                            maxTemperature: Float = 30) -> String {
         let side = columns * pixelSize
         
         let svg = XMLElement(kind: .element)

@@ -10,10 +10,10 @@ import OpenCombineShim
 import MQTT
 
 @propertyWrapper
-struct RoomCount {
+public struct RoomCount {
     var count: Int
     
-    init(count: Int) {
+    public init(_ count: Int) {
         self.count = count
     }
     
@@ -44,7 +44,7 @@ public class MQTTSensor: ObservableObject, Decodable, Identifiable {
 //    @RoomCount public var topRoomCount: Int = 0
 //    @RoomCount public var bottomRoomCount: Int = 0
     
-    public var deltaThreshold: Double
+    public var deltaThreshold: Float
     public var minClusterSize: Int
     public var minWidth: Int
     public var minHeight: Int
@@ -52,7 +52,7 @@ public class MQTTSensor: ObservableObject, Decodable, Identifiable {
     
     @Published public var sensorData: SensorPayload?
     @Published public var currentCluster: Cluster?
-    @Published public var averageTemp: Double = 22.0
+    @Published public var averageTemp: Float = 22.0
     @Published public var sensorSVG: String = ""
 //    @Published public var lastAction: Direction?
     
@@ -61,7 +61,7 @@ public class MQTTSensor: ObservableObject, Decodable, Identifiable {
     public init(_ sensorName: String,
                 topName: Room = .room("Top Room"),
                 bottomName: Room = .room("Bottom Room"),
-                deltaThreshold: Double = 2,
+                deltaThreshold: Float = 2,
                 minClusterSize: Int = 10,
                 minWidth: Int = 3,
                 minHeight: Int = 3,
@@ -85,7 +85,7 @@ public class MQTTSensor: ObservableObject, Decodable, Identifiable {
         self.bottomName = try container.decodeIfPresent(Room.self, forKey: .bottomName) ?? .æther
 
         // Sensor Config
-        self.deltaThreshold = try container.decodeIfPresent(Double.self, forKey: .deltaThreshold) ?? 2
+        self.deltaThreshold = try container.decodeIfPresent(Float.self, forKey: .deltaThreshold) ?? 2
         self.minClusterSize = try container.decodeIfPresent(Int.self, forKey: .minClusterSize) ?? 10
         self.minWidth = try container.decodeIfPresent(Int.self, forKey: .minWidth) ?? 3
         self.minHeight = try container.decodeIfPresent(Int.self, forKey: .minHeight) ?? 3
@@ -122,7 +122,7 @@ public class MQTTSensor: ObservableObject, Decodable, Identifiable {
             .compactMap { $0.mean }
             .collect(100)
             .map { temps in
-                (temps.reduce(0, +) / Double(temps.count)).rounded()
+                (temps.reduce(0, +) / Float(temps.count)).rounded()
             }
             .assign(to: &$averageTemp)
         

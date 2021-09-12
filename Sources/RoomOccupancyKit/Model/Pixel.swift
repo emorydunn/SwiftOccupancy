@@ -13,11 +13,11 @@ public class Pixel: Identifiable, Hashable, Codable {
     
     public let x: Int
     public let y: Int
-    public let temp: Double
+    public let temp: Float
     
     public var tempString: String { "\(Int(temp)) ºc" }
     
-    public init(x: Int, y: Int, temp: Double) {
+    public init(x: Int, y: Int, temp: Float) {
         self.x = x
         self.y = y
         self.temp = temp
@@ -39,7 +39,7 @@ public class Pixel: Identifiable, Hashable, Codable {
     ///   - max: Max temp (`1`)
     /// - Returns: Normalized temp
     @available(*, deprecated, renamed: "temp.normalize(_:_:)", message: "Use the method on Double.")
-    public func normalize(_ min: Double, _ max: Double) -> Double {
+    public func normalize(_ min: Float, _ max: Float) -> Float {
         (temp - min) / (max - min)
     }
     

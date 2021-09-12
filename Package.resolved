@@ -2,6 +2,15 @@
   "object": {
     "pins": [
       {
+        "package": "AMG88xx",
+        "repositoryURL": "https://github.com/emorydunn/AMG88xx.swift.git",
+        "state": {
+          "branch": "main",
+          "revision": "0f98162eb2e77986e7bfe8c3c36a5e46b4657ebf",
+          "version": null
+        }
+      },
+      {
         "package": "OpenCombine",
         "repositoryURL": "https://github.com/OpenCombine/OpenCombine.git",
         "state": {
@@ -35,6 +44,15 @@
           "branch": null,
           "revision": "6363cdf6d2fb863e82434f3c4618f4e896e37569",
           "version": "2.13.1"
+        }
+      },
+      {
+        "package": "SwiftyGPIO",
+        "repositoryURL": "https://github.com/uraimo/SwiftyGPIO.git",
+        "state": {
+          "branch": null,
+          "revision": "b1ec6e1ec0a871466fae88fd8764c9530d8b570b",
+          "version": "1.3.5"
         }
       }
     ]
