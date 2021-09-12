@@ -57,7 +57,7 @@ public class PiSensor: Decodable {
     
     var tokens: [AnyCancellable] = []
     
-    public func monitorRooms(from client: MQTTClient) {
+    func monitorRooms(from client: LightMQTT) {
         topRoom
             .subscribe(with: client)
             .replaceError(with: 0)
@@ -83,7 +83,7 @@ public class PiSensor: Decodable {
             .store(in: &tokens)
     }
     
-    public func monitorSensor(on interface: I2CInterface) {
+    func monitorSensor(on interface: I2CInterface) {
         // Create the sensor
         let sensor = AMG88(interface)
         

@@ -87,7 +87,7 @@ extension OpenCombine.Publisher where Output == [Room: Int], Failure == Never {
             .filter { $0.key.publishStateChanges }
             .sink  { change in
                 let room = change.key
-                room.publishState(change.value, with: client)
+//                room.publishState(change.value, with: client)
             }
 //            .map { change in
 //                let room = change.key

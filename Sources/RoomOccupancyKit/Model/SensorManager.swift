@@ -95,9 +95,9 @@ public class SensorManager: Decodable {
         
         guard publishToHA else { return }
         
-        occupancy.rooms.keys.forEach {
-            $0.publishSensorConfig(client)
-        }
+//        occupancy.rooms.keys.forEach {
+//            $0.publishSensorConfig(client)
+//        }
         
         print("Publishing changes to Home Assistant")
         occupancy.$rooms

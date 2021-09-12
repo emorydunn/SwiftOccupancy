@@ -6,18 +6,33 @@
 //
 
 import Foundation
-import MQTT
 import SwiftyGPIO
 
 public class PiSensorManager: Decodable {
+    
+    public struct MQTTSettings: Decodable {
+        let host: String
+        let port: Int
+        let username: String
+        let password: String
+    }
+    
     public let sensor: PiSensor
-    public let mqttBroker: HAMQTTConfig
+//    public let mqttBroker: HAMQTTConfig
+    public let mqtt: MQTTSettings
     public let board: SupportedBoard
     
     public func begin() {
-        // Begin monitoring data
-        let client = mqttBroker.makeClient()
+        var options = LightMQTT.Options()
+        options.username = mqtt.username
+        options.password = mqtt.password
+        options.port = mqtt.port
         
+        let client = LightMQTT(host: mqtt.host, options: options)
+        
+        // Begin monitoring data
+//        let client = mqttBroker.makeClient()
+//
         sensor.monitorRooms(from: client)
         sensor.monitorSensor(on: SwiftyGPIO.hardwareI2Cs(for: board)![1])
         

@@ -59,7 +59,7 @@ public enum Room: CustomStringConvertible, Decodable, Hashable, Comparable {
         }
     }
     
-    func publishSensorConfig(_ client:  MQTTClient) {
+    func publishSensorConfig(_ client:  LightMQTT) {
         let config: [String: Any] = [
             "name": "\(description) Occupancy Count",
             "unique_id": sensorName,
@@ -76,7 +76,8 @@ public enum Room: CustomStringConvertible, Decodable, Hashable, Comparable {
         
         do {
             let payload = try JSONSerialization.data(withJSONObject: config, options: [])
-            client.publish(topic: "\(mqttTopic)/config", retain: true, qos: .atLeastOnce, payload: payload)
+//            client.publish(topic: "\(mqttTopic)/config", retain: true, qos: .atLeastOnce, payload: payload)
+            client.publish(to: "\(mqttTopic)/config", message: payload)
             print("Published MQTT discovery topic for \(self)")
         } catch {
             print("Could not encode MQTT discovery config for \(self)")
@@ -85,21 +86,23 @@ public enum Room: CustomStringConvertible, Decodable, Hashable, Comparable {
 
     }
     
-    func publishState(_ count: Int, with client:  MQTTClient) {
-        client.publish(topic: "\(mqttTopic)/state", retain: false, qos: .atLeastOnce, payload: String(describing: count))
+    func publishState(_ count: Int, with client:  LightMQTT) {
+        client.publish(to: "\(mqttTopic)/state", message: String(describing: count).data(using: .utf8))
+//        client.publish(topic: "\(mqttTopic)/state", retain: false, qos: .atLeastOnce, payload: String(describing: count))
     }
+    
     
     /// Subscribe to the state of this room.
     /// - Parameter client: The MQTT client.
     /// - Returns: A Publisher indicating the number of people in the room. 
-    func subscribe(with client: MQTTClient) -> AnyPublisher<Int, MQTTPublisher.Failure> {
+    func subscribe(with client: LightMQTT) -> AnyPublisher<Int, Never> {
         client
             .packetPublisher()
-            .subscribe(topic: "\(mqttTopic)/state", qos: .atLeastOnce)
-            .filterForSubscriptions()
-            .compactMap { packet in
-                String(data: packet.payload, encoding: .utf8)
-            }
+            .subscribe(to: "\(mqttTopic)/state")
+//            .filterForSubscriptions()
+//            .compactMap { packet in
+//                String(data: packet.payload, encoding: .utf8)
+//            }
             .compactMap {
                 Int($0)
             }
