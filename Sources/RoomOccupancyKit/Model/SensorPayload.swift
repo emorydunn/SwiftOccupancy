@@ -7,6 +7,10 @@
 
 import Foundation
 
+#if canImport(FoundationXML)
+import FoundationXML
+#endif
+
 public struct SensorPayload {
     public let sensor: String
     public let rows: Int
@@ -93,7 +97,7 @@ public struct SensorPayload {
     public func logData() {
         print("FrameData:", rawData.map { String($0) }.joined(separator: ","))
     }
-    #if canImport(FoundationXML)
+    
     public func createImage(columns: Int = 8,
                             pixelSize: Int = 10,
                             minTemperature: Float = 16,
@@ -139,7 +143,6 @@ public struct SensorPayload {
         return doc.xmlString(options: [.documentTidyXML, .nodePrettyPrint])
 
     }
-    #endif
     
 }
 

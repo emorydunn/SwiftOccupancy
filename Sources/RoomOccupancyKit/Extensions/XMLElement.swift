@@ -8,6 +8,9 @@
 import Foundation
 
 #if canImport(FoundationXML)
+import FoundationXML
+#endif
+
 extension XMLElement {
 
     /// Adds an attribute node to the receiver.
@@ -22,4 +25,3 @@ extension XMLElement {
         addAttribute(attr)
     }
 }
-#endif
