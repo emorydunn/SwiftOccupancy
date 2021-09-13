@@ -13,7 +13,7 @@ import OpenCombine
 import FoundationNetworking
 #endif
 
-public enum Room: CustomStringConvertible, Decodable, Hashable, Comparable {
+public enum Room: CustomStringConvertible, Decodable {
     
     case room(String)
     case æther
@@ -31,10 +31,6 @@ public enum Room: CustomStringConvertible, Decodable, Hashable, Comparable {
         let container = try decoder.singleValueContainer()
 
         self = .room(try container.decode(String.self))
-    }
-    
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(description)
     }
     
     var slug: String {
@@ -106,6 +102,16 @@ public enum Room: CustomStringConvertible, Decodable, Hashable, Comparable {
                 Int($0)
             }
             .eraseToAnyPublisher()
+    }
+}
+
+extension Room: Comparable, Hashable {
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(description)
+    }
+    
+    public static func < (lhs: Self, rhs: Self) -> Bool {
+        lhs.description < rhs.description
     }
 }
 
