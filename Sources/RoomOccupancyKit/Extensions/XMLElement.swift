@@ -7,7 +7,7 @@
 
 import Foundation
 
-#if canImport(CoreFoundation)
+#if canImport(FoundationXML)
 extension XMLElement {
 
     /// Adds an attribute node to the receiver.

@@ -93,7 +93,7 @@ public struct SensorPayload {
     public func logData() {
         print("FrameData:", rawData.map { String($0) }.joined(separator: ","))
     }
-    #if canImport(CoreFoundation)
+    #if canImport(FoundationXML)
     public func createImage(columns: Int = 8,
                             pixelSize: Int = 10,
                             minTemperature: Float = 16,
