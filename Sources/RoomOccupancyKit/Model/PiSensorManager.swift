@@ -27,12 +27,10 @@ public class PiSensorManager: Decodable {
         options.username = mqtt.username
         options.password = mqtt.password
         options.port = mqtt.port
+        options.clientId = sensor.id
         
         let client = LightMQTT(host: mqtt.host, options: options)
-        
-        // Begin monitoring data
-//        let client = mqttBroker.makeClient()
-//
+  
         sensor.monitorRooms(from: client)
         sensor.monitorSensor(on: SwiftyGPIO.hardwareI2Cs(for: board)![1])
         

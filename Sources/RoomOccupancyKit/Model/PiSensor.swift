@@ -12,6 +12,11 @@ import OpenCombine
 import OpenCombineFoundation
 
 public class PiSensor: Decodable {
+    
+    public var id: String {
+        "\(topRoom) / \(bottomRoom)"
+    }
+    
     public var topRoom: Room = .æther
     public var bottomRoom: Room = .æther
     
