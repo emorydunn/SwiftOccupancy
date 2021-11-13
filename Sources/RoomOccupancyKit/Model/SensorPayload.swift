@@ -133,8 +133,7 @@ public struct SensorPayload {
         }
         
         let doc = XMLDocument(rootElement: svg)
-        doc.kind = .document
-//        doc.setRootElement(svg)
+        
         doc.characterEncoding = "UTF-8"
         doc.isStandalone = false
         doc.documentContentKind = .xml
