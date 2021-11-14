@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftyGPIO
+import MQTTKit
 
 public class PiSensorManager: Decodable {
     
@@ -23,13 +24,17 @@ public class PiSensorManager: Decodable {
     public let board: SupportedBoard
     
     public func begin() {
-        var options = LightMQTT.Options()
+        var options = MQTTOptions(host: mqtt.host, port: mqtt.port)
+        
         options.username = mqtt.username
         options.password = mqtt.password
-        options.port = mqtt.port
         options.clientId = sensor.id
+
+        let client = MQTTSession(options: options)
         
-        let client = LightMQTT(host: mqtt.host, options: options)
+        client.connect { success in
+            print("Connected to MQTT server:", success)
+        }
   
         sensor.monitorRooms(from: client)
         sensor.monitorSensor(on: SwiftyGPIO.hardwareI2Cs(for: board)![1])

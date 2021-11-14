@@ -10,6 +10,7 @@ import AMG88xx
 import SwiftyGPIO
 import OpenCombine
 import OpenCombineFoundation
+import MQTTKit
 
 public class PiSensor: Decodable {
     
@@ -61,10 +62,9 @@ public class PiSensor: Decodable {
     
     var tokens: [AnyCancellable] = []
     
-    func monitorRooms(from client: LightMQTT) {
+    func monitorRooms(from client: MQTTSession) {
         topRoom
             .subscribe(with: client)
-            .replaceError(with: 0)
             .assign(to: &$topRoomCount)
         
         $topRoomCount
@@ -73,7 +73,7 @@ public class PiSensor: Decodable {
                 self.topRoom.publishState(value, with: client)
             }
             .store(in: &tokens)
-
+        
         bottomRoom
             .subscribe(with: client)
             .replaceError(with: 0)
@@ -86,6 +86,32 @@ public class PiSensor: Decodable {
             }
             .store(in: &tokens)
     }
+    
+//    func monitorRooms(from client: LightMQTT) {
+//        topRoom
+//            .subscribe(with: client)
+//            .replaceError(with: 0)
+//            .assign(to: &$topRoomCount)
+//        
+//        $topRoomCount
+//            .removeDuplicates()
+//            .sink { value in
+//                self.topRoom.publishState(value, with: client)
+//            }
+//            .store(in: &tokens)
+//
+//        bottomRoom
+//            .subscribe(with: client)
+//            .replaceError(with: 0)
+//            .assign(to: &$bottomRoomCount)
+//        
+//        $bottomRoomCount
+//            .removeDuplicates()
+//            .sink { value in
+//                self.bottomRoom.publishState(value, with: client)
+//            }
+//            .store(in: &tokens)
+//    }
     
     func monitorSensor(on interface: I2CInterface) {
         // Create the sensor
