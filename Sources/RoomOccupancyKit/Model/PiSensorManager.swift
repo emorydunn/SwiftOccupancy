@@ -20,23 +20,27 @@ public class PiSensorManager: Decodable {
     
     public let sensor: PiSensor
 //    public let mqttBroker: HAMQTTConfig
-    public let mqtt: MQTTSettings
+    public let mqtt: MQTTSettings?
     public let board: SupportedBoard
     
     public func begin() {
-        var options = MQTTOptions(host: mqtt.host, port: mqtt.port)
         
-        options.username = mqtt.username
-        options.password = mqtt.password
-        options.clientId = sensor.id
+        if let mqtt = mqtt {
+            var options = MQTTOptions(host: mqtt.host, port: mqtt.port)
+            
+            options.username = mqtt.username
+            options.password = mqtt.password
+            options.clientId = sensor.id
 
-        let client = MQTTSession(options: options)
-        
-        client.connect { success in
-            print("Connected to MQTT server:", success)
+            let client = MQTTSession(options: options)
+            
+            client.connect { success in
+                print("Connected to MQTT server:", success)
+            }
+      
+            sensor.monitorRooms(from: client)
         }
-  
-        sensor.monitorRooms(from: client)
+        
         sensor.monitorSensor(on: SwiftyGPIO.hardwareI2Cs(for: board)![1])
         
         RunLoop.main.run()
