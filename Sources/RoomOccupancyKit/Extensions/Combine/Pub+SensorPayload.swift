@@ -50,7 +50,7 @@ extension OpenCombine.Publisher where Output == [Pixel], Failure == Never {
         
     }
     
-    public func clusterHotestPixels() -> AnyPublisher<Cluster?, Never> {
+    public func clusterHottestPixels() -> AnyPublisher<Cluster?, Never> {
         
         // Start with the hottest pixel
         self.map { pixels in

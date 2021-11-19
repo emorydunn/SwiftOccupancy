@@ -71,7 +71,7 @@ class ClusterTests: XCTestCase {
         let payload = SensorPayload(sensor: "AMG8833", data: "22.021.022.024.021.022.023.024.020.022.026.026.025.021.021.023.021.024.026.025.025.023.021.022.022.025.027.026.025.024.022.022.020.020.022.024.023.020.021.021.021.020.021.020.021.020.021.021.019.020.020.020.020.020.021.021.020.020.021.020.020.020.020.021.0")!
         Just(payload.pixels)
             .findRelevantPixels(averageTemperature: 21, deltaThreshold: 2)
-            .clusterHotestPixels()
+            .clusterHottestPixels()
             .sink { cluster in
                 cluster?.printGrid()
                 XCTAssertNotNil(cluster)
@@ -87,7 +87,7 @@ class ClusterTests: XCTestCase {
         let payload = SensorPayload(sensor: "AMG8833", data: [20.0,21.0,24.333333333333332,25.0,24.666666666666668,24.333333333333332,23.0,22.0,20.666666666666668,22.333333333333332,24.0,25.0,25.0,23.0,22.333333333333332,21.0,21.0,25.0,24.0,24.0,24.666666666666668,24.333333333333332,21.0,20.0,21.0,23.333333333333332,24.0,24.0,26.0,26.0,22.0,20.0,21.666666666666668,20.666666666666668,20.666666666666668,21.0,22.0,21.666666666666668,20.0,20.666666666666668,20.0,20.0,20.0,20.0,20.0,20.0,19.666666666666668,20.0,19.0,19.666666666666668,19.333333333333332,19.666666666666668,20.0,19.666666666666668,20.0,19.666666666666668,19.666666666666668,20.0,19.666666666666668,19.666666666666668,20.0,19.333333333333332,19.0,19.666666666666668])!
         Just(payload.pixels)
             .findRelevantPixels(averageTemperature: 21, deltaThreshold: 2)
-            .clusterHotestPixels()
+            .clusterHottestPixels()
             .sink { cluster in
                 cluster?.printGrid()
                 XCTAssertNotNil(cluster)
@@ -105,7 +105,7 @@ class ClusterTests: XCTestCase {
         let payload = SensorPayload(sensor: "AMG8833", data: "21.020.021.021.021.021.521.022.019.520.020.019.520.020.020.521.019.520.020.021.520.020.020.521.020.020.021.022.521.520.521.021.520.021.024.025.026.023.021.021.520.521.026.026.026.526.023.022.021.020.025.026.526.026.022.521.520.020.021.022.023.022.521.021.0")!
         OpenCombine.Just(payload.pixels)
             .findRelevantPixels(averageTemperature: 21, deltaThreshold: 2)
-            .clusterHotestPixels()
+            .clusterHottestPixels()
             .compactMap { $0 }
             .sink { cluster in
                 let bb = cluster.boundingBox()
@@ -124,7 +124,7 @@ class ClusterTests: XCTestCase {
         let payload = SensorPayload(sensor: "AMG8833", data: "21.020.021.021.021.021.521.022.019.520.020.019.520.020.020.521.019.520.020.021.520.020.020.521.020.020.021.022.521.520.521.021.520.021.024.025.026.023.021.021.520.521.026.026.026.526.023.022.021.020.025.026.526.026.022.521.520.020.021.022.023.022.521.021.0")!
         OpenCombine.Just(payload.pixels)
             .findRelevantPixels(averageTemperature: 21, deltaThreshold: 2)
-            .clusterHotestPixels()
+            .clusterHottestPixels()
             .compactMap { $0 }
             .sink { cluster in
                 XCTAssertEqual(cluster.center.x, 5)

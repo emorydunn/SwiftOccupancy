@@ -21,11 +21,11 @@ public class PiSensor: Decodable {
     public var topRoom: Room = .æther
     public var bottomRoom: Room = .æther
     
-    public var deltaThreshold: Float
-    public var minClusterSize: Int
-    public var minWidth: Int
-    public var minHeight: Int
-    public var averageFrameCount: Int
+    public var deltaThreshold: Float = 2
+    public var minClusterSize: Int = 10
+    public var minWidth: Int = 3
+    public var minHeight: Int = 3
+    public var averageFrameCount: Int = 2
     
     public enum CodingKeys: String, CodingKey {
         case topRoom, bottomRoom
@@ -87,6 +87,13 @@ public class PiSensor: Decodable {
             .store(in: &tokens)
     }
     
+    func debugSensor() {
+        $sensorData
+            .logSensorData()
+            .sink { _ in }
+            .store(in: &tokens)
+    }
+    
 //    func monitorRooms(from client: LightMQTT) {
 //        topRoom
 //            .subscribe(with: client)
@@ -145,7 +152,7 @@ public class PiSensor: Decodable {
         $sensorData
             .compactMap { $0 }
             .findRelevantPixels(averageTemperature: averageTemp, deltaThreshold: deltaThreshold)
-            .clusterHotestPixels()
+            .clusterHottestPixels()
             .map {
                 guard let cluster = $0 else { return nil }
                 
@@ -158,7 +165,7 @@ public class PiSensor: Decodable {
                 let width = box.maxX - box.minX
                 let height = box.maxY - box.minY
 
-                // Ensure the cluser has minimum dimensions
+                // Ensure the cluster has minimum dimensions
                 guard width >= self.minWidth && height >= self.minWidth else {
                     return nil
                 }
