@@ -26,6 +26,8 @@ public class PiSensorManager: Decodable {
     public func begin() {
         
         if let mqtt = mqtt {
+            print("Connecting to MQTT server \(mqtt.host):\(mqtt.port)")
+            
             var options = MQTTOptions(host: mqtt.host, port: mqtt.port)
             
             options.username = mqtt.username
@@ -41,6 +43,7 @@ public class PiSensorManager: Decodable {
             sensor.monitorRooms(from: client)
         }
         
+        print("Connecting to AMG88 Sensor")
         sensor.monitorSensor(on: SwiftyGPIO.hardwareI2Cs(for: board)![1])
         
         RunLoop.main.run()
