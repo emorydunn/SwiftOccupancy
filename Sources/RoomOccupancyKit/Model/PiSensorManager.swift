@@ -43,7 +43,7 @@ public class PiSensorManager: Decodable {
                 case .badUsernameOrPassword:
                     print("Error: Bad username or password")
                 case .identifierRejected:
-                    print("Error: Identifier '\(sensor.id)' was rejected")
+                    print("Error: Identifier '\(self.sensor.id)' was rejected")
                 case .notAuthorized:
                     print("Error: Not authorized")
                 case .reserved:
