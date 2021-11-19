@@ -36,6 +36,25 @@ public class PiSensorManager: Decodable {
 
             let client = MQTTSession(options: options)
             
+            client.didRecieveConack = { message in
+                switch message {
+                case .accepted:
+                    print("Server accepted the connection.")
+                case .badUsernameOrPassword:
+                    print("Error: Bad username or password")
+                case .identifierRejected:
+                    print("Error: Identifier '\(sensor.id)' was rejected")
+                case .notAuthorized:
+                    print("Error: Not authorized")
+                case .reserved:
+                    print("Error: Reserved")
+                case .serverUnavailable:
+                    print("Error: Server unavailable")
+                case .unacceptableProtocolVersion:
+                    print("Error: Unacceptable protocol version")
+                }
+            }
+            
             client.connect { success in
                 print("Connected to MQTT server:", success)
             }
