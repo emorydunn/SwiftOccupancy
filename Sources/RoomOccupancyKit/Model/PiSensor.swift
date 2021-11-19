@@ -127,6 +127,7 @@ public class PiSensor: Decodable {
         // Monitor the sensor
         Timer
             .publish(every: 0.1, on: .main, in: .default)
+            .autoconnect()
             .map { _ in
                 sensor.readPixels()
             }
