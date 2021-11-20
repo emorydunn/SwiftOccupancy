@@ -1,6 +1,6 @@
 //
-//  File.swift
-//  
+//  MQTT+Pub.swift
+//
 //
 //  Created by Emory Dunn on 11/19/21.
 //
@@ -12,8 +12,15 @@ import MQTT
 extension MQTTClient {
     
     /// Returns a publisher that wraps an MQTT client.
-    func messagesPublisher(_ onConnection: @escaping () -> Void) -> MQTTPublisher {
+    func messagesPublisher(_ onConnection: @escaping (MQTTClient) -> Void) -> MQTTPublisher {
         MQTTPublisher(client: self, onConnection)
+    }
+    
+    /// Returns a publisher that wraps an MQTT client.
+    func sharedMessagesPublisher(_ onConnection: @escaping (MQTTClient) -> Void) -> AnyPublisher<PublishPacket, Error> {
+        MQTTPublisher(client: self, onConnection)
+            .share()
+            .eraseToAnyPublisher()
     }
 }
 
@@ -34,11 +41,9 @@ public class MQTTPublisher: Publisher {
     static let queue = DispatchQueue(label: "MQTTPublisher", qos: .background)
     
     let client: MQTTClient
-    let onConnection: () -> Void
-    
-//    var futureTopics: [String: QoS] = [:]
-    
-    public init(client: MQTTClient, _ onConnection: @escaping () -> Void) {
+    let onConnection: (MQTTClient) -> Void
+
+    public init(client: MQTTClient, _ onConnection: @escaping (MQTTClient) -> Void) {
         self.client = client
         self.onConnection = onConnection
     }
@@ -55,12 +60,12 @@ extension MQTTPublisher {
     class MQTTSubscription<Target: Subscriber>: MQTTClientDelegate, Subscription where Target.Input == Output, Target.Failure == Failure {
         
         let client: MQTTClient
-        let onConnection: () -> Void
+        let onConnection: (MQTTClient) -> Void
         
         var target: Target?
         var demand: Subscribers.Demand = .none
         
-        init(client: MQTTClient, target: Target, _ onConnection: @escaping () -> Void) {
+        init(client: MQTTClient, target: Target, _ onConnection: @escaping (MQTTClient) -> Void) {
             self.client = client
             self.target = target
             self.onConnection = onConnection
@@ -70,6 +75,9 @@ extension MQTTPublisher {
         
         func request(_ demand: Subscribers.Demand) {
             self.demand = demand
+            
+            Swift.print("Connecting client to server")
+            client.connect()
         }
         
         func cancel() {
@@ -85,16 +93,15 @@ extension MQTTPublisher {
             switch packet {
             case let packet as ConnAckPacket:
                 Swift.print("ConnAck \(packet)")
-                onConnection()
+                onConnection(client)
             case let packet as PublishPacket:
                 if let target = self.target {
                     demand = target.receive(packet)
                 }
             default:
-                break
+                Swift.print("Other Packet", packet)
             }
             
-
         }
         
         func mqttClient(_ client: MQTTClient, didCatchError error: Error) {
@@ -108,29 +115,17 @@ extension MQTTPublisher {
 }
 
 extension AnyPublisher where Output == PublishPacket, Failure == Error {
-    
-//    /// Subscribe to a topic after the client has connected.
-//    /// - Parameters:
-//    ///   - topic: The MQTT topic to subscribe to.
-//    func subscribe(to topic: String, qos: QoS = .atMostOnce) -> AnyPublisher<PublishPacket, Failure> {
-////        self.client.subscribe(to: topic)
-//        client.subscribe(topic: topic, qos: qos, identifier: nil)
-//
-//        return self.filter { message in
-//            message.topic == topic
-//        }
-//        .eraseToAnyPublisher()
-//    }
-    
+
     /// Subscribe to a topic after the client has connected.
     /// - Parameters:
     ///   - topic: The MQTT topic to subscribe to.
-    func filter(to topic: String, qos: QoS = .atMostOnce) -> AnyPublisher<PublishPacket, Failure> {
-        return self.filter { message in
+    func filter(forTopic topic: String, qos: QoS = .atMostOnce) -> AnyPublisher<PublishPacket, Failure> {
+        self.filter { message in
             message.topic == topic
         }
         .eraseToAnyPublisher()
     }
+
 }
 
 

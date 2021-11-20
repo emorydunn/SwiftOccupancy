@@ -46,6 +46,10 @@ public enum Room: CustomStringConvertible, Decodable {
         "homeassistant/sensor/swift-occupancy/\(sensorName)"
     }
     
+    var stateTopic: String {
+        "\(mqttTopic)/state"
+    }
+    
     var publishStateChanges: Bool {
         switch self {
         case .room:
@@ -83,36 +87,23 @@ public enum Room: CustomStringConvertible, Decodable {
     }
     
     func publishState(_ count: Int, with client:  MQTTClient) {
-        client.publish(topic: "\(mqttTopic)/state", retain: false, qos: .atLeastOnce, payload: String(describing: count))
+        client.publish(topic: stateTopic, retain: false, qos: .atLeastOnce, payload: String(describing: count))
     }
-    
-    
     
     /// Subscribe to the state of this room.
     /// - Parameter client: The MQTT client.
     /// - Returns: A Publisher indicating the number of people in the room.
     func subscribe(with client: MQTTClient) {
-        client.subscribe(topic: "\(mqttTopic)/state", qos: .atMostOnce, identifier: nil)
-//        client
-//            .messagesPublisher()
-//            .subscribe(to: "\(mqttTopic)/state")
-//            .compactMap { message in
-//                String(data: message.payload, encoding: .utf8)
-//            }
-//            .compactMap {
-//                Int($0)
-//            }
-//            .replaceError(with: 0)
-//            .eraseToAnyPublisher()
+        print("Subscribing to", stateTopic)
+        client.subscribe(topic: stateTopic, qos: .atMostOnce, identifier: nil)
     }
     
     /// Subscribe to the state of this room.
     /// - Parameter client: The MQTT client.
     /// - Returns: A Publisher indicating the number of people in the room.
     func occupancy(_ pub: AnyPublisher<PublishPacket, Error>) -> AnyPublisher<Int, Never> {
-//        client
-//            .subscribe(to: "\(mqttTopic)/state")
         pub
+            .filter(forTopic: stateTopic)
             .compactMap { message in
                 String(data: message.payload, encoding: .utf8)
             }

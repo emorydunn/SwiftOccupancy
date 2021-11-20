@@ -18,6 +18,10 @@ public class PiSensor: Decodable {
         "\(topRoom) / \(bottomRoom)"
     }
     
+    public var clientID: String {
+        "\(topRoom)-\(bottomRoom)"
+    }
+    
     public var topRoom: Room = .æther
     public var bottomRoom: Room = .æther
     
@@ -64,39 +68,39 @@ public class PiSensor: Decodable {
     
     func monitorRooms(from client: MQTTClient) {
         
-        let pub = client.messagesPublisher {
+        let mqttPublisher = client.sharedMessagesPublisher { client in
+            
             self.topRoom.subscribe(with: client)
             self.bottomRoom.subscribe(with: client)
             
             self.topRoom.publishSensorConfig(client)
             self.bottomRoom.publishSensorConfig(client)
-            
-            
+
         }
-            .share()
-            .eraseToAnyPublisher()
         
         topRoom
-            .occupancy(pub)
+            .occupancy(mqttPublisher)
             .replaceError(with: 0)
             .assign(to: &$topRoomCount)
-        
+
         $topRoomCount
             .removeDuplicates()
+            .filter { _ in client.state == .connected }
             .print(topRoom.sensorName)
             .sink { value in
                 self.topRoom.publishState(value, with: client)
             }
             .store(in: &tokens)
-        
+
         bottomRoom
-            .occupancy(pub)
+            .occupancy(mqttPublisher)
             .replaceError(with: 0)
             .assign(to: &$bottomRoomCount)
-        
+
         $bottomRoomCount
             .removeDuplicates()
-            .print(bottomRoom.sensorName)
+            .filter { _ in client.state == .connected }
+            .print(topRoom.sensorName)
             .sink { value in
                 self.bottomRoom.publishState(value, with: client)
             }
@@ -110,31 +114,6 @@ public class PiSensor: Decodable {
             .store(in: &tokens)
     }
     
-//    func monitorRooms(from client: LightMQTT) {
-//        topRoom
-//            .subscribe(with: client)
-//            .replaceError(with: 0)
-//            .assign(to: &$topRoomCount)
-//
-//        $topRoomCount
-//            .removeDuplicates()
-//            .sink { value in
-//                self.topRoom.publishState(value, with: client)
-//            }
-//            .store(in: &tokens)
-//
-//        bottomRoom
-//            .subscribe(with: client)
-//            .replaceError(with: 0)
-//            .assign(to: &$bottomRoomCount)
-//
-//        $bottomRoomCount
-//            .removeDuplicates()
-//            .sink { value in
-//                self.bottomRoom.publishState(value, with: client)
-//            }
-//            .store(in: &tokens)
-//    }
     
     func monitorSensor(on interface: I2CInterface) {
         // Create the sensor

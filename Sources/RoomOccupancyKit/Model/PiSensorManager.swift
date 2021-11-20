@@ -19,37 +19,35 @@ public class PiSensorManager: Decodable {
     }
     
     public let sensor: PiSensor
-//    public let mqttBroker: HAMQTTConfig
     public let mqtt: MQTTSettings?
-    public let board: SupportedBoard
+    public let board: SupportedBoard?
+    
+    public enum CodingKeys: String, CodingKey {
+        case sensor, mqtt, board
+    }
     
     public func begin() {
         
         if let mqtt = mqtt {
-            print("Connecting to MQTT server \(mqtt.host):\(mqtt.port)")
+            print("Connecting to MQTT server 'mqtt://\(mqtt.host):\(mqtt.port)'")
             
-            let client = MQTTClient(host: mqtt.host,
+            let mqttClient = MQTTClient(host: mqtt.host,
                                     port: mqtt.port,
-                                    clientID: sensor.id,
+                                    clientID: sensor.clientID,
                                     cleanSession: true,
                                     keepAlive: 30,
+                                    willMessage: PublishMessage(topic: "swift-occupancy/sensor/will", payload: "\(sensor.id) disconnected", retain: false, qos: .atMostOnce),
                                     username: mqtt.username,
                                     password: mqtt.password)
 
-            client.connect()
-            
-//            while client.state != .connected {
-//                print(".", terminator: "")
-//            }
-
-            print("Connected to MQTT server")
-            sensor.monitorRooms(from: client)
-            
-            
+            sensor.monitorRooms(from: mqttClient)
         }
         
-        print("Connecting to AMG88 Sensor")
-        sensor.monitorSensor(on: SwiftyGPIO.hardwareI2Cs(for: board)![1])
+        if let board = board {
+            print("Connecting to AMG88 Sensor")
+            sensor.monitorSensor(on: SwiftyGPIO.hardwareI2Cs(for: board)![1])
+        }
+        
         
         RunLoop.main.run()
     }
