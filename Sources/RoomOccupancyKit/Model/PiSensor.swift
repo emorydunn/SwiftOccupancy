@@ -100,6 +100,11 @@ public class PiSensor: Decodable {
         }
         
         $thermistorTemperature
+            .collect(10)
+            .map { values -> Float in
+                // Average the value
+                values.reduce(0, +) / Float(values.count)
+            }
             .map {
                 String(describing: $0)
             }
