@@ -67,8 +67,12 @@ public class PiSensor: Decodable {
     var tokens: [AnyCancellable] = []
     
     
+    var mqttTopic: String { "homeassistant/camera/swift-occupancy/\(clientID)" }
+    var statusTopic: String { "\(mqttTopic)/status" }
+    var stateTopic: String { "\(mqttTopic)/state" }
+    var configTopic: String { "\(mqttTopic)/config" }
     
-    var statusTopic: String { "swift-occupancy/sensor/\(clientID)/status" }
+    
     func statusMessage(_ status: Bool) -> PublishMessage {
         PublishMessage(topic: statusTopic, payload: status ? "online" : "offline", retain: false, qos: .atMostOnce)
     }
@@ -83,9 +87,18 @@ public class PiSensor: Decodable {
             self.topRoom.publishSensorConfig(client, availabilityTopic: self.statusTopic)
             self.bottomRoom.publishSensorConfig(client, availabilityTopic: self.statusTopic)
             
+            self.publishSensorConfig(client)
+            
             client.publish(message: self.statusMessage(true), identifier: nil)
 
         }
+        
+        $sensorData
+            .compactMap { $0?.createImage() }
+            .sink { data in
+                client.publish(topic: self.stateTopic, retain: false, qos: .atMostOnce, payload: data, identifier: nil)
+            }
+            .store(in: &tokens)
         
         topRoom
             .occupancy(mqttPublisher)
@@ -124,13 +137,7 @@ public class PiSensor: Decodable {
                 client.publish(topic: "swift-occupancy/sensor/\(self.clientID)/data", retain: false, qos: .atMostOnce, payload: data, identifier: nil)
             }
             .store(in: &tokens)
-        
-        $sensorData
-            .compactMap { $0?.createImage() }
-            .sink { data in
-                client.publish(topic: "swift-occupancy/sensor/\(self.clientID)/svg", retain: false, qos: .atMostOnce, payload: data, identifier: nil)
-            }
-            .store(in: &tokens)
+
     }
     
     
@@ -206,6 +213,37 @@ public class PiSensor: Decodable {
             }
             .store(in: &tokens)
         
+    }
+    
+    func publishSensorConfig(_ client:  MQTTClient) {
+        
+        let config: [String: Any] = [
+            "name": "\(id) Heatmap",
+            "unique_id": clientID,
+            "state_topic": "\(mqttTopic)/state",
+            "unit_of_measurement": "person",
+            "icon": 0.icon,
+            "device": [
+                "name": "\(id) Thermopile",
+                "model": "AMG88xx",
+                "identifiers": "\(clientID)-thermopile"
+            ],
+            "availability": [
+                "topic": statusTopic
+            ]
+                
+        ]
+        
+        do {
+            let payload = try JSONSerialization.data(withJSONObject: config, options: [])
+            
+            client.publish(topic: configTopic, retain: true, qos: .atMostOnce, payload: payload, identifier: nil)
+
+            print("Published MQTT discovery topic for \(self)")
+        } catch {
+            print("Could not encode MQTT discovery config for \(self)")
+            print(error)
+        }
     }
 
 }
