@@ -106,7 +106,7 @@ public class PiSensor: Decodable {
                 values.reduce(0, +) / Float(values.count)
             }
             .map {
-                String(describing: $0)
+                String(format: "%.02f", $0)
             }
             .sink { temp in
                 let topic = "homeassistant/sensor/swift-occupancy/\(self.clientID)/state"
