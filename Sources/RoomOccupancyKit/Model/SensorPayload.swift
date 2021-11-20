@@ -146,7 +146,7 @@ public struct SensorPayload: Codable {
     }
     
     public func drawImage(cluster: Cluster?,
-                          pixelSize: Int = 1,
+                          pixelSize: Int = 15,
                           minTemperature: Float = 16,
                           maxTemperature: Float = 30) throws -> Surface {
         
@@ -183,10 +183,10 @@ public struct SensorPayload: Codable {
         if let cluster = cluster {
             print("Drawing cluster")
             let box = cluster.boundingBox()
-            let rect = CGRect(x: box.minX,
-                              y: box.minY,
-                              width: box.maxX - box.minX,
-                              height: box.maxY - box.minY)
+            let rect = CGRect(x: box.minX * pixelSize,
+                              y: box.minY * pixelSize,
+                              width: (box.maxX - box.minX) * pixelSize,
+                              height: (box.maxY - box.minY) * pixelSize)
             
             context.lineWidth = 10
             context.strokeColor = CGColor.white
@@ -194,7 +194,7 @@ public struct SensorPayload: Codable {
             context.strokePath()
         }
         
-        context.scaleBy(x: 10, y: 10)
+//        context.scaleBy(x: 10, y: 10)
         return context.surface
         
     }
