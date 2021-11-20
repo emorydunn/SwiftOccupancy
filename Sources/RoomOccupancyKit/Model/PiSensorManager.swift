@@ -38,12 +38,12 @@ public class PiSensorManager: Decodable {
 
             client.connect()
             
-            while client.state != .connected {
-                print(".", terminator: "")
-            }
+//            while client.state != .connected {
+//                print(".", terminator: "")
+//            }
 
             print("Connected to MQTT server")
-            sensor.monitorRooms(from: client)
+            
             
         }
         

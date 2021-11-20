@@ -91,10 +91,28 @@ public enum Room: CustomStringConvertible, Decodable {
     /// Subscribe to the state of this room.
     /// - Parameter client: The MQTT client.
     /// - Returns: A Publisher indicating the number of people in the room.
-    func subscribe(with client: MQTTClient) -> AnyPublisher<Int, Never> {
-        client
-            .messagesPublisher()
-            .subscribe(to: "\(mqttTopic)/state")
+    func subscribe(with client: MQTTClient) {
+        client.subscribe(topic: "\(mqttTopic)/state", qos: .atMostOnce, identifier: nil)
+//        client
+//            .messagesPublisher()
+//            .subscribe(to: "\(mqttTopic)/state")
+//            .compactMap { message in
+//                String(data: message.payload, encoding: .utf8)
+//            }
+//            .compactMap {
+//                Int($0)
+//            }
+//            .replaceError(with: 0)
+//            .eraseToAnyPublisher()
+    }
+    
+    /// Subscribe to the state of this room.
+    /// - Parameter client: The MQTT client.
+    /// - Returns: A Publisher indicating the number of people in the room.
+    func occupancy(_ pub: AnyPublisher<PublishPacket, Error>) -> AnyPublisher<Int, Never> {
+//        client
+//            .subscribe(to: "\(mqttTopic)/state")
+        pub
             .compactMap { message in
                 String(data: message.payload, encoding: .utf8)
             }

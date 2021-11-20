@@ -12,8 +12,8 @@ import MQTT
 extension MQTTClient {
     
     /// Returns a publisher that wraps an MQTT client.
-    func messagesPublisher() -> MQTTPublisher {
-        MQTTPublisher(client: self)
+    func messagesPublisher(_ onConnection: @escaping () -> Void) -> MQTTPublisher {
+        MQTTPublisher(client: self, onConnection)
     }
 }
 
@@ -34,17 +34,19 @@ public class MQTTPublisher: Publisher {
     static let queue = DispatchQueue(label: "MQTTPublisher", qos: .background)
     
     let client: MQTTClient
+    let onConnection: () -> Void
     
 //    var futureTopics: [String: QoS] = [:]
     
-    public init(client: MQTTClient) {
+    public init(client: MQTTClient, _ onConnection: @escaping () -> Void) {
         self.client = client
+        self.onConnection = onConnection
     }
     
     // MARK: Combine
     public func receive<S>(subscriber: S) where S : Subscriber, Failure == S.Failure, Output == S.Input {
         Swift.print("MQTTPublisher", #function)
-        let subscription = MQTTSubscription(client: client, target: subscriber)
+        let subscription = MQTTSubscription(client: client, target: subscriber, onConnection)
         subscriber.receive(subscription: subscription)
     }
 }
@@ -53,13 +55,17 @@ extension MQTTPublisher {
     class MQTTSubscription<Target: Subscriber>: MQTTClientDelegate, Subscription where Target.Input == Output, Target.Failure == Failure {
         
         let client: MQTTClient
+        let onConnection: () -> Void
         
         var target: Target?
         var demand: Subscribers.Demand = .none
         
-        init(client: MQTTClient, target: Target) {
+        init(client: MQTTClient, target: Target, _ onConnection: @escaping () -> Void) {
             self.client = client
             self.target = target
+            self.onConnection = onConnection
+            
+            self.client.delegate = self
         }
         
         func request(_ demand: Subscribers.Demand) {
@@ -76,12 +82,19 @@ extension MQTTPublisher {
         }
         
         func mqttClient(_ client: MQTTClient, didReceive packet: MQTTPacket) {
-            guard
-                let sub = packet as? PublishPacket,
-                let target = self.target
-            else { return }
+            switch packet {
+            case let packet as ConnAckPacket:
+                Swift.print("ConnAck \(packet)")
+                onConnection()
+            case let packet as PublishPacket:
+                if let target = self.target {
+                    demand = target.receive(packet)
+                }
+            default:
+                break
+            }
             
-            demand = target.receive(sub)
+
         }
         
         func mqttClient(_ client: MQTTClient, didCatchError error: Error) {
@@ -94,15 +107,25 @@ extension MQTTPublisher {
     
 }
 
-extension MQTTPublisher {
+extension AnyPublisher where Output == PublishPacket, Failure == Error {
+    
+//    /// Subscribe to a topic after the client has connected.
+//    /// - Parameters:
+//    ///   - topic: The MQTT topic to subscribe to.
+//    func subscribe(to topic: String, qos: QoS = .atMostOnce) -> AnyPublisher<PublishPacket, Failure> {
+////        self.client.subscribe(to: topic)
+//        client.subscribe(topic: topic, qos: qos, identifier: nil)
+//
+//        return self.filter { message in
+//            message.topic == topic
+//        }
+//        .eraseToAnyPublisher()
+//    }
     
     /// Subscribe to a topic after the client has connected.
     /// - Parameters:
     ///   - topic: The MQTT topic to subscribe to.
-    func subscribe(to topic: String, qos: QoS = .atMostOnce) -> AnyPublisher<PublishPacket, Failure> {
-//        self.client.subscribe(to: topic)
-        client.subscribe(topic: topic, qos: qos, identifier: nil)
-        
+    func filter(to topic: String, qos: QoS = .atMostOnce) -> AnyPublisher<PublishPacket, Failure> {
         return self.filter { message in
             message.topic == topic
         }
