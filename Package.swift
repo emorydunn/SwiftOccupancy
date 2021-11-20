@@ -21,9 +21,8 @@ let package = Package(
     dependencies: [
         // Dependencies declare other packages that this package depends on.
         .package(url: "https://github.com/OpenCombine/OpenCombine.git", from: "0.12.0"),
-
+        .package(url: "https://github.com/PureSwift/Silica.git", .branch("master")),
         .package(url: "https://github.com/emorydunn/AMG88xx.swift.git", .branch("main")),
-
         .package(url: "https://github.com/matsune/swift-mqtt.git", from: "1.0.0")
         
     ],
@@ -34,8 +33,9 @@ let package = Package(
             name: "RoomOccupancyKit",
             dependencies: [
                 .product(name: "OpenCombineShim", package: "OpenCombine"),
-                .product(name: "MQTT", package: "swift-mqtt"),
-                "AMG88xx"
+                "MQTT",
+                "AMG88xx",
+                "Silica"
             ]),
         .testTarget(
             name: "RoomOccupancyKitTests",

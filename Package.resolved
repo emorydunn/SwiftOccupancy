@@ -11,12 +11,30 @@
         }
       },
       {
+        "package": "Cairo",
+        "repositoryURL": "https://github.com/PureSwift/Cairo.git",
+        "state": {
+          "branch": "master",
+          "revision": "b5f867a56a20d2f0064ccb975ae4a669b374e9e0",
+          "version": null
+        }
+      },
+      {
         "package": "OpenCombine",
         "repositoryURL": "https://github.com/OpenCombine/OpenCombine.git",
         "state": {
           "branch": null,
           "revision": "28993ae57de5a4ea7e164787636cafad442d568c",
           "version": "0.12.0"
+        }
+      },
+      {
+        "package": "Silica",
+        "repositoryURL": "https://github.com/PureSwift/Silica.git",
+        "state": {
+          "branch": "master",
+          "revision": "5b8c695af2d5a38c0ea0468aac80a1d5ae5d005f",
+          "version": null
         }
       },
       {

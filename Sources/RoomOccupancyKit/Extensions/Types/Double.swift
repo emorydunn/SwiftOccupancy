@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Silica
 
 extension Double {
     /// Normalize the temperature to a value between `0` and `1`
@@ -63,7 +64,7 @@ extension Float {
     }
     
     /// From https://gist.github.com/mjackson/5311256
-    public func tempColor(_ min: Self, _ max: Self) -> CGColor {
+    public func tempColor(_ min: Self, _ max: Self) -> Silica.CGColor {
         let hue: Float = temp(min, max)
         let sat: Float = 1.0
         let light: Float = 0.5
@@ -75,7 +76,7 @@ extension Float {
         let g = hue2RGB(p: p, q: q, t: hue)
         let b = hue2RGB(p: p, q: q, t: hue - 1 / 3)
         
-        return CGColor(srgbRed: CGFloat(r),
+        return Silica.CGColor(red: CGFloat(r),
                 green: CGFloat(g),
                 blue: CGFloat(b),
                 alpha: 1)

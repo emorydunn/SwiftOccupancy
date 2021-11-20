@@ -7,6 +7,8 @@
 
 import Foundation
 import MQTT
+import Silica
+import Cairo
 
 #if canImport(FoundationXML)
 import FoundationXML
@@ -145,21 +147,13 @@ public struct SensorPayload: Codable {
     
     public func drawImage(pixelSize: Int = 10,
                           minTemperature: Float = 16,
-                          maxTemperature: Float = 30) -> CGImage? {
+                          maxTemperature: Float = 30) throws -> Surface {
         
         let side = cols * pixelSize
-
-        guard let context = CGContext(data: nil,
-                                width: side,
-                                height: side,
-                                bitsPerComponent: 5,
-                                bytesPerRow: 0,
-                                space: CGColorSpaceCreateDeviceRGB(),
-                                bitmapInfo: CGImageAlphaInfo.noneSkipFirst.rawValue)
-        else {
-            print("Could not make CGContext")
-            return nil
-        }
+        let size = CGSize(width: side, height: side)
+        
+        let surface = try Surface.Image.init(format: ImageFormat.argb32, width: side, height: side)
+        let context = try Silica.CGContext(surface: surface, size: size)
         
         stride(from: 0, to: cols, by: 1).forEach { currentPage in
             let verticalOffset = currentPage * pixelSize
@@ -175,15 +169,17 @@ public struct SensorPayload: Codable {
                 
                 let hue = datum.tempColor(minTemperature, maxTemperature)
 
-                context.setFillColor(hue)
-                context.fill(rect)
-
+                context.fillColor = hue
+                context.addRect(rect)
+                context.fillPath()
+//                context.setFillColor(hue)
+//                context.fill(rect)
 
             }
             
         }
         
-        return context.makeImage()
+        return context.surface
         
     }
 
