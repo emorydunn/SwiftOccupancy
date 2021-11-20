@@ -36,7 +36,7 @@ public class PiSensorManager: Decodable {
                                     clientID: sensor.clientID,
                                     cleanSession: true,
                                     keepAlive: 30,
-                                    willMessage: PublishMessage(topic: "swift-occupancy/sensor/will", payload: "\(sensor.id) disconnected", retain: false, qos: .atMostOnce),
+                                    willMessage: sensor.statusMessage(false),
                                     username: mqtt.username,
                                     password: mqtt.password)
 

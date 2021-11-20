@@ -59,11 +59,11 @@ public enum Room: CustomStringConvertible, Decodable {
         }
     }
     
-    func publishSensorConfig(_ client:  MQTTClient) {
+    func publishSensorConfig(_ client:  MQTTClient, availabilityTopic: String) {
         let config: [String: Any] = [
             "name": "\(description) Occupancy Count",
             "unique_id": sensorName,
-            "state_topic": "\(mqttTopic)/state",
+            "state_topic": stateTopic,
             "unit_of_measurement": "person",
             "icon": 0.icon,
             "device": [
@@ -71,13 +71,17 @@ public enum Room: CustomStringConvertible, Decodable {
                 "model": "AMG88xx",
                 "manufacturer": "Emory Dunn",
                 "identifiers": "\(slug)-occupancy-sensor"
+            ],
+            "availability": [
+                "topic": availabilityTopic
             ]
+                
         ]
         
         do {
             let payload = try JSONSerialization.data(withJSONObject: config, options: [])
             
-            client.publish(topic: "\(mqttTopic)/config", retain: false, qos: .atMostOnce, payload: payload, identifier: nil)
+            client.publish(topic: "\(mqttTopic)/config", retain: true, qos: .atMostOnce, payload: payload, identifier: nil)
 
             print("Published MQTT discovery topic for \(self)")
         } catch {
@@ -87,8 +91,9 @@ public enum Room: CustomStringConvertible, Decodable {
     }
     
     func publishState(_ count: Int, with client:  MQTTClient) {
-        client.publish(topic: stateTopic, retain: false, qos: .atLeastOnce, payload: String(describing: count))
+        client.publish(topic: stateTopic, retain: true, qos: .atLeastOnce, payload: String(describing: count))
     }
+
     
     /// Subscribe to the state of this room.
     /// - Parameter client: The MQTT client.

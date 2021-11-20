@@ -66,6 +66,13 @@ public class PiSensor: Decodable {
     
     var tokens: [AnyCancellable] = []
     
+    
+    
+    var statusTopic: String { "swift-occupancy/sensor/\(clientID)/status" }
+    func statusMessage(_ status: Bool) -> PublishMessage {
+        PublishMessage(topic: statusTopic, payload: status ? "online" : "offline", retain: false, qos: .atMostOnce)
+    }
+
     func monitorRooms(from client: MQTTClient) {
         
         let mqttPublisher = client.sharedMessagesPublisher { client in
@@ -73,8 +80,10 @@ public class PiSensor: Decodable {
             self.topRoom.subscribe(with: client)
             self.bottomRoom.subscribe(with: client)
             
-            self.topRoom.publishSensorConfig(client)
-            self.bottomRoom.publishSensorConfig(client)
+            self.topRoom.publishSensorConfig(client, availabilityTopic: self.statusTopic)
+            self.bottomRoom.publishSensorConfig(client, availabilityTopic: self.statusTopic)
+            
+            client.publish(message: self.statusMessage(true), identifier: nil)
 
         }
         

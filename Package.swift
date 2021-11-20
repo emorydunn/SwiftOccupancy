@@ -24,9 +24,7 @@ let package = Package(
 
         .package(url: "https://github.com/emorydunn/AMG88xx.swift.git", .branch("main")),
 
-            .package(url: "https://github.com/matsune/swift-mqtt.git", from: "1.0.0")
-//        .package(url: "https://github.com/PasiSalenius/LightMQTT.git", from: "1.0.0"),
-//        .package(url: "https://github.com/emorydunn/MQTTKit.git", .branch("master"))
+        .package(url: "https://github.com/matsune/swift-mqtt.git", from: "1.0.0")
         
     ],
     targets: [
@@ -37,9 +35,7 @@ let package = Package(
             dependencies: [
                 .product(name: "OpenCombineShim", package: "OpenCombine"),
                 .product(name: "MQTT", package: "swift-mqtt"),
-                "AMG88xx",
-//                "MQTTKit"
-                
+                "AMG88xx"
             ]),
         .testTarget(
             name: "RoomOccupancyKitTests",
