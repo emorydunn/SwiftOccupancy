@@ -100,10 +100,12 @@ public class PiSensor: Decodable {
         }
         
         $thermistorTemperature
-        
+            .map {
+                String(describing: $0)
+            }
             .sink { temp in
                 let topic = "homeassistant/sensor/swift-occupancy/\(self.clientID)/state"
-                client.publish(topic: topic, retain: false, qos: .atMostOnce, payload: data, identifier: nil)
+                client.publish(topic: topic, retain: false, qos: .atMostOnce, payload: temp, identifier: nil)
             }
             .store(in: &tokens)
 
