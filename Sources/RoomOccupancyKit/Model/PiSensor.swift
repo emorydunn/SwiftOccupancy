@@ -268,7 +268,7 @@ public class PiSensor: Decodable {
         do {
             let payload = try JSONSerialization.data(withJSONObject: config, options: [])
             
-            client.publish(topic: configTopic, retain: true, qos: .atMostOnce, payload: payload, identifier: nil)
+            client.publish(topic: "\(mqttTopic)/config", retain: true, qos: .atMostOnce, payload: payload, identifier: nil)
 
             print("Published MQTT discovery topic for \(self)")
         } catch {
