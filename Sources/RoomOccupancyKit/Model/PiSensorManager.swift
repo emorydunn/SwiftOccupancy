@@ -37,8 +37,13 @@ public class PiSensorManager: Decodable {
                                     password: mqtt.password)
 
             client.connect()
+            
+            while client.state != .connected {
+                print(".", terminator: "")
+            }
 
-            sensor.monitorRooms(from: client)
+            print("Connected to MQTT server")
+            
         }
         
         print("Connecting to AMG88 Sensor")
