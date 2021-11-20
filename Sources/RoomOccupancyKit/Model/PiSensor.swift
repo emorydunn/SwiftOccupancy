@@ -117,7 +117,7 @@ public class PiSensor: Decodable {
         $sensorData
             .compactMap { $0 }
             .tryMap {
-                let surface = try $0.drawImage()
+                let surface = try $0.drawImage(cluster: self.currentCluster)
                 
                 return try surface.writePNG()
             }
@@ -160,7 +160,6 @@ public class PiSensor: Decodable {
     func debugSensor(with client: MQTTClient) {
         $sensorData
             .compactMap { $0 }
-//            .logSensorData()
             .sink { data in
                 client.publish(topic: "swift-occupancy/sensor/\(self.clientID)/data", retain: false, qos: .atMostOnce, payload: data, identifier: nil)
             }
