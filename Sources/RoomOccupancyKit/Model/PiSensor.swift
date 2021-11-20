@@ -93,10 +93,19 @@ public class PiSensor: Decodable {
             self.bottomRoom.publishSensorConfig(client, availabilityTopic: self.statusTopic)
             
             self.publishSensorConfig(client)
+            self.publishCameraConfig(client)
             
             client.publish(message: self.statusMessage(true), identifier: nil)
 
         }
+        
+        $thermistorTemperature
+        
+            .sink { temp in
+                let topic = "homeassistant/sensor/swift-occupancy/\(self.clientID)/state"
+                client.publish(topic: topic, retain: false, qos: .atMostOnce, payload: data, identifier: nil)
+            }
+            .store(in: &tokens)
 
         $sensorData
             .compactMap { $0 }
@@ -233,6 +242,40 @@ public class PiSensor: Decodable {
     }
     
     func publishSensorConfig(_ client:  MQTTClient) {
+        
+        let mqttTopic = "homeassistant/sensor/swift-occupancy/\(clientID)"
+        
+        let config: [String: Any] = [
+            "name": "\(id) Temperature",
+            "unique_id": "\(clientID)-temperature",
+            "state_class": "measurement",
+            "unit_of_measurement": "ºC"
+            "icon": "mdi:thermometer"
+            "topic": "\(mqttTopic)/state",
+            "device": [
+                "name": "\(id) Thermopile",
+                "model": "AMG88xx",
+                "identifiers": "\(clientID)-thermopile"
+            ],
+            "availability": [
+                "topic": statusTopic
+            ]
+                
+        ]
+        
+        do {
+            let payload = try JSONSerialization.data(withJSONObject: config, options: [])
+            
+            client.publish(topic: configTopic, retain: true, qos: .atMostOnce, payload: payload, identifier: nil)
+
+            print("Published MQTT discovery topic for \(self)")
+        } catch {
+            print("Could not encode MQTT discovery config for \(self)")
+            print(error)
+        }
+    }
+    
+    func publishCameraConfig(_ client:  MQTTClient) {
         
         let config: [String: Any] = [
             "name": "\(id) Heatmap",
