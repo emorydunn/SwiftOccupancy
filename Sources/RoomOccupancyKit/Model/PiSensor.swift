@@ -94,7 +94,8 @@ public class PiSensor: Decodable {
         }
         
         $sensorData
-            .compactMap { $0?.createImage() }
+//            .compactMap { $0?.createImage() }
+            .compactMap { $0?.drawImage()?.dataProvider?.data as? Data }
             .sink { data in
                 client.publish(topic: self.stateTopic, retain: false, qos: .atMostOnce, payload: data, identifier: nil)
             }
