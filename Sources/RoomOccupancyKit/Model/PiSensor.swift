@@ -220,7 +220,7 @@ public class PiSensor: Decodable {
         let config: [String: Any] = [
             "name": "\(id) Heatmap",
             "unique_id": "\(clientID)-thermopile",
-            "state_topic": "\(mqttTopic)/state",
+            "topic": "\(mqttTopic)/state",
             "device": [
                 "name": "\(id) Thermopile",
                 "model": "AMG88xx",
