@@ -251,8 +251,8 @@ public class PiSensor: Decodable {
             "name": "\(id) Temperature",
             "unique_id": "\(clientID)-temperature",
             "state_class": "measurement",
-            "unit_of_measurement": "ºC"
-            "icon": "mdi:thermometer"
+            "unit_of_measurement": "ºC",
+            "icon": "mdi:thermometer",
             "topic": "\(mqttTopic)/state",
             "device": [
                 "name": "\(id) Thermopile",
