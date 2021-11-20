@@ -68,7 +68,7 @@ public class PiSensor: Decodable {
     
     
     var mqttTopic: String { "homeassistant/camera/swift-occupancy/\(clientID)" }
-    var statusTopic: String { "\(mqttTopic)/status" }
+    var statusTopic: String { "swift-occupancy/sensor/\(clientID)/status" }
     var stateTopic: String { "\(mqttTopic)/state" }
     var configTopic: String { "\(mqttTopic)/config" }
     
@@ -219,10 +219,8 @@ public class PiSensor: Decodable {
         
         let config: [String: Any] = [
             "name": "\(id) Heatmap",
-            "unique_id": clientID,
+            "unique_id": "\(clientID)-thermopile",
             "state_topic": "\(mqttTopic)/state",
-            "unit_of_measurement": "person",
-            "icon": 0.icon,
             "device": [
                 "name": "\(id) Thermopile",
                 "model": "AMG88xx",
