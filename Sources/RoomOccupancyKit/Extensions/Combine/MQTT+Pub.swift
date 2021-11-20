@@ -2,14 +2,14 @@
 //  File.swift
 //  
 //
-//  Created by Emory Dunn on 11/13/21.
+//  Created by Emory Dunn on 11/19/21.
 //
 
 import Foundation
 import OpenCombine
-import MQTTKit
+import MQTT
 
-extension MQTTSession {
+extension MQTTClient {
     
     /// Returns a publisher that wraps an MQTT client.
     func messagesPublisher() -> MQTTPublisher {
@@ -27,17 +27,17 @@ extension MQTTSession {
 /// Publish messages from the server, dropping all other packets.
 public class MQTTPublisher: Publisher {
     
-    public typealias Output = MQTTMessage
+    public typealias Output = PublishPacket
     
     public typealias Failure = Error
     
     static let queue = DispatchQueue(label: "MQTTPublisher", qos: .background)
     
-    let client: MQTTSession
+    let client: MQTTClient
     
 //    var futureTopics: [String: QoS] = [:]
     
-    public init(client: MQTTSession) {
+    public init(client: MQTTClient) {
         self.client = client
     }
     
@@ -50,20 +50,16 @@ public class MQTTPublisher: Publisher {
 }
 
 extension MQTTPublisher {
-    class MQTTSubscription<Target: Subscriber>: Subscription where Target.Input == Output, Target.Failure == Failure {
+    class MQTTSubscription<Target: Subscriber>: MQTTClientDelegate, Subscription where Target.Input == Output, Target.Failure == Failure {
         
-        let client: MQTTSession
+        let client: MQTTClient
         
         var target: Target?
         var demand: Subscribers.Demand = .none
         
-        init(client: MQTTSession, target: Target) {
+        init(client: MQTTClient, target: Target) {
             self.client = client
             self.target = target
-            
-            client.didRecieveMessage = { message in
-                self.demand = target.receive(message)
-            }
         }
         
         func request(_ demand: Subscribers.Demand) {
@@ -72,10 +68,25 @@ extension MQTTPublisher {
         
         func cancel() {
             target = nil
+            client.disconnect()
+        }
+        
+        func mqttClient(_ client: MQTTClient, didChange state: ConnectionState) {
+            Swift.print("MQTT Connection State Changed:", state)
+        }
+        
+        func mqttClient(_ client: MQTTClient, didReceive packet: MQTTPacket) {
+            guard
+                let sub = packet as? PublishPacket,
+                let target = self.target
+            else { return }
+            
+            demand = target.receive(sub)
         }
         
         
     }
+    
 }
 
 extension MQTTPublisher {
@@ -83,8 +94,9 @@ extension MQTTPublisher {
     /// Subscribe to a topic after the client has connected.
     /// - Parameters:
     ///   - topic: The MQTT topic to subscribe to.
-    func subscribe(to topic: String) -> AnyPublisher<MQTTMessage, Failure> {
-        self.client.subscribe(to: topic)
+    func subscribe(to topic: String, qos: QoS = .atMostOnce) -> AnyPublisher<PublishPacket, Failure> {
+//        self.client.subscribe(to: topic)
+        client.subscribe(topic: topic, qos: qos, identifier: nil)
         
         return self.filter { message in
             message.topic == topic
@@ -92,4 +104,5 @@ extension MQTTPublisher {
         .eraseToAnyPublisher()
     }
 }
+
 

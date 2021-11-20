@@ -7,7 +7,7 @@
 
 import Foundation
 import SwiftyGPIO
-import MQTTKit
+import MQTT
 
 public class PiSensorManager: Decodable {
     
@@ -28,45 +28,16 @@ public class PiSensorManager: Decodable {
         if let mqtt = mqtt {
             print("Connecting to MQTT server \(mqtt.host):\(mqtt.port)")
             
-            var options = LightMQTT.Options()
-//            var options = MQTTOptions(host: mqtt.host, port: mqtt.port)
-            
-//            var options = MQTTOptions(host: mqtt.host, port: mqtt.port)
-//
-            options.username = mqtt.username
-            options.password = mqtt.password
-            options.port = mqtt.port
-            options.clientId = sensor.id
-            
-//            let client = MQTTSession(options: options)
-            
-            let client = LightMQTT(host: mqtt.host, options: options)
-//
-//            let client = MQTTSession(options: options)
-//
-//            client.didRecieveConack = { message in
-//                switch message {
-//                case .accepted:
-//                    print("Server accepted the connection.")
-//                case .badUsernameOrPassword:
-//                    print("Error: Bad username or password")
-//                case .identifierRejected:
-//                    print("Error: Identifier '\(self.sensor.id)' was rejected")
-//                case .notAuthorized:
-//                    print("Error: Not authorized")
-//                case .reserved:
-//                    print("Error: Reserved")
-//                case .serverUnavailable:
-//                    print("Error: Server unavailable")
-//                case .unacceptableProtocolVersion:
-//                    print("Error: Unacceptable protocol version")
-//                }
-//            }
-//
-//            client.connect { success in
-//                print("Connected to MQTT server:", success)
-//            }
-//
+            let client = MQTTClient(host: mqtt.host,
+                                    port: mqtt.port,
+                                    clientID: sensor.id,
+                                    cleanSession: true,
+                                    keepAlive: 30,
+                                    username: mqtt.username,
+                                    password: mqtt.password)
+
+            client.connect()
+
             sensor.monitorRooms(from: client)
         }
         

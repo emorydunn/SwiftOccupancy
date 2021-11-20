@@ -8,7 +8,7 @@
 
 import Foundation
 import OpenCombine
-import MQTTKit
+import MQTT
 
 #if canImport(FoundationNetworking)
 import FoundationNetworking
@@ -55,7 +55,7 @@ public enum Room: CustomStringConvertible, Decodable {
         }
     }
     
-    func publishSensorConfig(_ client:  MQTTSession) {
+    func publishSensorConfig(_ client:  MQTTClient) {
         let config: [String: Any] = [
             "name": "\(description) Occupancy Count",
             "unique_id": sensorName,
@@ -72,7 +72,9 @@ public enum Room: CustomStringConvertible, Decodable {
         
         do {
             let payload = try JSONSerialization.data(withJSONObject: config, options: [])
-            client.publish(to: "\(mqttTopic)/config", payload: payload)
+            
+            client.publish(topic: "\(mqttTopic)/config", retain: false, qos: .atMostOnce, payload: payload, identifier: nil)
+
             print("Published MQTT discovery topic for \(self)")
         } catch {
             print("Could not encode MQTT discovery config for \(self)")
@@ -80,69 +82,21 @@ public enum Room: CustomStringConvertible, Decodable {
         }
     }
     
-    func publishSensorConfig(_ client:  LightMQTT) {
-        let config: [String: Any] = [
-            "name": "\(description) Occupancy Count",
-            "unique_id": sensorName,
-            "state_topic": "\(mqttTopic)/state",
-            "unit_of_measurement": "person",
-            "icon": 0.icon,
-            "device": [
-                "name": "\(slug)-occupancy-sensor",
-                "model": "AMG88xx",
-                "manufacturer": "Emory Dunn",
-                "identifiers": "\(slug)-occupancy-sensor"
-            ]
-        ]
-
-        do {
-            let payload = try JSONSerialization.data(withJSONObject: config, options: [])
-//            client.publish(topic: "\(mqttTopic)/config", retain: true, qos: .atLeastOnce, payload: payload)
-            client.publish(to: "\(mqttTopic)/config", message: payload)
-            print("Published MQTT discovery topic for \(self)")
-        } catch {
-            print("Could not encode MQTT discovery config for \(self)")
-            print(error)
-        }
-
+    func publishState(_ count: Int, with client:  MQTTClient) {
+        client.publish(topic: "\(mqttTopic)/state", retain: false, qos: .atLeastOnce, payload: String(describing: count))
     }
     
-    func publishState(_ count: Int, with client:  LightMQTT) {
-        client.publish(to: "\(mqttTopic)/state", message: String(describing: count).data(using: .utf8))
-    }
-    
-    func publishState(_ count: Int, with client:  MQTTSession) {
-        client.publish(to: "\(mqttTopic)/state", payload: String(describing: count).data(using: .utf8)!)
-//        client.publish(topic: "\(mqttTopic)/state", retain: false, qos: .atLeastOnce, payload: String(describing: count))
-    }
     
     
     /// Subscribe to the state of this room.
     /// - Parameter client: The MQTT client.
     /// - Returns: A Publisher indicating the number of people in the room.
-    func subscribe(with client: LightMQTT) -> AnyPublisher<Int, Never> {
-        client
-            .packetPublisher()
-            .subscribe(to: "\(mqttTopic)/state")
-//            .filterForSubscriptions()
-//            .compactMap { packet in
-//                String(data: packet.payload, encoding: .utf8)
-//            }
-            .compactMap {
-                Int($0)
-            }
-            .eraseToAnyPublisher()
-    }
-    
-    /// Subscribe to the state of this room.
-    /// - Parameter client: The MQTT client.
-    /// - Returns: A Publisher indicating the number of people in the room.
-    func subscribe(with client: MQTTSession) -> AnyPublisher<Int, Never> {
+    func subscribe(with client: MQTTClient) -> AnyPublisher<Int, Never> {
         client
             .messagesPublisher()
             .subscribe(to: "\(mqttTopic)/state")
             .compactMap { message in
-                message.string
+                String(data: message.payload, encoding: .utf8)
             }
             .compactMap {
                 Int($0)

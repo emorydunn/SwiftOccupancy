@@ -11,21 +11,21 @@
         }
       },
       {
-        "package": "MQTTKit",
-        "repositoryURL": "https://github.com/emorydunn/MQTTKit.git",
-        "state": {
-          "branch": "master",
-          "revision": "5f9d8a3fde76cfab23265b3e8ec80dcce8dadec5",
-          "version": null
-        }
-      },
-      {
         "package": "OpenCombine",
         "repositoryURL": "https://github.com/OpenCombine/OpenCombine.git",
         "state": {
           "branch": null,
           "revision": "28993ae57de5a4ea7e164787636cafad442d568c",
           "version": "0.12.0"
+        }
+      },
+      {
+        "package": "swift-mqtt",
+        "repositoryURL": "https://github.com/matsune/swift-mqtt.git",
+        "state": {
+          "branch": null,
+          "revision": "c0a21bc899bfa5b81f6bf5cd01a4b35d7f43ba70",
+          "version": "1.0.0"
         }
       },
       {
@@ -42,8 +42,8 @@
         "repositoryURL": "https://github.com/apple/swift-nio-ssl.git",
         "state": {
           "branch": null,
-          "revision": "08e701df9a3b9108c56f1aef5d9ef9a78fda2846",
-          "version": "2.16.2"
+          "revision": "36f6419f2b1b6490a8c0faa840298e28027cefe9",
+          "version": "2.16.3"
         }
       },
       {
@@ -53,15 +53,6 @@
           "branch": null,
           "revision": "b1ec6e1ec0a871466fae88fd8764c9530d8b570b",
           "version": "1.3.5"
-        }
-      },
-      {
-        "package": "websocket-kit",
-        "repositoryURL": "https://github.com/vapor/websocket-kit.git",
-        "state": {
-          "branch": null,
-          "revision": "b1c4df8f6c848c2e977726903bbe6578eed723ad",
-          "version": "2.2.0"
         }
       }
     ]
