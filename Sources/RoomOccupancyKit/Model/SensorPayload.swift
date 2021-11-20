@@ -6,38 +6,38 @@
 //
 
 import Foundation
+import MQTT
 
 #if canImport(FoundationXML)
 import FoundationXML
 #endif
 
-public struct SensorPayload {
-    public let sensor: String
+public enum SensorError: Error {
+    case wrongCount(rows: Int, columns: Int, dataCount: Int)
+    case decodingError(encoding: String.Encoding)
+}
+
+public struct SensorPayload: Codable {
+
     public let rows: Int
     public let cols: Int
-//    @available(*, deprecated, message: "Use Pixels")
-//    public let data: [[Pixel]]
+
     public let pixels: [Pixel]
     public let rawData: [Float]
     
     public let mean: Float
     
     public enum CodingKeys: String, CodingKey {
-        case sensor, rows, cols, data
+        case rows, cols, rawData
     }
     
-    public init?(sensor: String, rows: Int = 8, cols: Int = 8, data: [Float]) {
-        self.sensor = sensor
+    public init(rows: Int = 8, cols: Int = 8, data: [Float]) throws {
         self.rows = rows
         self.cols = cols
         
         // Validate the data
         guard data.count == rows * cols else {
-//            self.data = []
-            self.pixels = []
-            self.rawData = []
-            self.mean = 0
-            return nil
+            throw SensorError.wrongCount(rows: rows, columns: cols, dataCount: data.count)
         }
         
         var tempTotal: Float = 0
@@ -56,16 +56,17 @@ public struct SensorPayload {
         }
         
         self.rawData = data
-//        self.data = arrayData
         self.pixels = pixels
         
         self.mean = tempTotal / Float(rawData.count)
     }
     
-    public init?(sensor: String, rows: Int = 8, cols: Int = 8, data: String) {
+    public init(rows: Int = 8, cols: Int = 8, data: String) throws {
 
         // The data is returned in 4 byte temperature chunks: 31.8
-        guard data.count == rows * cols * 4 else { return nil }
+        guard data.count == rows * cols * 4 else {
+            throw SensorError.wrongCount(rows: rows, columns: cols, dataCount: data.count)
+        }
         let rawData: [Float] = stride(from: 0, to: data.count, by: 4).map { offset -> String in
             let chunkStart = data.index(data.startIndex, offsetBy: offset)
             let chunkEnd = data.index(chunkStart, offsetBy: 4)
@@ -76,19 +77,19 @@ public struct SensorPayload {
             return Float(temp)?.rounded()
         }
 
-        self.init(sensor: sensor,
+        try self.init(
                   rows: rows,
                   cols: cols,
                   data: rawData)
     }
     
-    public init?(sensor: String, rows: Int = 8, cols: Int = 8, data: Data) {
+    public init(rows: Int = 8, cols: Int = 8, data: Data) throws {
 
         guard let rawData = String(data: data, encoding: .utf8) else {
-            return nil
+            throw SensorError.decodingError(encoding: .utf8)
         }
         
-        self.init(sensor: sensor,
+        try self.init(
                   rows: rows,
                   cols: cols,
                   data: rawData)
@@ -143,10 +144,27 @@ public struct SensorPayload {
 
     }
     
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        
+        let rows = try container.decode(Int.self, forKey: .rows)
+        let cols = try container.decode(Int.self, forKey: .cols)
+        let rawData = try container.decode([Float].self, forKey: .rawData)
+        
+        self = try SensorPayload(rows: rows, cols: cols, data: rawData)
+        
+    }
+    
 }
 
 extension SensorPayload: CustomStringConvertible {
     public var description: String {
-        "\(sensor) Sensor Data \(mean) ºc"
+        "Sensor Data \(mean) ºc"
+    }
+}
+
+extension SensorPayload: DataEncodable {
+    public func encode() -> Data {
+        try! JSONEncoder().encode(self)
     }
 }

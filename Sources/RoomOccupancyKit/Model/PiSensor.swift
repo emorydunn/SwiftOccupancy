@@ -116,10 +116,20 @@ public class PiSensor: Decodable {
             .store(in: &tokens)
     }
     
-    func debugSensor() {
+    func debugSensor(with client: MQTTClient) {
         $sensorData
-            .logSensorData()
-            .sink { _ in }
+            .compactMap { $0 }
+//            .logSensorData()
+            .sink { data in
+                client.publish(topic: "swift-occupancy/sensor/\(self.clientID)/data", retain: false, qos: .atMostOnce, payload: data, identifier: nil)
+            }
+            .store(in: &tokens)
+        
+        $sensorData
+            .compactMap { $0?.createImage() }
+            .sink { data in
+                client.publish(topic: "swift-occupancy/sensor/\(self.clientID)/svg", retain: false, qos: .atMostOnce, payload: data, identifier: nil)
+            }
             .store(in: &tokens)
     }
     
@@ -136,8 +146,8 @@ public class PiSensor: Decodable {
                 sensor.readPixels()
             }
             // Map to SensorPayload
-            .map { pixels in
-                SensorPayload(sensor: "", data: pixels)
+            .tryMap { pixels in
+                try SensorPayload(data: pixels)
             }
             .breakpointOnError()
             .replaceError(with: nil)

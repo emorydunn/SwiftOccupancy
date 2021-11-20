@@ -22,8 +22,10 @@ public class PiSensorManager: Decodable {
     public let mqtt: MQTTSettings?
     public let board: SupportedBoard?
     
+    public let debug: Bool
+    
     public enum CodingKeys: String, CodingKey {
-        case sensor, mqtt, board
+        case sensor, mqtt, board, debug
     }
     
     public func begin() {
@@ -41,12 +43,18 @@ public class PiSensorManager: Decodable {
                                     password: mqtt.password)
 
             sensor.monitorRooms(from: mqttClient)
+            
+            if debug {
+                sensor.debugSensor(with: mqttClient)
+            }
         }
         
         if let board = board {
             print("Connecting to AMG88 Sensor")
             sensor.monitorSensor(on: SwiftyGPIO.hardwareI2Cs(for: board)![1])
         }
+        
+        
         
         
         RunLoop.main.run()

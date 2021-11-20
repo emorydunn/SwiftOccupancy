@@ -126,11 +126,10 @@ extension OpenCombine.Publisher where Output == SensorPayload, Failure == Never 
                 // Average the values with the frame buffer
                 let averageData = totals.map { $0 / Float(count) }
                 
-                // Return the first elemet with the new data
-                return SensorPayload(sensor: buffer[0].sensor,
-                                     rows: buffer[0].rows,
+                // Return the first element with the new data
+                return try! SensorPayload(rows: buffer[0].rows,
                                      cols: buffer[0].cols,
-                                     data: averageData)!
+                                     data: averageData)
             }
             .eraseToAnyPublisher()
     }
@@ -183,11 +182,10 @@ extension OpenCombine.Publisher where Output == SensorPayload?, Failure == Never
                 // Average the values with the frame buffer
                 let averageData = totals.map { $0 / Float(count) }
                 
-                // Return the first elemet with the new data
-                return SensorPayload(sensor: buffer[0].sensor,
-                                     rows: buffer[0].rows,
+                // Return the first element with the new data
+                return try! SensorPayload(rows: buffer[0].rows,
                                      cols: buffer[0].cols,
-                                     data: averageData)!
+                                     data: averageData)
             }
             .eraseToAnyPublisher()
     }

@@ -50,7 +50,7 @@ public class Cluster: Identifiable, Hashable {
         self.pixels = pixels
     }
     
-    /// Determine whehter a Pixel neighbors the Cluster.
+    /// Determine whether a Pixel neighbors the Cluster.
     /// - Parameter pixel: The Pixel to test
     /// - Returns: A boolean indicating whether the Pixel is a neighbor
     public func isNeighbored(to pixel: Pixel) -> Bool {
@@ -66,7 +66,7 @@ public class Cluster: Identifiable, Hashable {
     ///
     /// If the Pixel at the center of the Cluster is not actually in the Cluster,
     /// which can happen with irregularly shaped Clusters, the Pixel
-    /// with the highest termpature is used.
+    /// with the highest temperature is used.
     ///
     /// - Returns: The Pixel in the center
     func calculateCenter() -> Pixel {
@@ -87,7 +87,7 @@ public class Cluster: Identifiable, Hashable {
         
         // Return the geometric center
         // If the geometric center can't be found, most likely due to
-        // an iregular cluster, fallback to the temp center
+        // an irregular cluster, fallback to the temp center
         guard let center = pixels.first(where: {
             $0.x == centerX && $0.y == centerY
         }) else {
@@ -98,7 +98,7 @@ public class Cluster: Identifiable, Hashable {
 
     }
     
-    /// The Pixel with the highest termpature, often aat the center of the Cluster.
+    /// The Pixel with the highest temperature, often at the center of the Cluster.
     /// - Returns: The Pixel in the center
     func temperatureCenter() -> Pixel {
         return pixels.reduce(pixels[0]) { result, pixel in
@@ -143,7 +143,7 @@ public class Cluster: Identifiable, Hashable {
     /// Print a textual representation of a grid of pixels.
     ///
     /// ```
-    /// Bottom Cluser at Pixel (4, 5)
+    /// Bottom Cluster at Pixel (4, 5)
     /// ░░ ░░ ░░ ░░ ░░ ░░ ░░ ░░
     /// ░░ ░░ ░░ ░░ ░░ ░░ ░░ ░░
     /// ░░ ░░ ░░ ░░ ░░ ░░ ░░ ░░
@@ -194,7 +194,7 @@ public class Cluster: Identifiable, Hashable {
     /// Print a textual representation of a grid of pixels.
     ///
     /// ```
-    /// Bottom Cluser at Pixel (4, 5)
+    /// Bottom Cluster at Pixel (4, 5)
     /// ░░ ░░ ░░ ░░ ░░ ░░ ░░ ░░
     /// ░░ ░░ ░░ ░░ ░░ ░░ ░░ ░░
     /// ░░ ░░ ░░ ░░ ░░ ░░ ░░ ░░
@@ -217,7 +217,7 @@ public class Cluster: Identifiable, Hashable {
 
 extension Cluster: CustomStringConvertible {
     public var description: String {
-        "\(clusterSide.rawValue.capitalized) Cluser at \(center) size \(size)"
+        "\(clusterSide.rawValue.capitalized) Cluster at \(center) size \(size)"
     }
 }
 
