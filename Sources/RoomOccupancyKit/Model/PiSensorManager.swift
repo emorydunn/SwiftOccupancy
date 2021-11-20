@@ -43,6 +43,7 @@ public class PiSensorManager: Decodable {
 //            }
 
             print("Connected to MQTT server")
+            sensor.monitorRooms(from: client)
             
             
         }

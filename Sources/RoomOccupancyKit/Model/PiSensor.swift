@@ -77,8 +77,6 @@ public class PiSensor: Decodable {
             .eraseToAnyPublisher()
         
         topRoom
-//            .subscribe(on: pub)
-//            .subscribe(with: client)
             .occupancy(pub)
             .replaceError(with: 0)
             .assign(to: &$topRoomCount)
@@ -92,8 +90,6 @@ public class PiSensor: Decodable {
             .store(in: &tokens)
         
         bottomRoom
-//            .subscribe(with: client)
-//            .subscribe(on: pub)
             .occupancy(pub)
             .replaceError(with: 0)
             .assign(to: &$bottomRoomCount)
