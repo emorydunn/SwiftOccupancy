@@ -253,7 +253,7 @@ public class PiSensor: Decodable {
             "state_class": "measurement",
             "unit_of_measurement": "ºC",
             "icon": "mdi:thermometer",
-            "topic": "\(mqttTopic)/state",
+            "state_topic": "\(mqttTopic)/state",
             "device": [
                 "name": "\(id) Thermopile",
                 "model": "AMG88xx",
