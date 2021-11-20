@@ -63,12 +63,16 @@ public class PiSensor: Decodable {
     var tokens: [AnyCancellable] = []
     
     func monitorRooms(from client: MQTTClient) {
+        topRoom.publishSensorConfig(client)
+        bottomRoom.publishSensorConfig(client)
+        
         topRoom
             .subscribe(with: client)
             .assign(to: &$topRoomCount)
         
         $topRoomCount
             .removeDuplicates()
+            .print(topRoom.sensorName)
             .sink { value in
                 self.topRoom.publishState(value, with: client)
             }
@@ -81,6 +85,7 @@ public class PiSensor: Decodable {
         
         $bottomRoomCount
             .removeDuplicates()
+            .print(bottomRoom.sensorName)
             .sink { value in
                 self.bottomRoom.publishState(value, with: client)
             }
