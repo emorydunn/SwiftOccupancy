@@ -84,6 +84,11 @@ extension MQTTPublisher {
             demand = target.receive(sub)
         }
         
+        func mqttClient(_ client: MQTTClient, didCatchError error: Error) {
+            Swift.print("Error", error)
+            target?.receive(completion: .failure(error))
+        }
+        
         
     }
     
