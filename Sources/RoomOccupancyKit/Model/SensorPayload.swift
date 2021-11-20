@@ -190,6 +190,7 @@ public struct SensorPayload: Codable {
             
             context.lineWidth = 10
             context.strokeColor = CGColor.white
+            context.addRect(rect)
             context.strokePath()
         }
         
