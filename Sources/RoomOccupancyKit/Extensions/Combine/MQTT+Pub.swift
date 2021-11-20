@@ -9,7 +9,7 @@ import Foundation
 import OpenCombine
 import MQTT
 
-extension MQTTClient {
+public extension MQTTClient {
     
     /// Returns a publisher that wraps an MQTT client.
     func messagesPublisher(_ onConnection: @escaping (MQTTClient) -> Void) -> MQTTPublisher {
@@ -114,7 +114,7 @@ extension MQTTPublisher {
     
 }
 
-extension AnyPublisher where Output == PublishPacket, Failure == Error {
+public extension AnyPublisher where Output == PublishPacket, Failure == Error {
 
     /// Subscribe to a topic after the client has connected.
     /// - Parameters:

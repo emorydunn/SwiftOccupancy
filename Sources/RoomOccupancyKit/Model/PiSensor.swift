@@ -11,6 +11,8 @@ import SwiftyGPIO
 import OpenCombine
 import OpenCombineFoundation
 import MQTT
+import Cairo
+import Silica
 
 public class PiSensor: Decodable {
     
@@ -64,8 +66,11 @@ public class PiSensor: Decodable {
     @OpenCombine.Published public var topRoomCount: Int = 0
     @OpenCombine.Published public var bottomRoomCount: Int = 0
     
+    @OpenCombine.Published public var thermistorTemperature: Float = 0
+    
     var tokens: [AnyCancellable] = []
     
+    let imageQueue = DispatchQueue(label: "CameraPub")
     
     var mqttTopic: String { "homeassistant/camera/swift-occupancy/\(clientID)" }
     var statusTopic: String { "swift-occupancy/sensor/\(clientID)/status" }
@@ -92,7 +97,7 @@ public class PiSensor: Decodable {
             client.publish(message: self.statusMessage(true), identifier: nil)
 
         }
-        
+
         $sensorData
             .compactMap { $0 }
             .tryMap {
@@ -156,7 +161,12 @@ public class PiSensor: Decodable {
         Timer
             .publish(every: 0.1, on: .main, in: .default)
             .autoconnect()
-            .map { _ in
+            .map { _ in sensor.readThermistor() }
+            .assign(to: &$thermistorTemperature)
+        
+        Timer
+            .publish(every: 0.1, on: .main, in: .default)
+            .autoconnect().map { _ in
                 sensor.readPixels()
             }
             // Map to SensorPayload
