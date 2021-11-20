@@ -113,7 +113,6 @@ public struct SensorPayload: Codable {
         svg.addAttribute("http://www.w3.org/2000/svg", forKey: "xmlns")
 
         stride(from: 0, to: columns, by: 1).forEach { currentPage in
-            print("Rendering Page:", currentPage)
             let verticalOffset = currentPage * pixelSize
             
             let row = rawData[(currentPage * columns)..<(currentPage * columns) + columns]
