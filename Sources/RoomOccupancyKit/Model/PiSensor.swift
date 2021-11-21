@@ -70,6 +70,8 @@ public class PiSensor: Decodable {
     
     var tokens: [AnyCancellable] = []
     
+    var mqttPublisher: AnyPublisher<PublishPacket, Error>!
+    
     let imageQueue = DispatchQueue(label: "CameraPub")
     
     var mqttTopic: String { "homeassistant/camera/swift-occupancy/\(clientID)" }
@@ -84,7 +86,7 @@ public class PiSensor: Decodable {
 
     func monitorRooms(from client: MQTTClient) {
         
-        let mqttPublisher = client.sharedMessagesPublisher { client in
+        self.mqttPublisher = client.sharedMessagesPublisher { client in
             
             self.topRoom.subscribe(with: client)
             self.bottomRoom.subscribe(with: client)
@@ -96,7 +98,6 @@ public class PiSensor: Decodable {
             self.publishCameraConfig(client)
             
             client.publish(message: self.statusMessage(true), identifier: nil)
-
         }
         
         $thermistorTemperature
@@ -168,7 +169,7 @@ public class PiSensor: Decodable {
     }
     
     
-    func monitorSensor(on interface: I2CInterface) {
+    func monitorSensor(on interface: I2CInterface, parseData: Bool) {
         // Create the sensor
         let sensor = AMG88(interface)
         
@@ -188,11 +189,38 @@ public class PiSensor: Decodable {
             .tryMap { pixels in
                 try SensorPayload(data: pixels)
             }
-            .breakpointOnError()
             .replaceError(with: nil)
 //            .averageFrames(averageFrameCount)
             .assign(to: &$sensorData)
         
+        if parseData {
+            parseSensorData()
+        }
+        
+    }
+    
+    func monitorSensor(on client: MQTTClient, parseData: Bool) {
+        let topic = "swift-occupancy/sensor/\(self.clientID)/data"
+        
+        // Subscribe to topic
+        client.subscribe(topic: topic, qos: .atMostOnce, identifier: nil)
+        
+        mqttPublisher
+            .filter(forTopic: topic)
+            .map { $0.payload }
+            .tryMap {
+                try JSONDecoder().decode(SensorPayload.self, from: $0)
+            }
+            .replaceError(with: nil)
+            .assign(to: &$sensorData)
+        
+        if parseData {
+            parseSensorData()
+        }
+
+    }
+    
+    func parseSensorData() {
         // Collect rolling average temp
         $sensorData
             .compactMap { $0 }
@@ -244,7 +272,6 @@ public class PiSensor: Decodable {
                 }
             }
             .store(in: &tokens)
-        
     }
     
     func publishSensorConfig(_ client:  MQTTClient) {

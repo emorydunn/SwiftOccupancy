@@ -11,6 +11,11 @@ import MQTT
 
 public class PiSensorManager: Decodable {
     
+    public enum Datasource: Decodable {
+        case i2c(SupportedBoard)
+        case mqtt
+    }
+    
     public struct MQTTSettings: Decodable {
         let host: String
         let port: Int
@@ -20,20 +25,24 @@ public class PiSensorManager: Decodable {
     
     public let sensor: PiSensor
     public let mqtt: MQTTSettings?
-    public let board: SupportedBoard?
+
+    public let datasource: Datasource
     
     public let debug: Bool
+    public let parseData: Bool
     
     public enum CodingKeys: String, CodingKey {
-        case sensor, mqtt, board, debug
+        case sensor, mqtt, datasource, debug, parseData
     }
     
     public func begin() {
         
+        var mqttClient: MQTTClient? = nil
+        
         if let mqtt = mqtt {
             print("Connecting to MQTT server 'mqtt://\(mqtt.host):\(mqtt.port)'")
             
-            let mqttClient = MQTTClient(host: mqtt.host,
+            mqttClient = MQTTClient(host: mqtt.host,
                                     port: mqtt.port,
                                     clientID: sensor.clientID,
                                     cleanSession: true,
@@ -42,19 +51,26 @@ public class PiSensorManager: Decodable {
                                     username: mqtt.username,
                                     password: mqtt.password)
 
-            sensor.monitorRooms(from: mqttClient)
+            sensor.monitorRooms(from: mqttClient!)
             
             if debug {
-                sensor.debugSensor(with: mqttClient)
+                sensor.debugSensor(with: mqttClient!)
             }
         }
-        
-        if let board = board {
-            print("Connecting to AMG88 Sensor")
-            sensor.monitorSensor(on: SwiftyGPIO.hardwareI2Cs(for: board)![1])
+
+        switch datasource {
+        case .i2c(let supportedBoard):
+            print("Connecting to I2C AMG88 Sensor")
+            sensor.monitorSensor(on: SwiftyGPIO.hardwareI2Cs(for: supportedBoard)![1], parseData: parseData)
+        case .mqtt:
+            print("Connecting to MQTT AMG88 Sensor")
+            if let mqttClient = mqttClient {
+                sensor.monitorSensor(on: mqttClient, parseData: parseData)
+            } else {
+                print("No MQTT settings were provided, can't connect to sensor.")
+            }
+            
         }
-        
-        
         
         
         RunLoop.main.run()
