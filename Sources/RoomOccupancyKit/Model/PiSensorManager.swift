@@ -11,11 +11,6 @@ import MQTT
 
 public class PiSensorManager: Decodable {
     
-    public enum Datasource: Decodable {
-        case i2c(SupportedBoard)
-        case mqtt
-    }
-    
     public struct MQTTSettings: Decodable {
         let host: String
         let port: Int
@@ -26,10 +21,10 @@ public class PiSensorManager: Decodable {
     public let sensor: PiSensor
     public let mqtt: MQTTSettings?
 
-    public let datasource: Datasource
+    public let datasource: String
     
-    public let debug: Bool
-    public let parseData: Bool
+    public var debug: Bool = false
+    public var parseData: Bool = true
     
     public enum CodingKeys: String, CodingKey {
         case sensor, mqtt, datasource, debug, parseData
@@ -57,22 +52,26 @@ public class PiSensorManager: Decodable {
                 sensor.debugSensor(with: mqttClient!)
             }
         }
-
+        
         switch datasource {
-        case .i2c(let supportedBoard):
-            print("Connecting to I2C AMG88 Sensor")
-            sensor.monitorSensor(on: SwiftyGPIO.hardwareI2Cs(for: supportedBoard)![1], parseData: parseData)
-        case .mqtt:
+        case "mqtt":
             print("Connecting to MQTT AMG88 Sensor")
             if let mqttClient = mqttClient {
                 sensor.monitorSensor(on: mqttClient, parseData: parseData)
             } else {
                 print("No MQTT settings were provided, can't connect to sensor.")
             }
+        default:
+            guard let board = SupportedBoard(rawValue: datasource) else {
+                print("'\(datasource)' is not a supported board")
+                break
+            }
+            
+            print("Connecting to I2C AMG88 Sensor")
+            sensor.monitorSensor(on: SwiftyGPIO.hardwareI2Cs(for: board)![1], parseData: parseData)
             
         }
-        
-        
+
         RunLoop.main.run()
     }
 }
