@@ -46,10 +46,10 @@ public class PiSensorManager: Decodable {
                                     username: mqtt.username,
                                     password: mqtt.password)
 
-            sensor.monitorRooms(from: mqttClient!)
-            
             if debug {
                 sensor.debugSensor(with: mqttClient!)
+            } else {
+                sensor.monitorRooms(from: mqttClient!)
             }
         }
         
