@@ -19,8 +19,6 @@ public struct MQTTAMGSensor: AMGSensorProtocol {
     public init(client: AsyncMQTTClient, topic: String) {
         self.client = client
         self.topic = topic
-        
-        client.subscribe(topic: topic, qos: .atMostOnce)
     }
 
     public var data: AsyncThrowingStream<SensorPayload, Error> {
@@ -28,9 +26,7 @@ public struct MQTTAMGSensor: AMGSensorProtocol {
         AsyncThrowingStream { continuation in
             Task {
                 do {
-                    let pubs = client.packets.compactMap { $0 as? PublishPacket }
-                    
-                    for try await packet in pubs.filter { $0.topic == topic } {
+                    for try await packet in client.subscribe(topic: topic, qos: .atMostOnce) {
                         let data = try decoder.decode(SensorPayload.self, from: packet.payload)
                         
                         continuation.yield(data)

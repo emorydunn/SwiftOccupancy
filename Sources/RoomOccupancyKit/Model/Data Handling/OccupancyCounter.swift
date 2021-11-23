@@ -103,30 +103,36 @@ public class OccupancyCounter {
         topRoom.subscribe(with: client.client)
         bottomRoom.subscribe(with: client.client)
         
-        let pubs = client.packets.compactMap { $0 as? PublishPacket }
+//        let pubs = client.packets.compactMap { $0 as? PublishPacket }
         
         Task {
-            print("Subscribing to \(topRoom) count")
-            for try await message in pubs.filter({ $0.topic == self.topRoom.stateTopic }) {
-                if
-                    let string = String(data: message.payload, encoding: .utf8),
-                    let num = Int(string) {
-                    print("Updating \(topRoom) to \(num)")
-                    topRoomCount = num
-                }
-            }
+            try await updateCount(for: topRoom,
+                           count: &topRoomCount,
+                           onStream: client.subscribe(topic: topRoom.stateTopic, qos: .atLeastOnce))
+//            print("Subscribing to \(topRoom) count")
+//            for try await message in pubs.filter({ $0.topic == self.topRoom.stateTopic }) {
+//                if
+//                    let string = String(data: message.payload, encoding: .utf8),
+//                    let num = Int(string) {
+//                    print("Updating \(topRoom) to \(num)")
+//                    topRoomCount = num
+//                }
+//            }
         }
         
         Task {
-            print("Subscribing to \(bottomRoom) count")
-            for try await message in pubs.filter({ $0.topic == self.topRoom.stateTopic }) {
-                if
-                    let string = String(data: message.payload, encoding: .utf8),
-                    let num = Int(string) {
-                    print("Updating \(topRoom) to \(num)")
-                    topRoomCount = num
-                }
-            }
+            try await updateCount(for: bottomRoom,
+                           count: &bottomRoomCount,
+                           onStream: client.subscribe(topic: topRoom.stateTopic, qos: .atLeastOnce))
+//            print("Subscribing to \(bottomRoom) count")
+//            for try await message in pubs.filter({ $0.topic == self.topRoom.stateTopic }) {
+//                if
+//                    let string = String(data: message.payload, encoding: .utf8),
+//                    let num = Int(string) {
+//                    print("Updating \(topRoom) to \(num)")
+//                    topRoomCount = num
+//                }
+//            }
         }
         
         
@@ -141,16 +147,16 @@ public class OccupancyCounter {
         }
     }
     
-//    func updateCount(for room: Room, count: inout Int, onStream stream: AsyncThrowingStream<PublishPacket, Error>) async throws {
-//        print("Subscribing to \(room) count")
-//        for try await message in stream.filter({ $0.topic == self.topRoom.stateTopic }) {
-//            if
-//                let string = String(data: message.payload, encoding: .utf8),
-//                let num = Int(string) {
-//                print("Updating \(room) to \(num)")
-//                count = num
-//            }
-//        }
-//    }
+    func updateCount(for room: Room, count: inout Int, onStream stream: AsyncThrowingStream<PublishPacket, Error>) async throws {
+        print("Subscribing to \(room) count")
+        for try await message in stream {
+            if
+                let string = String(data: message.payload, encoding: .utf8),
+                let num = Int(string) {
+                print("Updating \(room) to \(num)")
+                count = num
+            }
+        }
+    }
 
 }
