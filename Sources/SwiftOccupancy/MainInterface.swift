@@ -10,7 +10,7 @@ import ArgumentParser
 
 @main
 struct MainInterface: ParsableCommand {
-    static var configuration = CommandConfiguration(commandName: "sensor",
+    static var configuration = CommandConfiguration(
                                                     abstract: "Read occupancy from an ANG88 sensor.",
                                                     discussion: "Read and parse data from an AMG88 sensor and publish occupancy changes via MQTT.",
                                                     version: "0.1.",
