@@ -30,7 +30,7 @@ public struct MQTTAMGSensor: AMGSensorProtocol {
                 do {
                     let pubs = client.packets.compactMap { $0 as? PublishPacket }
                     
-                    for try await packet in pubs {
+                    for try await packet in pubs.filter { $0.topic == topic } {
                         let data = try decoder.decode(SensorPayload.self, from: packet.payload)
                         
                         continuation.yield(data)
