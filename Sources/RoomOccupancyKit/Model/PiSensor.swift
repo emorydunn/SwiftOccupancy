@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import AMG88xx
+import AMG88
 import SwiftyGPIO
 import OpenCombine
 import OpenCombineFoundation
@@ -83,9 +83,16 @@ public class PiSensor: Decodable {
     func statusMessage(_ status: Bool) -> PublishMessage {
         PublishMessage(topic: statusTopic, payload: status ? "online" : "offline", retain: false, qos: .atMostOnce)
     }
-
-    func monitorRooms(from client: MQTTClient) {
+    
+    // MARK: - Sensor Publishing
+    
+    func publishSensorData() {
         
+    }
+    
+    /// Connect
+    /// - Parameter client: <#client description#>
+    func connect(to client: MQTTClient) {
         self.mqttPublisher = client.sharedMessagesPublisher { client in
             
             self.topRoom.subscribe(with: client)
@@ -99,6 +106,9 @@ public class PiSensor: Decodable {
             
             client.publish(message: self.statusMessage(true), identifier: nil)
         }
+    }
+
+    func monitorRooms(from client: MQTTClient) {
         
         $thermistorTemperature
             .collect(10)
@@ -169,16 +179,22 @@ public class PiSensor: Decodable {
     }
     
     
+    /// Read data from a sensor connected via I2C.
+    ///
+    /// Data are published to `$thermistorTemperature` and `sensorData`.
+    /// - Parameters:
+    ///   - interface: The I2C interface
+    ///   - parseData: <#parseData description#>
     func monitorSensor(on interface: I2CInterface, parseData: Bool) {
         // Create the sensor
         let sensor = AMG88(interface)
         
         // Monitor the sensor
-        Timer
-            .publish(every: 0.1, on: .main, in: .default)
-            .autoconnect()
-            .map { _ in sensor.readThermistor() }
-            .assign(to: &$thermistorTemperature)
+//        Timer
+//            .publish(every: 0.1, on: .main, in: .default)
+//            .autoconnect()
+//            .map { _ in sensor.readThermistor() }
+//            .assign(to: &$thermistorTemperature)
         
         Timer
             .publish(every: 0.1, on: .main, in: .default)
@@ -187,7 +203,7 @@ public class PiSensor: Decodable {
             }
             // Map to SensorPayload
             .tryMap { pixels in
-                try SensorPayload(data: pixels)
+                try SensorPayload(data: pixels, thermistorTemperature: sensor.readThermistor())
             }
             .replaceError(with: nil)
 //            .averageFrames(averageFrameCount)
@@ -199,6 +215,12 @@ public class PiSensor: Decodable {
         
     }
     
+    /// Read data from a remote sensor via MQTT.
+    ///
+    /// 
+    /// - Parameters:
+    ///   - client: <#client description#>
+    ///   - parseData: <#parseData description#>
     func monitorSensor(on client: MQTTClient, parseData: Bool) {
         let topic = "swift-occupancy/sensor/\(self.clientID)/data"
         
@@ -243,7 +265,7 @@ public class PiSensor: Decodable {
                     return nil
                 }
                 
-                let box = cluster.boundingBox()
+                let box = cluster.boundingBox
                 let width = box.maxX - box.minX
                 let height = box.maxY - box.minY
 
@@ -269,6 +291,8 @@ public class PiSensor: Decodable {
                 case .toBottom:
                     self.topRoomCount = max(0, self.topRoomCount - 1)
                     self.bottomRoomCount += 1
+                case .none:
+                    break
                 }
             }
             .store(in: &tokens)

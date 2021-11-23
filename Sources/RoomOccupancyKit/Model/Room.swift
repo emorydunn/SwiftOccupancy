@@ -19,6 +19,9 @@ public enum Room: CustomStringConvertible, Decodable {
     case room(String)
     case æther
     
+    /// Convenience for Æther
+    static let aether: Room = .æther
+    
     public var description: String {
         switch self {
         case let .room(name):
@@ -166,9 +169,7 @@ public class House {
 }
 
 public struct OccupancyChange: CustomStringConvertible {
-    
-//    public static let `default` = OccupancyChange(action: "No Action", delta: [:])
-    
+
     public let topRoom: Room
     public let bottomRoom: Room
     public let direction: Direction
@@ -178,13 +179,34 @@ public struct OccupancyChange: CustomStringConvertible {
         self.topRoom = topRoom
         self.bottomRoom = bottomRoom
     }
+    
+    public init(currentCluster: Cluster, previousCluster: Cluster, topRoom: Room, bottomRoom: Room) {
+        
+        // Parse cluster delta
+        switch (previousCluster.clusterSide, currentCluster.clusterSide) {
+        case (.bottom, .bottom):
+            // Same side, nothing to do
+            self = OccupancyChange(.none, topRoom: topRoom, bottomRoom: bottomRoom)
+        case (.top, .top):
+            // Same side, nothing to do
+            self = OccupancyChange(.none, topRoom: topRoom, bottomRoom: bottomRoom)
+        case (.bottom, .top):
+            // Moved from bottom to top
+            self = OccupancyChange(.toTop, topRoom: topRoom, bottomRoom: bottomRoom)
+        case (.top, .bottom):
+            // Moved from top to bottom
+            self = OccupancyChange(.toBottom, topRoom: topRoom, bottomRoom: bottomRoom)
+        }
+    }
 
     public var description: String {
         switch direction {
         case .toTop:
-            return "\(bottomRoom) -> \(topRoom)"
+            return "B \(bottomRoom) -> T \(topRoom)"
         case .toBottom:
-            return "\(topRoom) -> \(bottomRoom)"
+            return "T \(topRoom) -> B \(bottomRoom)"
+        case .none:
+            return "T \(topRoom) == B \(bottomRoom)"
         }
     }
     
@@ -196,6 +218,21 @@ public struct OccupancyChange: CustomStringConvertible {
         case .toBottom:
             house[topRoom] -= 1
             house[bottomRoom] += 1
+        case .none:
+            break
+        }
+    }
+    
+    func update(topCount: inout Int, bottomCount: inout Int) {
+        switch direction {
+        case .toTop:
+            topCount += 1
+            bottomCount = max(0, bottomCount - 1)
+        case .toBottom:
+            topCount = max(0, topCount - 1)
+            bottomCount += 1
+        case .none:
+            break
         }
     }
 }
@@ -203,4 +240,5 @@ public struct OccupancyChange: CustomStringConvertible {
 public enum Direction {
     case toTop
     case toBottom
+    case none
 }

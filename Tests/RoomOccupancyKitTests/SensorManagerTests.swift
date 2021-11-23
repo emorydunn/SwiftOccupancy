@@ -7,31 +7,26 @@
 
 import Foundation
 import XCTest
-import OpenCombineShim
 @testable import RoomOccupancyKit
 
-class SensorManagerTests: XCTestCase {
+class OccupancyCounterTests: XCTestCase {
     
-    var tokens: [AnyCancellable] = []
-    
-    func testMQTT() {
-//        let manager = SensorManager(sensors: [], broker: HAMQTTConfig(username: nil, password: nil), haConfig: nil)
-//        
-//        manager.sensors = [
-//            MQTTSensor("office-hall", topName: .room("Hall"), bottomName: .room("Office")),
-//            MQTTSensor("bedroom-hall", topName: .room("Hall"), bottomName: .room("Bedroom")),
-//        ]
-//        
-//        let exp = expectation(description: "MQTT")
-//        
-//        manager.monitorMQTT(publishToHA: false)
+    func testOccupancy() async throws {
+        let sensor = I2CAMGSensor(sensor: MockSensor(emptyOnLoop: false))
         
-//        manager.$occupancy.sink { newValue in
-//            print(newValue)
-////            exp.fulfill()
+        let occupancy = OccupancyCounter(sensor: sensor)
+        
+//        print(occupancy)
+        try await occupancy.updateChanges()
+//        Task {
+//            for try await change in occupancy.countChanges {
+//                print("A", change)
+//            }
 //        }
-//        .store(in: &tokens)
-        
-        waitForExpectations(timeout: 120)
+//
+//
+//        print("After Task")
+
     }
+    
 }
