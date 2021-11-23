@@ -19,7 +19,11 @@ public class SensorDataMQTTPublisher {
     let client: AsyncMQTTClient
     let topic: String
     
-    let encoder = JSONEncoder()
+    var encoder: JSONEncoder = {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.sortedKeys, .withoutEscapingSlashes]
+        return encoder
+    }()
     
     public init(sensor: AMGSensorProtocol, client: AsyncMQTTClient, topic: String) {
         self.sensor = sensor
@@ -39,7 +43,6 @@ public class SensorDataMQTTPublisher {
             // Encode the data
             let data = try encoder.encode(sensorData)
         
-            print(Date(), "Publishing sensor data")
             client.publish(topic: topic, retain: retain, qos: qos, payload: data, identifier: nil)
         }
     }
