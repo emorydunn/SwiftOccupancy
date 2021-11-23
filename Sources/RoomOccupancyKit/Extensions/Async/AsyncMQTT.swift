@@ -59,6 +59,10 @@ public class AsyncMQTTClient {
 
 public extension AsyncMQTTClient {
     
+    var clientID: String {
+        get { client.clientID }
+        set { client.clientID = newValue }
+    }
     
     /// Connect to the MQTT server and await the connection acknowledgment packet.
     func connect() async throws {
@@ -79,6 +83,12 @@ public extension AsyncMQTTClient {
     
     func publish(topic: String, retain: Bool, qos: QoS, payload: DataEncodable, identifier: UInt16? = nil) {
         client.publish(topic: topic, retain: retain, qos: qos, payload: payload, identifier: identifier)
+        
+        
+    }
+    
+    func publish(message: PublishMessage, identifier: UInt16? = nil) {
+        client.publish(message: message, identifier: identifier)
     }
     
 }

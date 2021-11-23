@@ -8,6 +8,7 @@
 import Foundation
 import ArgumentParser
 import RoomOccupancyKit
+import MQTT
 
 struct MQTTOptions: ParsableArguments {
     @Option(name: .long, help: "MQTT server hostname")
@@ -22,12 +23,13 @@ struct MQTTOptions: ParsableArguments {
     @Option(name: .shortAndLong, help: "MQTT password")
     var password: String?
     
-    func makeClient(clientID: String) -> AsyncMQTTClient {
+    func makeClient(clientID: String, willMessage: PublishMessage? = nil) -> AsyncMQTTClient {
         AsyncMQTTClient(
             host: host,
             port: port,
             clientID: clientID,
             cleanSession: true,
+            willMessage: willMessage,
             username: username,
             password: password)
     }

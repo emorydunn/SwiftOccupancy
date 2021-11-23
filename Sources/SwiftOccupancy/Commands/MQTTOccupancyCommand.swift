@@ -43,6 +43,8 @@ struct MQTTOccupancyCommand: ParsableCommand {
             print("Connecting to MQTT server 'mqtt://\(mqtt.host):\(mqtt.port)'")
             try await client.connect()
             
+            publisher.setupHA()
+            
             try await publisher.publishData()
         }
         
