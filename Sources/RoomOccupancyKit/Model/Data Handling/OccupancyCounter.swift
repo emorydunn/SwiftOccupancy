@@ -99,9 +99,9 @@ public class OccupancyCounter {
     
     func publishChanges(to client: AsyncMQTTClient) async throws {
         
-        // Subscribe to MQTT room updates
-        topRoom.subscribe(with: client.client)
-        bottomRoom.subscribe(with: client.client)
+//        // Subscribe to MQTT room updates
+//        topRoom.subscribe(with: client.client)
+//        bottomRoom.subscribe(with: client.client)
         
 //        let pubs = client.packets.compactMap { $0 as? PublishPacket }
         
