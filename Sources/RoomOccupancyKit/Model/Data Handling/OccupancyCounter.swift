@@ -67,11 +67,11 @@ public class OccupancyCounter {
                         
                         cluster?.printGrid()
                         
-                        // If there's no previous cluster
-                        // assign the new cluster and wait for the next frame
-                        if previousCluster == nil {
-                            previousCluster = cluster
-                        }
+//                        // If there's no previous cluster
+//                        // assign the new cluster and wait for the next frame
+//                        if previousCluster == nil {
+//                            previousCluster = cluster
+//                        }
                         
                         if let currentCluster = cluster, let previousCluster = previousCluster {
                             let change = OccupancyChange(currentCluster: currentCluster,
@@ -80,6 +80,8 @@ public class OccupancyCounter {
                                             bottomRoom: bottomRoom)
                             
                             continuation.yield(change)
+                        } else {
+                            previousCluster = cluster
                         }
                         
 
@@ -98,41 +100,17 @@ public class OccupancyCounter {
     }
     
     func publishChanges(to client: AsyncMQTTClient) async throws {
-        
-//        // Subscribe to MQTT room updates
-//        topRoom.subscribe(with: client.client)
-//        bottomRoom.subscribe(with: client.client)
-        
-//        let pubs = client.packets.compactMap { $0 as? PublishPacket }
-        
+
         Task {
             try await updateCount(for: topRoom,
                            count: &topRoomCount,
                            onStream: client.subscribe(topic: topRoom.stateTopic, qos: .atLeastOnce))
-//            print("Subscribing to \(topRoom) count")
-//            for try await message in pubs.filter({ $0.topic == self.topRoom.stateTopic }) {
-//                if
-//                    let string = String(data: message.payload, encoding: .utf8),
-//                    let num = Int(string) {
-//                    print("Updating \(topRoom) to \(num)")
-//                    topRoomCount = num
-//                }
-//            }
         }
         
         Task {
             try await updateCount(for: bottomRoom,
                            count: &bottomRoomCount,
                            onStream: client.subscribe(topic: bottomRoom.stateTopic, qos: .atLeastOnce))
-//            print("Subscribing to \(bottomRoom) count")
-//            for try await message in pubs.filter({ $0.topic == self.topRoom.stateTopic }) {
-//                if
-//                    let string = String(data: message.payload, encoding: .utf8),
-//                    let num = Int(string) {
-//                    print("Updating \(topRoom) to \(num)")
-//                    topRoomCount = num
-//                }
-//            }
         }
         
         
