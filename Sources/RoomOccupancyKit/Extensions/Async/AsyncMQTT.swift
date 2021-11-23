@@ -88,7 +88,7 @@ public extension AsyncMQTTClient {
         
         // Subscribe to the topic
         client.subscribe(topic: topic, qos: qos, identifier: identifier)
-        
+        print("Async sub for \(topic)")
         return AsyncThrowingStream { continuation in
             self.subscriptionStreams[topic] = continuation
         }
