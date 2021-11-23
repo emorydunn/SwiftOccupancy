@@ -27,11 +27,13 @@ struct MQTTPublisher: ParsableCommand {
     @Option(help: "MQTT password")
     var password: String?
     
+    @Option(help: "The Client ID for the MQTT server")
+    var clientID: String = "SwiftOccupancy-\(Int.random(in: 0..<100))"
+    
     @Option(help: "The board for connecting via I2C")
     var board: SupportedBoard = SupportedBoard.RaspberryPi4
     
     func run() throws {
-        let clientID = "SwiftOccupancy-\(Int.random(in: 0..<100))"
         
         let client = AsyncMQTTClient(
             host: host,
