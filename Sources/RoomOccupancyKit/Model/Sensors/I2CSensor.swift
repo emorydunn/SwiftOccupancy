@@ -31,7 +31,7 @@ public struct I2CAMGSensor: AMGSensorProtocol {
 
         print("Beginning to monitor AMG sensor")
         
-        AsyncThrowingStream { continuation in
+        return AsyncThrowingStream { continuation in
 
             let timer = Timer(timeInterval: 0.1, repeats: true) { timer in
                 let pixels = sensor.readPixels()
