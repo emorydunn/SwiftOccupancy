@@ -80,9 +80,9 @@ public class OccupancyCounter {
                                             bottomRoom: bottomRoom)
                             
                             continuation.yield(change)
-                        } else {
-                            previousCluster = cluster
                         }
+                        
+                        previousCluster = cluster
                         
 
                     }
