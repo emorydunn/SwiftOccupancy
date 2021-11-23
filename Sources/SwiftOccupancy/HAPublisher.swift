@@ -12,6 +12,12 @@ import SwiftyGPIO
 
 struct HAOccupancyPublisher: ParsableCommand {
     
+    static var configuration = CommandConfiguration(commandName: "ha-publish",
+                                                    abstract: "Publish occupancy to HA.",
+                                                    discussion: "Data is read from an I2C sensor, occupancy changes are parsed and published to Home Assistant via MQTT.",
+                                                    version: "0.1.",
+                                                    shouldDisplay: true)
+    
     @OptionGroup var mqtt: MQTTOptions
 
     @Option(help: "The board for connecting via I2C")
