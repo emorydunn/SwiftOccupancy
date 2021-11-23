@@ -1,19 +1,16 @@
 //
-//  main.swift
+//  File.swift
 //  
 //
-//  Created by Emory Dunn on 5/20/21.
+//  Created by Emory Dunn on 11/23/21.
 //
 
 import Foundation
-import RoomOccupancyKit
 import ArgumentParser
+import RoomOccupancyKit
 import SwiftyGPIO
 
-
-
-@main
-struct MQTTPublisher: ParsableCommand {
+struct HAOccupancyPublisher: ParsableCommand {
     
     @Option(name: .long, help: "MQTT server hostname")
     var host: String
@@ -33,6 +30,12 @@ struct MQTTPublisher: ParsableCommand {
     @Option(help: "The board for connecting via I2C")
     var board: SupportedBoard = SupportedBoard.RaspberryPi4
     
+    @Option(help: "The top room name")
+    var topRoom: Room = .æther
+    
+    @Option(help: "The bottom room name")
+    var bottomRoom: Room = .æther
+    
     func run() throws {
         
         let client = AsyncMQTTClient(
@@ -43,16 +46,14 @@ struct MQTTPublisher: ParsableCommand {
             username: username,
             password: password)
         
-        let topic = "swift-occupancy/sensor/\(clientID)/data"
-        
-        let publisher = SensorDataMQTTPublisher(board: board, client: client, topic: topic)
+        let publisher = HAMQTTPublisher(board: board, client: client, topRoom: topRoom, bottomRoom: bottomRoom)
         
         Task {
             
             print("Connecting to MQTT server 'mqtt://\(host):\(port)'")
             try await client.connect()
             
-            try await publisher.publishData(retain: false, qos: .atLeastOnce)
+            try await publisher.publishData()
         }
         
         print("Putting the main thread into a run loop")
@@ -60,30 +61,3 @@ struct MQTTPublisher: ParsableCommand {
 
     }
 }
-//
-//// Default to the Home Assistant add-on config
-//var configFile: URL = URL(fileURLWithPath: "/data/options.json")
-//
-//// If the user specified a config, use that instead
-//if CommandLine.arguments.count == 2 {
-//    configFile = URL(fileURLWithPath: CommandLine.arguments[1])
-//}
-//
-//// Parse the file
-//let data: Data
-//do {
-//    data = try Data(contentsOf: configFile)
-//} catch {
-//    print("There was a problem reading \(configFile.path).")
-//    print(error.localizedDescription)
-//    exit(1)
-//}
-//
-//do {
-//    let manager = try JSONDecoder().decode(PiSensorManager.self, from: data)
-//    manager.begin()
-//} catch {
-//    print("There was a problem decoding the config file.")
-//    print(error)
-//    exit(1)
-//}
