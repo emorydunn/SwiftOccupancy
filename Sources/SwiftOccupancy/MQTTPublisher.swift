@@ -12,7 +12,7 @@ import SwiftyGPIO
 
 struct MQTTPublisher: ParsableCommand {
     
-    static var configuration = CommandConfiguration(commandName: "mqtt-publish",
+    static var configuration = CommandConfiguration(commandName: "raw-data",
                                                     abstract: "Publish raw sensor data to MQTT.",
                                                     discussion: "Data is read from an I2C sensor and published via MQTT.",
                                                     version: "0.1.",

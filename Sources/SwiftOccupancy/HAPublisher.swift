@@ -12,7 +12,7 @@ import SwiftyGPIO
 
 struct HAOccupancyPublisher: ParsableCommand {
     
-    static var configuration = CommandConfiguration(commandName: "ha-publish",
+    static var configuration = CommandConfiguration(commandName: "occupancy",
                                                     abstract: "Publish occupancy to HA.",
                                                     discussion: "Data is read from an I2C sensor, occupancy changes are parsed and published to Home Assistant via MQTT.",
                                                     version: "0.1.",
