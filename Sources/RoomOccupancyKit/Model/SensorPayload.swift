@@ -20,20 +20,33 @@ public enum SensorError: Error {
 }
 
 public struct SensorPayload: Codable {
-
+    
+    // MARK: Sensor Properties
+    /// Number of rows that make up the image
     public let rows: Int
+    
+    /// Number of columns that make up the image
     public let cols: Int
 
-    public let pixels: [Pixel]
+    /// The raw sensor data
     public let rawData: [Float]
     
+    /// The thermistor temperature
+    public let thermistorTemperature: Float
+    
+    // MARK: Derived Properties
+    
+    /// The parsed pixel data for the sensor
+    public let pixels: [Pixel]
+    
+    /// The average pixel temperature.
     public let mean: Float
     
     public enum CodingKeys: String, CodingKey {
-        case rows, cols, rawData
+        case rows, cols, rawData, thermistorTemperature
     }
     
-    public init(rows: Int = 8, cols: Int = 8, data: [Float]) throws {
+    public init(rows: Int = 8, cols: Int = 8, data: [Float], thermistorTemperature: Float) throws {
         self.rows = rows
         self.cols = cols
         
@@ -58,11 +71,13 @@ public struct SensorPayload: Codable {
         }
         
         self.rawData = data
+        self.thermistorTemperature = thermistorTemperature
         self.pixels = pixels
         
         self.mean = tempTotal / Float(rawData.count)
     }
     
+    @available(*, deprecated)
     public init(rows: Int = 8, cols: Int = 8, data: String) throws {
 
         // The data is returned in 4 byte temperature chunks: 31.8
@@ -82,20 +97,39 @@ public struct SensorPayload: Codable {
         try self.init(
                   rows: rows,
                   cols: cols,
-                  data: rawData)
+                  data: rawData,
+                  thermistorTemperature: 0
+        )
     }
     
+    @available(*, deprecated)
     public init(rows: Int = 8, cols: Int = 8, data: Data) throws {
 
         guard let rawData = String(data: data, encoding: .utf8) else {
             throw SensorError.decodingError(encoding: .utf8)
         }
         
-        try self.init(
-                  rows: rows,
-                  cols: cols,
-                  data: rawData)
+        fatalError("This init is deprecated")
+//        try self.init(
+//                  rows: rows,
+//                  cols: cols,
+//                  data: rawData,
+//                  thermistorTemperature: 0)
     }
+    
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        
+        let rows = try container.decode(Int.self, forKey: .rows)
+        let cols = try container.decode(Int.self, forKey: .cols)
+        let rawData = try container.decode([Float].self, forKey: .rawData)
+        let therm = try container.decode(Float.self, forKey: .thermistorTemperature)
+        
+        self = try SensorPayload(rows: rows, cols: cols, data: rawData, thermistorTemperature: therm)
+        
+    }
+    
+    // MARK: Methods
 
     public func logData() {
         print("FrameData:", rawData.map { String($0) }.joined(separator: ","))
@@ -182,7 +216,7 @@ public struct SensorPayload: Codable {
         
         if let cluster = cluster {
             print("Drawing cluster")
-            let box = cluster.boundingBox()
+            let box = cluster.boundingBox
             let rect = CGRect(x: box.minX * pixelSize,
                               y: box.minY * pixelSize,
                               width: (box.maxX - box.minX) * pixelSize,
@@ -196,17 +230,6 @@ public struct SensorPayload: Codable {
         
 //        context.scaleBy(x: 10, y: 10)
         return context.surface
-        
-    }
-
-    public init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        
-        let rows = try container.decode(Int.self, forKey: .rows)
-        let cols = try container.decode(Int.self, forKey: .cols)
-        let rawData = try container.decode([Float].self, forKey: .rawData)
-        
-        self = try SensorPayload(rows: rows, cols: cols, data: rawData)
         
     }
     
