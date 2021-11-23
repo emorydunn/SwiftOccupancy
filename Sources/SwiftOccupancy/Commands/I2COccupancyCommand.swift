@@ -13,7 +13,7 @@ import SwiftyGPIO
 struct I2COccupancyCommand: ParsableCommand {
 
     static var configuration = CommandConfiguration(commandName: "i2c",
-                                                    abstract: "Publish occupancy to HA.",
+                                                    abstract: "Read data from an I2C sensor.",
                                                     discussion: "Data is read from an I2C sensor, occupancy changes are parsed and published to Home Assistant via MQTT.",
                                                     version: "0.1.",
                                                     shouldDisplay: true)

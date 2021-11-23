@@ -13,7 +13,7 @@ import SwiftyGPIO
 struct MQTTOccupancyCommand: ParsableCommand {
 
     static var configuration = CommandConfiguration(commandName: "mqtt",
-                                                    abstract: "Publish occupancy to HA.",
+                                                    abstract: "Read data from an MQTT sensor.",
                                                     discussion: "Data is read from an MQTT sensor, occupancy changes are parsed and published to Home Assistant via MQTT.",
                                                     version: "0.1.",
                                                     shouldDisplay: true)
