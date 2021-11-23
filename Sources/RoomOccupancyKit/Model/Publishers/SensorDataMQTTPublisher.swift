@@ -34,10 +34,12 @@ public class SensorDataMQTTPublisher {
     }
     
     public func publishData(retain: Bool, qos: QoS) async throws {
+        
         for try await sensorData in sensor.data {
             // Encode the data
             let data = try encoder.encode(sensorData)
-            
+        
+            print(Date(), "Publishing sensor data")
             client.publish(topic: topic, retain: retain, qos: qos, payload: data, identifier: nil)
         }
     }

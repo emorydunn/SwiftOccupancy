@@ -19,6 +19,7 @@ public struct I2CAMGSensor: AMGSensorProtocol {
     }
     
     public init(board: SupportedBoard) {
+        print("Initializing AMG for board \(board)")
         self.sensor = AMG88(SwiftyGPIO.hardwareI2Cs(for: board)![1])
     }
     
@@ -28,6 +29,8 @@ public struct I2CAMGSensor: AMGSensorProtocol {
 
     public var data: AsyncThrowingStream<SensorPayload, Error> {
 
+        print("Beginning to monitor AMG sensor")
+        
         AsyncThrowingStream { continuation in
 
             let timer = Timer(timeInterval: 0.1, repeats: true) { timer in

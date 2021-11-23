@@ -19,7 +19,7 @@ struct MQTTPublisher: ParsableCommand {
     var host: String
     
     @Option(help: "MQTT server port")
-    var port: Int
+    var port: Int = 1883
     
     @Option(help: "MQTT username")
     var username: String?
@@ -28,7 +28,7 @@ struct MQTTPublisher: ParsableCommand {
     var password: String?
     
     @Option(help: "The board for connecting via I2C")
-    var board: SupportedBoard
+    var board: SupportedBoard = SupportedBoard.RaspberryPi4
     
     func run() throws {
         let clientID = "SwiftOccupancy-\(Int.random(in: 0..<100))"
@@ -46,9 +46,14 @@ struct MQTTPublisher: ParsableCommand {
         let publisher = SensorDataMQTTPublisher(board: board, client: client, topic: topic)
         
         Task {
+            
+            print("Connecting to MQTT server 'mqtt://\(host):\(port)'")
+            try await client.connect()
+            
             try await publisher.publishData(retain: false, qos: .atLeastOnce)
         }
         
+        print("Putting the main thread into a run loop")
         RunLoop.main.run()
         
 //        let sensor = I2CAMGSensor(board: bo)
