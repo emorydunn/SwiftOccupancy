@@ -15,17 +15,7 @@ import SwiftyGPIO
 @main
 struct MQTTPublisher: ParsableCommand {
     
-    @Option(name: .long, help: "MQTT server hostname")
-    var host: String
-    
-    @Option(name: .long, help: "MQTT server port")
-    var port: Int = 1883
-    
-    @Option(name: .shortAndLong, help: "MQTT username")
-    var username: String?
-    
-    @Option(name: .shortAndLong, help: "MQTT password")
-    var password: String?
+    @OptionGroup var mqtt: MQTTOptions
     
     @Option(help: "The Client ID for the MQTT server")
     var clientID: String = "SwiftOccupancy-\(Int.random(in: 0..<100))"
@@ -35,13 +25,7 @@ struct MQTTPublisher: ParsableCommand {
     
     func run() throws {
         
-        let client = AsyncMQTTClient(
-            host: host,
-            port: port,
-            clientID: clientID,
-            cleanSession: true,
-            username: username,
-            password: password)
+        let client = mqtt.makeClient(clientID: clientID)
         
         let topic = "swift-occupancy/sensor/\(clientID)/data"
         
@@ -49,7 +33,7 @@ struct MQTTPublisher: ParsableCommand {
         
         Task {
             
-            print("Connecting to MQTT server 'mqtt://\(host):\(port)'")
+            print("Connecting to MQTT server 'mqtt://\(mqtt.host):\(mqtt.port)'")
             try await client.connect()
             
             try await publisher.publishData(retain: false, qos: .atLeastOnce)

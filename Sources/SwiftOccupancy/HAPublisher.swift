@@ -12,21 +12,8 @@ import SwiftyGPIO
 
 struct HAOccupancyPublisher: ParsableCommand {
     
-    @Option(name: .long, help: "MQTT server hostname")
-    var host: String
-    
-    @Option(name: .long, help: "MQTT server port")
-    var port: Int = 1883
-    
-    @Option(name: .shortAndLong, help: "MQTT username")
-    var username: String?
-    
-    @Option(name: .shortAndLong, help: "MQTT password")
-    var password: String?
-    
-    @Option(help: "The Client ID for the MQTT server")
-    var clientID: String = "SwiftOccupancy-\(Int.random(in: 0..<100))"
-    
+    @OptionGroup var mqtt: MQTTOptions
+
     @Option(help: "The board for connecting via I2C")
     var board: SupportedBoard = SupportedBoard.RaspberryPi4
     
@@ -38,19 +25,13 @@ struct HAOccupancyPublisher: ParsableCommand {
     
     func run() throws {
         
-        let client = AsyncMQTTClient(
-            host: host,
-            port: port,
-            clientID: clientID,
-            cleanSession: true,
-            username: username,
-            password: password)
+        let client = mqtt.makeClient(clientID: "\(topRoom)-\(bottomRoom)")
         
         let publisher = HAMQTTPublisher(board: board, client: client, topRoom: topRoom, bottomRoom: bottomRoom)
         
         Task {
             
-            print("Connecting to MQTT server 'mqtt://\(host):\(port)'")
+            print("Connecting to MQTT server 'mqtt://\(mqtt.host):\(mqtt.port)'")
             try await client.connect()
             
             try await publisher.publishData()
