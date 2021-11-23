@@ -123,7 +123,7 @@ public class OccupancyCounter {
         Task {
             try await updateCount(for: bottomRoom,
                            count: &bottomRoomCount,
-                           onStream: client.subscribe(topic: topRoom.stateTopic, qos: .atLeastOnce))
+                           onStream: client.subscribe(topic: bottomRoom.stateTopic, qos: .atLeastOnce))
 //            print("Subscribing to \(bottomRoom) count")
 //            for try await message in pubs.filter({ $0.topic == self.topRoom.stateTopic }) {
 //                if
