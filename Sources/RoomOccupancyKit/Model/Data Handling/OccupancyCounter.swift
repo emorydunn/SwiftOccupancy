@@ -103,6 +103,8 @@ public class OccupancyCounter {
         for try await change in countChanges {
             change.update(topCount: &topRoomCount, bottomCount: &bottomRoomCount)
             
+            print("Publishing \(change) to MQTT")
+            
             topRoom.publishState(topRoomCount, with: client.client)
             bottomRoom.publishState(bottomRoomCount, with: client.client)
         }

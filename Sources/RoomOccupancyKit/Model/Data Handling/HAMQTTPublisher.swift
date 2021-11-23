@@ -55,9 +55,10 @@ public struct HAMQTTPublisher {
         counter.bottomRoom.publishSensorConfig(client.client, availabilityTopic: self.statusTopic)
         
         // Publish HA status
+        print("Publishing sensor status message")
         client.publish(message: statusMessage(true))
         
-        client.client.willMessage = statusMessage(false)
+//        client.client.willMessage = statusMessage(false)
     }
     
     public func publishData() async throws {
