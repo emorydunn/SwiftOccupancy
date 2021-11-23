@@ -99,6 +99,37 @@ public class OccupancyCounter {
     
     func publishChanges(to client: AsyncMQTTClient) async throws {
         
+        // Subscribe to MQTT room updates
+        topRoom.subscribe(with: client.client)
+        bottomRoom.subscribe(with: client.client)
+        
+        let pubs = client.packets.compactMap { $0 as? PublishPacket }
+        
+        Task {
+            print("Subscribing to \(topRoom) count")
+            for try await message in pubs.filter({ $0.topic == self.topRoom.stateTopic }) {
+                if
+                    let string = String(data: message.payload, encoding: .utf8),
+                    let num = Int(string) {
+                    print("Updating \(topRoom) to \(num)")
+                    topRoomCount = num
+                }
+            }
+        }
+        
+        Task {
+            print("Subscribing to \(bottomRoom) count")
+            for try await message in pubs.filter({ $0.topic == self.topRoom.stateTopic }) {
+                if
+                    let string = String(data: message.payload, encoding: .utf8),
+                    let num = Int(string) {
+                    print("Updating \(topRoom) to \(num)")
+                    topRoomCount = num
+                }
+            }
+        }
+        
+        
         print("Publishing occupancy changes to MQTT")
         for try await change in countChanges {
             change.update(topCount: &topRoomCount, bottomCount: &bottomRoomCount)
@@ -109,5 +140,17 @@ public class OccupancyCounter {
             bottomRoom.publishState(bottomRoomCount, with: client.client)
         }
     }
+    
+//    func updateCount(for room: Room, count: inout Int, onStream stream: AsyncThrowingStream<PublishPacket, Error>) async throws {
+//        print("Subscribing to \(room) count")
+//        for try await message in stream.filter({ $0.topic == self.topRoom.stateTopic }) {
+//            if
+//                let string = String(data: message.payload, encoding: .utf8),
+//                let num = Int(string) {
+//                print("Updating \(room) to \(num)")
+//                count = num
+//            }
+//        }
+//    }
 
 }
