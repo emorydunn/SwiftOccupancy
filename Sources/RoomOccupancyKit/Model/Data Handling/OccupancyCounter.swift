@@ -65,6 +65,8 @@ public class OccupancyCounter {
 
                         let cluster = try self.clusterPixels(in: data)
                         
+                        cluster?.printGrid()
+                        
                         // If there's no previous cluster
                         // assign the new cluster and wait for the next frame
                         if previousCluster == nil {
