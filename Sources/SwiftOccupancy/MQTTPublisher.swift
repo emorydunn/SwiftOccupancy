@@ -15,16 +15,16 @@ extension SupportedBoard: ExpressibleByArgument { }
 @main
 struct MQTTPublisher: ParsableCommand {
     
-    @Option(help: "MQTT server hostname")
+    @Option(name: .shortAndLong, help: "MQTT server hostname")
     var host: String
     
-    @Option(help: "MQTT server port")
+    @Option(name: .shortAndLong, help: "MQTT server port")
     var port: Int = 1883
     
-    @Option(help: "MQTT username")
+    @Option(name: .shortAndLong, help: "MQTT username")
     var username: String?
     
-    @Option(help: "MQTT password")
+    @Option(name: .shortAndLong, help: "MQTT password")
     var password: String?
     
     @Option(help: "The Client ID for the MQTT server")
