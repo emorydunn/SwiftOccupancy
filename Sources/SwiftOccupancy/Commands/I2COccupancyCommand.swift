@@ -10,9 +10,9 @@ import ArgumentParser
 import RoomOccupancyKit
 import SwiftyGPIO
 
-struct HAOccupancyPublisher: ParsableCommand {
-    
-    static var configuration = CommandConfiguration(commandName: "occupancy",
+struct I2COccupancyCommand: ParsableCommand {
+
+    static var configuration = CommandConfiguration(commandName: "i2c",
                                                     abstract: "Publish occupancy to HA.",
                                                     discussion: "Data is read from an I2C sensor, occupancy changes are parsed and published to Home Assistant via MQTT.",
                                                     version: "0.1.",
@@ -23,17 +23,16 @@ struct HAOccupancyPublisher: ParsableCommand {
     @Option(help: "The board for connecting via I2C")
     var board: SupportedBoard = SupportedBoard.RaspberryPi4
     
-    @Option(help: "The top room name")
-    var topRoom: Room = .æther
-    
-    @Option(help: "The bottom room name")
-    var bottomRoom: Room = .æther
-    
+    @OptionGroup var rooms: RoomOptions
+
     func run() throws {
         
-        let client = mqtt.makeClient(clientID: "\(topRoom)-\(bottomRoom)")
-        
-        let publisher = HAMQTTPublisher(board: board, client: client, topRoom: topRoom, bottomRoom: bottomRoom)
+        let client = mqtt.makeClient(clientID: rooms.clientID)
+
+        let publisher = HAMQTTPublisher(board: board,
+                                        client: client,
+                                        topRoom: rooms.topRoom,
+                                        bottomRoom: rooms.bottomRoom)
         
         Task {
             
