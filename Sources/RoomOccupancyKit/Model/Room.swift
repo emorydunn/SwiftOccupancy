@@ -20,7 +20,7 @@ public enum Room: CustomStringConvertible, Decodable {
     case æther
     
     /// Convenience for Æther
-    static let aether: Room = .æther
+    public static let aether: Room = .æther
     
     public var description: String {
         switch self {
