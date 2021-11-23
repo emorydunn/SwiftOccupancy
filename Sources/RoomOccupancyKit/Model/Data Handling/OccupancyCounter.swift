@@ -79,7 +79,7 @@ public class OccupancyCounter {
                             
                             continuation.yield(change)
                         }
-
+                        
 
                     }
                 } catch {
@@ -96,6 +96,8 @@ public class OccupancyCounter {
     }
     
     func publishChanges(to client: AsyncMQTTClient) async throws {
+        
+        print("Publishing occupancy changes to MQTT")
         for try await change in countChanges {
             change.update(topCount: &topRoomCount, bottomCount: &bottomRoomCount)
             
