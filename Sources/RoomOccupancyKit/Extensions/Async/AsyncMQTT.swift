@@ -90,6 +90,11 @@ public extension AsyncMQTTClient {
         client.subscribe(topic: topic, qos: qos, identifier: identifier)
         print("Async sub for \(topic)")
         return AsyncThrowingStream { continuation in
+            
+            // If the sub already exists finish it
+            if let cont = self.subscriptionStreams[topic] { cont.finish() }
+            
+            // Add new stream
             self.subscriptionStreams[topic] = continuation
         }
         
