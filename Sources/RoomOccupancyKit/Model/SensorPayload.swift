@@ -135,7 +135,7 @@ public struct SensorPayload: Codable {
         print("FrameData:", rawData.map { String($0) }.joined(separator: ","))
     }
     
-    public func createImage(columns: Int = 8,
+    public func drawSVG(columns: Int = 8,
                             pixelSize: Int = 10,
                             minTemperature: Float = 16,
                             maxTemperature: Float = 30) -> String {
@@ -222,7 +222,7 @@ public struct SensorPayload: Codable {
                               width: (box.maxX - box.minX) * pixelSize,
                               height: (box.maxY - box.minY) * pixelSize)
             
-            context.lineWidth = 10
+            context.lineWidth = 2
             context.strokeColor = CGColor.white
             context.addRect(rect)
             context.strokePath()
