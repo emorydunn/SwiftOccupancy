@@ -90,13 +90,13 @@ public class OccupancyCounter {
         Task {
             try await updateCount(for: topRoom,
                            count: &topRoomCount,
-                           onStream: client.subscribe(topic: topRoom.stateTopic, qos: .atLeastOnce))
+                           onStream: client.streamSubscription(topic: topRoom.stateTopic, qos: .atLeastOnce))
         }
         
         Task {
             try await updateCount(for: bottomRoom,
                            count: &bottomRoomCount,
-                           onStream: client.subscribe(topic: bottomRoom.stateTopic, qos: .atLeastOnce))
+                           onStream: client.streamSubscription(topic: bottomRoom.stateTopic, qos: .atLeastOnce))
         }
     }
     

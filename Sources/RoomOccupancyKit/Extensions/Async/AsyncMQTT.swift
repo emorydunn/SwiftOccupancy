@@ -84,7 +84,7 @@ public extension AsyncMQTTClient {
         client.subscribe(topic: topic, qos: qos, identifier: identifier)
     }
     
-    func subscribe(topic: String, qos: QoS, identifier: UInt16? = nil) -> AsyncThrowingStream<PublishPacket, Error> {
+    func streamSubscription(topic: String, qos: QoS, identifier: UInt16? = nil) -> AsyncThrowingStream<PublishPacket, Error> {
         
         // Subscribe to the topic
         client.subscribe(topic: topic, qos: qos, identifier: identifier)
