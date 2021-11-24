@@ -105,9 +105,9 @@ public struct SensorPayload: Codable {
     @available(*, deprecated)
     public init(rows: Int = 8, cols: Int = 8, data: Data) throws {
 
-        guard let rawData = String(data: data, encoding: .utf8) else {
-            throw SensorError.decodingError(encoding: .utf8)
-        }
+//        guard let rawData = String(data: data, encoding: .utf8) else {
+//            throw SensorError.decodingError(encoding: .utf8)
+//        }
         
         fatalError("This init is deprecated")
 //        try self.init(

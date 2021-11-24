@@ -7,7 +7,6 @@
 
 
 import Foundation
-import OpenCombine
 import MQTT
 
 #if canImport(FoundationNetworking)
@@ -106,21 +105,6 @@ public enum Room: CustomStringConvertible, Decodable {
         client.subscribe(topic: stateTopic, qos: .atMostOnce, identifier: nil)
     }
     
-    /// Subscribe to the state of this room.
-    /// - Parameter client: The MQTT client.
-    /// - Returns: A Publisher indicating the number of people in the room.
-    func occupancy(_ pub: AnyPublisher<PublishPacket, Error>) -> AnyPublisher<Int, Never> {
-        pub
-            .filter(forTopic: stateTopic)
-            .compactMap { message in
-                String(data: message.payload, encoding: .utf8)
-            }
-            .compactMap {
-                Int($0)
-            }
-            .replaceError(with: 0)
-            .eraseToAnyPublisher()
-    }
 }
 
 extension Room: Comparable, Hashable {
@@ -133,42 +117,13 @@ extension Room: Comparable, Hashable {
     }
 }
 
-public class House {
-    @OpenCombine.Published public private(set) var rooms: [Room: Int]
-    var tokens: [AnyCancellable] = []
-    
-    public init(rooms: [Room: Int]) {
-        self.rooms = rooms
-    }
-    
-    public init(rooms: [Room]) {
-        self.rooms = [Room: Int]()
-        
-        rooms.forEach {
-            self.rooms[$0] = 0
-        }
-    }
-    
-//    public init(sensors: [MQTTSensor]) {
-//        self.rooms = [Room: Int]()
-//        sensors.forEach {
-//            self.rooms[$0.topName] = 0
-//            self.rooms[$0.bottomName] = 0
-//        }
-//    }
-    
-    public subscript(_ room: Room) -> Int {
-        get {
-            rooms[room, default: 0]
-        }
-        set {
-            rooms[room] = max(0, newValue)
-        }
-    }
-
-}
-
 public struct OccupancyChange: CustomStringConvertible {
+    
+    public enum Direction {
+        case toTop
+        case toBottom
+        case none
+    }
 
     public let topRoom: Room
     public let bottomRoom: Room
@@ -209,20 +164,7 @@ public struct OccupancyChange: CustomStringConvertible {
             return "T \(topRoom) == B \(bottomRoom)"
         }
     }
-    
-    func update(_ house: House) {
-        switch direction {
-        case .toTop:
-            house[topRoom] += 1
-            house[bottomRoom] -= 1
-        case .toBottom:
-            house[topRoom] -= 1
-            house[bottomRoom] += 1
-        case .none:
-            break
-        }
-    }
-    
+
     func update(topCount: inout Int, bottomCount: inout Int) {
         switch direction {
         case .toTop:
@@ -237,8 +179,3 @@ public struct OccupancyChange: CustomStringConvertible {
     }
 }
 
-public enum Direction {
-    case toTop
-    case toBottom
-    case none
-}
