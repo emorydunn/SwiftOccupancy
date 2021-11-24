@@ -135,6 +135,16 @@ public struct SensorPayload: Codable {
         print("FrameData:", rawData.map { String($0) }.joined(separator: ","))
     }
     
+    static let gradient: [Float: Color] = [
+        0.0:    Color(red: 15,  green: 12,  blue: 33),
+        0.16:   Color(red: 60,  green: 25,  blue: 142),
+        0.32:   Color(red: 185, green: 55,  blue: 168),
+        0.48:   Color(red: 233, green: 128, blue: 62),
+        0.64:   Color(red: 242, green: 175, blue: 76),
+        0.8:    Color(red: 251, green: 220, blue: 89),
+        1:      Color(red: 255, green: 255, blue: 255),
+    ]
+    
     public func drawSVG(columns: Int = 8,
                             pixelSize: Int = 10,
                             minTemperature: Float = 16,
@@ -160,7 +170,7 @@ public struct SensorPayload: Codable {
                 element.addAttribute(verticalOffset, forKey: "y")
                 element.addAttribute(pixelSize, forKey: "width")
                 element.addAttribute(pixelSize, forKey: "height")
-                let hue: Int = datum.temp(minTemperature, maxTemperature)
+                let hue: Int = datum.mapHue(minTemperature, maxTemperature)
                 element.addAttribute("hsl(\(hue), 100%, 50%)", forKey: "fill")
                 svg.addChild(element)
 
@@ -182,7 +192,7 @@ public struct SensorPayload: Codable {
     public func drawImage(cluster: Cluster?,
                           pixelSize: Int = 15,
                           minTemperature: Float = 16,
-                          maxTemperature: Float = 30) throws -> Surface {
+                          maxTemperature: Float = 35) throws -> Surface {
         
         let side = cols * pixelSize
         let size = CGSize(width: side, height: side)
@@ -204,9 +214,10 @@ public struct SensorPayload: Codable {
                                   width: pixelSize,
                                   height: pixelSize)
                 
-                let hue = datum.tempColor(minTemperature, maxTemperature)
+//                let hue = datum.tempColor(minTemperature, maxTemperature)
+                let color = datum.mapColor(into: SensorPayload.gradient, minTemperature, maxTemperature)
 
-                context.fillColor = hue
+                context.fillColor = color.cgColor
                 context.addRect(rect)
                 context.fillPath()
 

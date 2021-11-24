@@ -32,17 +32,22 @@ extension Double {
 }
 
 extension Float {
+    
     /// Normalize the temperature to a value between `0` and `1`
     /// - Parameters:
     ///   - min: Min temp (`0`)
     ///   - max: Max temp (`1`)
     /// - Returns: Normalized temp
-    public func normalize(_ min: Self, _ max: Self) -> Self {
-        (self - min) / (max - min)
+    public func normalize(_ minValue: Self, _ maxValue: Self, extend: Bool = false) -> Self {
+        
+        let minValue = extend ? min(minValue, self) : minValue
+        let maxValue = extend ? max(maxValue, self) : maxValue
+        
+        return (self - minValue) / (maxValue - minValue)
     }
     
-    public func temp(_ min: Self, _ max: Self) -> Self {
-        let hue = normalize(min, max) * 360
+    public func mapHue(_ min: Self, _ max: Self) -> Self {
+        let hue = normalize(min, max, extend: true) * 360
         
         var newHue = hue + 90
         if newHue > 360 {
@@ -52,8 +57,8 @@ extension Float {
         return newHue / 360
     }
 
-    public func temp(_ min: Self, _ max: Self) -> Int {
-        let hue = normalize(min, max) * 360
+    public func mapHue(_ min: Self, _ max: Self) -> Int {
+        let hue = normalize(min, max, extend: true) * 360
         
         var newHue = hue + 90
         if newHue > 360 {
@@ -63,9 +68,38 @@ extension Float {
         return Int(newHue)
     }
     
+    func mapColor(into gradient: [Self: Color], _ minValue: Self, _ maxValue: Self) -> Color {
+        let value = self.normalize(minValue, maxValue)
+        
+        // Check if the value is exact
+        if let color = gradient[value] {
+            return color
+        }
+
+        // Pick the two colors the value is between
+        var gradStops = Array(gradient.keys)
+        gradStops.append(value)
+        gradStops.sort()
+
+        let index = gradStops.firstIndex(of: value)!
+
+        let firstStop = gradStops[index - 1]
+        let lastStop = gradStops[index + 1]
+  
+        let gradStart = gradient[firstStop]!
+        let gradEnd = gradient[lastStop]!
+
+        let red: Self =     0.2 * gradStart.red     /   lastStop + 0.8 * gradEnd.red
+        let green: Self =   0.2 * gradStart.green   /   lastStop + 0.8 * gradEnd.green
+        let blue: Self =    0.2 * gradStart.blue    /   lastStop + 0.8 * gradEnd.blue
+        
+        return Color(red: red, green: green, blue: blue)
+        
+    }
+    
     /// From https://gist.github.com/mjackson/5311256
     public func tempColor(_ min: Self, _ max: Self) -> Silica.CGColor {
-        let hue: Float = temp(min, max)
+        let hue: Float = mapHue(min, max)
         let sat: Float = 1.0
         let light: Float = 0.5
         
