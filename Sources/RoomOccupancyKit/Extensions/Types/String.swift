@@ -24,4 +24,10 @@ extension String {
             .lowercased()
             .replacingOccurrences(of: " ", with: "_")
     }
+    
+    /// Tests if receiver matches the specified regular expression
+    /// - Parameter regex: The regular expression to match against
+    func matches(regex: String) -> Bool {
+        return self.range(of: regex, options: .regularExpression) != nil
+    }
 }

@@ -91,11 +91,14 @@ public extension AsyncMQTTClient {
         print("Async sub for \(topic)")
         return AsyncThrowingStream { continuation in
             
+            // Convert the topic to a regex
+            let regexTopic = convertTopic(topic)
+            
             // If the sub already exists finish it
-            if let cont = self.subscriptionStreams[topic] { cont.finish() }
+            if let cont = self.subscriptionStreams[regexTopic] { cont.finish() }
             
             // Add new stream
-            self.subscriptionStreams[topic] = continuation
+            self.subscriptionStreams[regexTopic] = continuation
         }
         
     }
@@ -119,11 +122,22 @@ extension AsyncMQTTClient: MQTTClientDelegate {
         self.packetContinuation?.yield(packet)
         
         if let packet = packet as? PublishPacket {
-            subscriptionStreams[packet.topic]?.yield(packet)
+            
+            subscriptionStreams.forEach { regexTopic, stream in
+                // If the topic matches pass the packet to the stream
+                if packet.topic.matches(regex: regexTopic) {
+                    stream.yield(packet)
+                }
+            }
+
         }
     }
     
     public func mqttClient(_ client: MQTTClient, didCatchError error: Error) {
         self.packetContinuation?.finish(throwing: error)
+    }
+    
+    func convertTopic(_ topic: String) -> String {
+        return topic.replacingOccurrences(of: "+", with: "[^/]+").replacingOccurrences(of: "#", with: ".+")
     }
 }
