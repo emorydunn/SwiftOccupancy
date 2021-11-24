@@ -12,6 +12,10 @@ import MQTT
 /// and produces a stream of occupancy changes.
 public class OccupancyCounter {
     
+    public var id: String {
+        "\(topRoom)-\(bottomRoom)"
+    }
+    
     let sensor: AMGSensorProtocol
     
     public var topRoom: Room = .æther
@@ -28,6 +32,9 @@ public class OccupancyCounter {
     // Counts
     public var topRoomCount: Int = 0
     public var bottomRoomCount: Int = 0
+    
+    var currentCluster: Cluster?
+    internal var previousCluster: Cluster?
     
     init(sensor: AMGSensorProtocol, topRoom: Room = .æther, bottomRoom: Room = .æther) {
         self.sensor = sensor
@@ -55,52 +62,31 @@ public class OccupancyCounter {
         return cluster
     }
     
-    var countChanges: AsyncThrowingStream<OccupancyChange, Error> {
-        AsyncThrowingStream { continuation in
-            Task {
-                var previousCluster: Cluster?
-
-                do {
-                    for try await data in sensor.data {
-
-                        let cluster = try self.clusterPixels(in: data)
-                        
-                        cluster?.printGrid()
-                        
-//                        // If there's no previous cluster
-//                        // assign the new cluster and wait for the next frame
-//                        if previousCluster == nil {
-//                            previousCluster = cluster
-//                        }
-                        
-                        if let currentCluster = cluster, let previousCluster = previousCluster {
-                            let change = OccupancyChange(currentCluster: currentCluster,
-                                            previousCluster: previousCluster,
-                                            topRoom: topRoom,
-                                            bottomRoom: bottomRoom)
-                            
-                            continuation.yield(change)
-                        }
-                        
-                        previousCluster = cluster
-                        
-
-                    }
-                } catch {
-                    continuation.finish(throwing: error)
-                }
-            }
+    /// Determine changes in based on clusters in the data.
+    /// - Parameter data: Data to cluster
+    /// - Returns: Any changes found
+    func countChanges(using data: SensorPayload) throws -> OccupancyChange? {
+        currentCluster = try self.clusterPixels(in: data)
+        
+        currentCluster?.printGrid()
+        
+        var change: OccupancyChange?
+        if let currentCluster = currentCluster, let previousCluster = previousCluster {
+            change = OccupancyChange(currentCluster: currentCluster,
+                            previousCluster: previousCluster,
+                            topRoom: topRoom,
+                            bottomRoom: bottomRoom)
         }
+        
+        // Set the previous cluster to the current cluster
+        previousCluster = currentCluster
+        
+        return change
     }
-    
-    func updateChanges() async throws {
-        for try await change in countChanges {
-            change.update(topCount: &topRoomCount, bottomCount: &bottomRoomCount)
-        }
-    }
-    
-    func publishChanges(to client: AsyncMQTTClient) async throws {
 
+    /// Subscribe to the MQTT topics for each room and update the room counts
+    /// - Parameter client: The MQTT client to use.
+    func subscribeToMQTTCounts(with client: AsyncMQTTClient) {
         Task {
             try await updateCount(for: topRoom,
                            count: &topRoomCount,
@@ -112,19 +98,26 @@ public class OccupancyCounter {
                            count: &bottomRoomCount,
                            onStream: client.subscribe(topic: bottomRoom.stateTopic, qos: .atLeastOnce))
         }
-        
-        
-        print("Publishing occupancy changes to MQTT")
-        for try await change in countChanges {
-            change.update(topCount: &topRoomCount, bottomCount: &bottomRoomCount)
-            
-            print("Publishing \(change) to MQTT")
-            
-            topRoom.publishState(topRoomCount, with: client.client)
-            bottomRoom.publishState(bottomRoomCount, with: client.client)
-        }
     }
     
+    /// Publish a change in occupancy to MQTT
+    /// - Parameters:
+    ///   - change: The change
+    ///   - client: The client
+    func publishChange(_ change: OccupancyChange, with client: AsyncMQTTClient) {
+        change.update(topCount: &topRoomCount, bottomCount: &bottomRoomCount)
+        
+        print("Publishing \(change) to MQTT")
+        
+        topRoom.publishState(topRoomCount, with: client.client)
+        bottomRoom.publishState(bottomRoomCount, with: client.client)
+    }
+    
+    /// Watch an MQTT stream and update the occupancy counts
+    /// - Parameters:
+    ///   - room: The room to watch
+    ///   - count: The count to update
+    ///   - stream: The stream to observe
     func updateCount(for room: Room, count: inout Int, onStream stream: AsyncThrowingStream<PublishPacket, Error>) async throws {
         print("Subscribing to \(room) count")
         for try await message in stream {

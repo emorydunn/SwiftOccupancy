@@ -18,7 +18,7 @@ public struct HAMQTTPublisher {
     
     public let counter: OccupancyCounter
     
-    public var clientID: String { client.clientID }
+    public var clientID: String { counter.id }
     
     // MQTT Topics
     var mqttTopic: String { "homeassistant/camera/swift-occupancy/\(clientID)" }
@@ -62,7 +62,32 @@ public struct HAMQTTPublisher {
     }
     
     public func publishData() async throws {
-        try await counter.publishChanges(to: client)
+        
+        counter.subscribeToMQTTCounts(with: client)
+        
+        for try await data in sensor.data {
+            
+            // Count changes and publish them
+            Task {
+                if let change = try counter.countChanges(using: data) {
+                    counter.publishChange(change, with: client)
+                }
+            }
+            
+            // Publish the sensor image
+            Task {
+                let image = try data.drawImage(cluster: counter.currentCluster).writePNG()
+                client.publish(topic: self.stateTopic, retain: false, qos: .atMostOnce, payload: image)
+            }
+            
+            // Publish the thermistor temp
+            Task {
+                let temp = String(format: "%.02f", data.thermistorTemperature)
+                let topic = "homeassistant/sensor/swift-occupancy/\(self.clientID)/state"
+                client.publish(topic: topic, retain: false, qos: .atMostOnce, payload: temp, identifier: nil)
+            }
+        }
+
     }
 }
 
@@ -133,5 +158,11 @@ extension HAMQTTPublisher {
             print("Could not encode MQTT discovery config for \(self)")
             print(error)
         }
+    }
+}
+
+extension HAMQTTPublisher: CustomStringConvertible {
+    public var description: String {
+        "HA MQTT Publisher \(counter.topRoom) / \(counter.bottomRoom)"
     }
 }
