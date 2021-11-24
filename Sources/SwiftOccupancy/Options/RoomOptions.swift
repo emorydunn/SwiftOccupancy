@@ -17,6 +17,6 @@ struct RoomOptions: ParsableArguments {
     var bottomRoom: Room = .æther
     
     var clientID: String {
-        "\(topRoom)-\(bottomRoom)"
+        "\(topRoom)-\(bottomRoom)-\(Int.random(in: 0...100))"
     }
 }

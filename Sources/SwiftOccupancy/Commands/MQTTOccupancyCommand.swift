@@ -40,7 +40,7 @@ struct MQTTOccupancyCommand: ParsableCommand {
         
         Task {
             
-            print("Connecting to MQTT server 'mqtt://\(mqtt.host):\(mqtt.port)'")
+            print("Connecting to MQTT server 'mqtt://\(mqtt.host):\(mqtt.port)' as '\(client.clientID)'")
             try await client.connect()
             
             publisher.setupHA()
