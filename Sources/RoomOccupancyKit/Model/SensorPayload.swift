@@ -191,7 +191,7 @@ public struct SensorPayload: Codable {
     
     public func drawImage(cluster: Cluster?,
                           pixelSize: Int = 15,
-                          minTemperature: Float = 16,
+                          minTemperature: Float = 10,
                           maxTemperature: Float = 35) throws -> Surface {
         
         let side = cols * pixelSize
