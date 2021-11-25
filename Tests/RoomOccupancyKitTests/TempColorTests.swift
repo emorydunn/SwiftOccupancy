@@ -8,7 +8,7 @@
 import XCTest
 @testable import RoomOccupancyKit
 
-class TempColorTests: XCTestCase {
+class TempDrawingTests: XCTestCase {
     
     func testNormalize() {
         let temp: Float = 21
@@ -33,6 +33,19 @@ class TempColorTests: XCTestCase {
         let norm = temp.normalize(16, 30, extend: false)
         
         XCTAssertEqual(norm, 1.3571428571)
+    }
+    
+    func testDraw() throws {
+        let data = MockSensor(emptyOnLoop: false).testData.randomElement()!
+        let payload = try SensorPayload(data: data, thermistorTemperature: 21)
+        
+        
+        let image = try payload.drawImage(cluster: nil)
+        
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(#function).appendingPathExtension("png")
+        image.writePNG(atPath: tempDir.path)
+        
+        print(tempDir.path)
     }
     
 }

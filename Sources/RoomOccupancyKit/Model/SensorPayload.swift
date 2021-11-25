@@ -190,7 +190,7 @@ public struct SensorPayload: Codable {
     }
     
     public func drawImage(cluster: Cluster?,
-                          pixelSize: Int = 15,
+                          pixelSize: Int = 30,
                           minTemperature: Float = 10,
                           maxTemperature: Float = 35) throws -> Surface {
         
@@ -220,7 +220,17 @@ public struct SensorPayload: Codable {
                 context.fillColor = color.cgColor
                 context.addRect(rect)
                 context.fillPath()
-
+                
+                if let font = CGFont(name: "Arial") {
+                    context.strokeColor = CGColor.black
+                    context.fillColor = CGColor.white
+                    context.textDrawingMode = .stroke
+                        context.setFont(font)
+                    context.fontSize = CGFloat(pixelSize) / 2
+                    context.textPosition = rect.origin
+                    context.show(text: String(format: "%.0f", datum))
+                }
+                
             }
             
         }
@@ -239,7 +249,6 @@ public struct SensorPayload: Codable {
             context.strokePath()
         }
         
-//        context.scaleBy(x: 10, y: 10)
         return context.surface
         
     }
