@@ -9,7 +9,7 @@ import Foundation
 import ArgumentParser
 
 @main
-struct Publish: ParsableCommand {
+struct SwiftOccupancy: ParsableCommand {
     static var configuration = CommandConfiguration(
                                                     abstract: "Read occupancy from an AMG88 sensor.",
                                                     discussion: "Read and parse data from an AMG88 sensor and publish occupancy changes via MQTT.",
@@ -17,7 +17,8 @@ struct Publish: ParsableCommand {
                                                     shouldDisplay: true,
                                                     subcommands: [
                                                         OccupancyCommand.self,
-                                                        MQTTPublisher.self
+                                                        MQTTPublisher.self,
+                                                        LogDataCommand.self
                                                     ]
     )
 }
