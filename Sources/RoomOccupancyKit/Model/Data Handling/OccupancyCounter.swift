@@ -86,7 +86,7 @@ public class OccupancyCounter {
 
     /// Subscribe to the MQTT topics for each room and update the room counts
     /// - Parameter client: The MQTT client to use.
-    func subscribeToMQTTCounts(with client: AsyncMQTTClient) {
+    func subscribeToMQTTCounts(with client: AsyncMQTTClient) async {
         Task {
             try await updateCount(for: topRoom,
                            count: &topRoomCount,

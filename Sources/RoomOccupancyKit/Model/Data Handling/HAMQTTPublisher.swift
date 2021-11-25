@@ -63,7 +63,7 @@ public struct HAMQTTPublisher {
     
     public func publishData() async throws {
         
-        counter.subscribeToMQTTCounts(with: client)
+        await counter.subscribeToMQTTCounts(with: client)
         
         for try await data in sensor.data {
             
