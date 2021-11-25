@@ -14,20 +14,23 @@ extension Double {
     ///   - min: Min temp (`0`)
     ///   - max: Max temp (`1`)
     /// - Returns: Normalized temp
-    public func normalize(_ min: Double, _ max: Double) -> Double {
-        (self - min) / (max - min)
+    public func normalize(_ minValue: Self, _ maxValue: Self) -> Self {
+
+        let value = min(max(self, minValue), maxValue)
+        
+        return (value - minValue) / (maxValue - minValue)
     }
 
-    public func temp(_ min: Double, _ max: Double) -> Int {
-        let hue = normalize(min, max) * 360
-        
-        var newHue = hue + 90
-        if newHue > 360 {
-            newHue -= 360
-        }
-        
-        return Int(newHue)
-    }
+//    public func temp(_ min: Double, _ max: Double) -> Int {
+//        let hue = normalize(min, max) * 360
+//
+//        var newHue = hue + 90
+//        if newHue > 360 {
+//            newHue -= 360
+//        }
+//
+//        return Int(newHue)
+//    }
 
 }
 
@@ -38,16 +41,14 @@ extension Float {
     ///   - min: Min temp (`0`)
     ///   - max: Max temp (`1`)
     /// - Returns: Normalized temp
-    public func normalize(_ minValue: Self, _ maxValue: Self, extend: Bool = false) -> Self {
+    public func normalize(_ minValue: Self, _ maxValue: Self) -> Self {
+        let value = min(max(self, minValue), maxValue)
         
-        let minValue = extend ? min(minValue, self) : minValue
-        let maxValue = extend ? max(maxValue, self) : maxValue
-        
-        return (self - minValue) / (maxValue - minValue)
+        return (value - minValue) / (maxValue - minValue)
     }
     
     public func mapHue(_ min: Self, _ max: Self) -> Self {
-        let hue = normalize(min, max, extend: true) * 360
+        let hue = normalize(min, max) * 360
         
         var newHue = hue + 90
         if newHue > 360 {
@@ -58,7 +59,7 @@ extension Float {
     }
 
     public func mapHue(_ min: Self, _ max: Self) -> Int {
-        let hue = normalize(min, max, extend: true) * 360
+        let hue = normalize(min, max) * 360
         
         var newHue = hue + 90
         if newHue > 360 {
