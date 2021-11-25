@@ -24,9 +24,9 @@ struct LogDataCommand: ParsableCommand {
     func run() throws {
         let sensor = I2CAMGSensor(board: board)
         Task {
-            try await data in sensor.data {
+            for try await data in sensor.data {
                 print(Date())
-                data.logPagedData()
+                data.rawData.logPagedData()
                 print()
             }
         }
