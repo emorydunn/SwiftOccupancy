@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  LogDataCommand.swift
 //  
 //
 //  Created by Emory Dunn on 11/24/21.
@@ -14,7 +14,7 @@ struct LogDataCommand: ParsableCommand {
 
     static var configuration = CommandConfiguration(commandName: "log",
                                                     abstract: "Read data from an I2C sensor.",
-                                                    discussion: "Data is read from an I2C sensor and logged to stdout.",
+                                                    discussion: "Data is read from an I2C sensor and logged to stdout and optionally saved to a file.",
                                                     version: "0.1.",
                                                     shouldDisplay: true)
     
@@ -22,29 +22,28 @@ struct LogDataCommand: ParsableCommand {
     var board: SupportedBoard = SupportedBoard.RaspberryPi4
     
     @Option(help: "Write the logged data to the specified file.")
-    var outputURL: URL? = nil
-    
-    var collectedData: [SensorPayload] = []
+    var outputURL: URL?
     
     func run() throws {
-        
-        let process = Process()
-        
-        process.terminationHandler = { process in
-            print("Caught \(process.terminationReason)")
-            self.saveData()
-        }
 
         let sensor = I2CAMGSensor(board: board)
+        
         Task {
+            var collectedData: [SensorPayload] = []
+            
+            let process = Process()
+            
+            process.terminationHandler = { process in
+                print("Caught \(process.terminationReason)")
+                self.saveData(collectedData)
+            }
+            
             for try await data in sensor.data {
                 print(Date())
                 data.rawData.logPagedData()
                 print()
-                
-                if write {
-                    self.collectedData.append(data)
-                }
+
+                collectedData.append(data)
                 
             }
         }
@@ -54,7 +53,7 @@ struct LogDataCommand: ParsableCommand {
 
     }
     
-    func saveData() {
+    func saveData(_ collectedData: [SensorPayload]) {
         guard let url = outputURL else { return }
         
         
