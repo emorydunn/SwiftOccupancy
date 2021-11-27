@@ -17,17 +17,35 @@ struct LogDataCommand: ParsableCommand {
                                                     discussion: "Data is read from an I2C sensor and logged to stdout.",
                                                     version: "0.1.",
                                                     shouldDisplay: true)
-
+    
     @Option(help: "The board for connecting via I2C")
     var board: SupportedBoard = SupportedBoard.RaspberryPi4
     
+    @Option(help: "Write the logged data to the specified file.")
+    var outputURL: URL? = nil
+    
+    var collectedData: [SensorPayload] = []
+    
     func run() throws {
+        
+        let process = Process()
+        
+        process.terminationHandler = { process in
+            print("Caught \(process.terminationReason)")
+            self.saveData()
+        }
+
         let sensor = I2CAMGSensor(board: board)
         Task {
             for try await data in sensor.data {
                 print(Date())
                 data.rawData.logPagedData()
                 print()
+                
+                if write {
+                    self.collectedData.append(data)
+                }
+                
             }
         }
         
@@ -35,4 +53,26 @@ struct LogDataCommand: ParsableCommand {
         RunLoop.main.run()
 
     }
+    
+    func saveData() {
+        guard let url = outputURL else { return }
+        
+        
+        
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted]
+        
+        do {
+            print("Encoding logged data")
+            let data = try encoder.encode(collectedData)
+            try data.write(to: url)
+            print("Log written to \(url.path)")
+        } catch {
+            print(error)
+        }
+        
+        
+        
+    }
 }
+
