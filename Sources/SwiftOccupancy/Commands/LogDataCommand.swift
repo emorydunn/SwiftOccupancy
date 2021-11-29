@@ -21,8 +21,13 @@ struct LogDataCommand: ParsableCommand {
     @Option(help: "The board for connecting via I2C")
     var board: SupportedBoard = SupportedBoard.RaspberryPi4
     
+    @Flag(name: .customLong("print"), inversion: FlagInversion.prefixedNo, help: "Log data to stdout.")
+    var logToScreen: Bool = true
+    
     @Option(help: "Write the logged data to the specified file.")
     var outputURL: URL?
+    
+    static var signalReceived: sig_atomic_t = 0
     
     func run() throws {
 
@@ -31,11 +36,9 @@ struct LogDataCommand: ParsableCommand {
         Task {
             var collectedData: [SensorPayload] = []
             
-            let process = Process()
-            
-            process.terminationHandler = { process in
-                print("Caught \(process.terminationReason)")
-                self.saveData(collectedData)
+            // Capture SIGINT so we can save the data
+            signal(SIGINT) { signal in
+                LogDataCommand.signalReceived = 1
             }
             
             for try await data in sensor.data {
@@ -45,18 +48,22 @@ struct LogDataCommand: ParsableCommand {
 
                 collectedData.append(data)
                 
+                if LogDataCommand.signalReceived == 1 {
+                    saveData(collectedData)
+                }
+                
             }
         }
-        
+
         print("Putting the main thread into a run loop")
         RunLoop.main.run()
 
     }
     
     func saveData(_ collectedData: [SensorPayload]) {
-        guard let url = outputURL else { return }
-        
-        
+        guard let url = outputURL else {
+            LogDataCommand.exit(withError: nil)
+        }
         
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted]
@@ -66,9 +73,11 @@ struct LogDataCommand: ParsableCommand {
             let data = try encoder.encode(collectedData)
             try data.write(to: url)
             print("Log written to \(url.path)")
+            LogDataCommand.exit(withError: nil)
         } catch {
-            print(error)
+            LogDataCommand.exit(withError: error)
         }
+        
         
         
         
