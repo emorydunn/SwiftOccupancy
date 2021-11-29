@@ -21,6 +21,9 @@ struct LogDataCommand: ParsableCommand {
     @Option(help: "The board for connecting via I2C")
     var board: SupportedBoard = SupportedBoard.RaspberryPi4
     
+    @Option(help: "The threshold to use when calculating clusters.")
+    var deltaThreshold: Float = 2
+    
     @Flag(name: .customLong("print"), inversion: FlagInversion.prefixedNo, help: "Log data to stdout.")
     var logToScreen: Bool = true
     
@@ -78,8 +81,10 @@ struct LogDataCommand: ParsableCommand {
             
             print("Saving PNGs")
             try collectedData.enumerated().forEach { index, data in
+                let cluster = Cluster(from: data, deltaThreshold: deltaThreshold)
+                
                 let fileURL = url.appendingPathComponent("frame-\(index).png")
-                try data.drawImage(cluster: nil).writePNG(atPath: fileURL.path)
+                try data.drawImage(cluster: cluster).writePNG(atPath: fileURL.path)
             }
             
             print("Logged data written to \(url.path)")
