@@ -46,6 +46,10 @@ struct MQTTOccupancyCommand: ParsableCommand {
             await publisher.setupHA()
             
             try await publisher.publishData()
+            
+            if rooms.resetCounts {
+                publisher.counter.resetRoomCounts(with: client)
+            }
         }
         
         print("Putting the main thread into a run loop")

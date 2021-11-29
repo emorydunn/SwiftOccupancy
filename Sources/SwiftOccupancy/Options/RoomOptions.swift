@@ -16,6 +16,9 @@ struct RoomOptions: ParsableArguments {
     @Option(help: "The bottom room name")
     var bottomRoom: Room = .æther
     
+    @Flag(help: "Reset room counts.")
+    var resetCounts: Bool = false
+    
     var clientID: String {
         "\(topRoom)-\(bottomRoom)-\(Int.random(in: 0...100))"
     }

@@ -129,5 +129,17 @@ public class OccupancyCounter {
             }
         }
     }
+    
+    /// Reset the counts for both rooms to zero.
+    /// - Parameter client: The MQTT client to publish the reset to.
+    public func resetRoomCounts(with client: AsyncMQTTClient) {
+        print("Resetting \(topRoom) Count")
+        topRoomCount = 0
+        topRoom.publishState(topRoomCount, with: client.client)
+        
+        print("Resetting \(bottomRoom) Count")
+        bottomRoomCount = 0
+        bottomRoom.publishState(bottomRoomCount, with: client.client)
+    }
 
 }
