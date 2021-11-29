@@ -46,3 +46,18 @@ extension URL: ExpressibleByArgument {
             relativeTo: Process().executableURL)
     }
 }
+
+struct Directory: ExpressibleByArgument {
+    
+    let url: URL
+    
+    public init?(argument: String) {
+        self.url = URL(fileURLWithPath: argument,
+            relativeTo: Process().executableURL)
+        
+        var isDir: ObjCBool = false
+        FileManager.default.fileExists(atPath: url.path, isDirectory: &isDir)
+        
+        if isDir.boolValue == false { return nil }
+    }
+}

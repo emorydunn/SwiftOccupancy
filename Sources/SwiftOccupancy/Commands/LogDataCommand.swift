@@ -14,7 +14,7 @@ struct LogDataCommand: ParsableCommand {
 
     static var configuration = CommandConfiguration(commandName: "log",
                                                     abstract: "Read data from an I2C sensor.",
-                                                    discussion: "Data is read from an I2C sensor and logged to stdout and optionally saved to a file.",
+                                                    discussion: "Data is read from an I2C sensor and logged to stdout or saved to disk.",
                                                     version: "0.1.",
                                                     shouldDisplay: true)
     
@@ -24,8 +24,8 @@ struct LogDataCommand: ParsableCommand {
     @Flag(name: .customLong("print"), inversion: FlagInversion.prefixedNo, help: "Log data to stdout.")
     var logToScreen: Bool = true
     
-    @Option(help: "Write the logged data to the specified file.")
-    var outputURL: URL?
+    @Option(help: "Write the logged data to the specified folder.")
+    var outputURL: Directory?
     
     static var signalReceived: sig_atomic_t = 0
     
@@ -63,7 +63,7 @@ struct LogDataCommand: ParsableCommand {
     }
     
     func saveData(_ collectedData: [SensorPayload]) {
-        guard let url = outputURL else {
+        guard let url = outputURL?.url.appendingPathComponent(String(describing: Date())) else {
             LogDataCommand.exit(withError: nil)
         }
         
@@ -72,8 +72,15 @@ struct LogDataCommand: ParsableCommand {
         do {
             print("Encoding logged data")
             let data = try encoder.encode(collectedData)
-            try data.write(to: url)
-            print("Log written to \(url.path)")
+            try data.write(to: url.appendingPathExtension("raw_data.json"))
+            
+            print("Saving PNGs")
+            try collectedData.enumerated().forEach { index, data in
+                let fileURL = url.appendingPathComponent("frame-\(index).png")
+                try data.drawImage(cluster: nil).writePNG(atPath: fileURL.path)
+            }
+            
+            print("Logged data written to \(url.path)")
             LogDataCommand.exit(withError: nil)
         } catch {
             LogDataCommand.exit(withError: error)
