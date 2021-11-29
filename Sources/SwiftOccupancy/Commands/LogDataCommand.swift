@@ -70,6 +70,8 @@ struct LogDataCommand: ParsableCommand {
         let encoder = JSONEncoder()
         
         do {
+            try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+            
             print("Encoding logged data")
             let data = try encoder.encode(collectedData)
             try data.write(to: url.appendingPathComponent("raw_data.json"))
