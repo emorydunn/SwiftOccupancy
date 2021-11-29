@@ -59,7 +59,7 @@ struct Directory: ExpressibleByArgument {
         try? FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
         
         var isDir: ObjCBool = false
-        let exists = FileManager.default.fileExists(atPath: url.path, isDirectory: &isDir)
+        _ = FileManager.default.fileExists(atPath: url.path, isDirectory: &isDir)
 
         if isDir.boolValue == false { return nil }
 

@@ -72,7 +72,7 @@ struct LogDataCommand: ParsableCommand {
         do {
             print("Encoding logged data")
             let data = try encoder.encode(collectedData)
-            try data.write(to: url.appendingPathExtension("raw_data.json"))
+            try data.write(to: url.appendingPathComponent("raw_data.json"))
             
             print("Saving PNGs")
             try collectedData.enumerated().forEach { index, data in
