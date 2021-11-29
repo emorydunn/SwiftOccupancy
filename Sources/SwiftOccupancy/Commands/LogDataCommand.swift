@@ -66,7 +66,9 @@ struct LogDataCommand: ParsableCommand {
     }
     
     func saveData(_ collectedData: [SensorPayload]) {
-        guard let url = outputURL?.url.appendingPathComponent(String(describing: Date())) else {
+        let date = String(describing: Date()).replacingOccurrences(of: " ", with: "_")
+        
+        guard let url = outputURL?.url.appendingPathComponent(date) else {
             LogDataCommand.exit(withError: nil)
         }
         
@@ -82,10 +84,8 @@ struct LogDataCommand: ParsableCommand {
             print("Saving PNGs")
             try collectedData.enumerated().forEach { index, data in
                 let cluster = Cluster(from: data, deltaThreshold: deltaThreshold)
-                
-                let frame = String(format: "%04D", index)
-                
-                let fileURL = url.appendingPathComponent("frame-\(frame).png")
+
+                let fileURL = url.appendingPathComponent("frame-\(index).png")
                 try data.drawImage(cluster: cluster).writePNG(atPath: fileURL.path)
             }
             

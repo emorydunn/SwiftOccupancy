@@ -236,7 +236,6 @@ public struct SensorPayload: Codable {
         }
         
         if let cluster = cluster {
-            print("Drawing cluster")
             let box = cluster.boundingBox
             let rect = CGRect(x: box.minX * pixelSize,
                               y: box.minY * pixelSize,
