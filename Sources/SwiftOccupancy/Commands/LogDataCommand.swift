@@ -42,9 +42,11 @@ struct LogDataCommand: ParsableCommand {
             }
             
             for try await data in sensor.data {
-                print(Date())
-                data.rawData.logPagedData()
-                print()
+                if logToScreen {
+                    print(Date())
+                    data.rawData.logPagedData()
+                    print()
+                }
 
                 collectedData.append(data)
                 
@@ -66,7 +68,6 @@ struct LogDataCommand: ParsableCommand {
         }
         
         let encoder = JSONEncoder()
-        encoder.outputFormatting = [.prettyPrinted]
         
         do {
             print("Encoding logged data")
