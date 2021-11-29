@@ -44,7 +44,7 @@ public struct HAMQTTPublisher {
         self.counter = OccupancyCounter(sensor: sensor, topRoom: topRoom, bottomRoom: bottomRoom)
     }
     
-    public func setupHA() async {
+    public func setupHA() {
         
         // Publish main sensor config
         publishSensorConfig(client)

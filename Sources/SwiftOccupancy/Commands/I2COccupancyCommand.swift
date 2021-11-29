@@ -39,13 +39,15 @@ struct I2COccupancyCommand: ParsableCommand {
             print("Connecting to MQTT server 'mqtt://\(mqtt.host):\(mqtt.port)' as '\(client.clientID)'")
             try await client.connect()
             
-            await publisher.setupHA()
-            
-            try await publisher.publishData()
+            publisher.setupHA()
             
             if rooms.resetCounts {
                 publisher.counter.resetRoomCounts(with: client)
             }
+            
+            try await publisher.publishData()
+            
+            
         }
         
         print("Putting the main thread into a run loop")
