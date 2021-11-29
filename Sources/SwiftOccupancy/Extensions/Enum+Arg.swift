@@ -52,16 +52,16 @@ struct Directory: ExpressibleByArgument {
     let url: URL
     
     public init?(argument: String) {
-        self.url = URL(fileURLWithPath: argument,
+        self.url = URL(
+            fileURLWithPath: argument,
             relativeTo: Process().executableURL)
+        
+        try? FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
         
         var isDir: ObjCBool = false
         let exists = FileManager.default.fileExists(atPath: url.path, isDirectory: &isDir)
-        
+
         if isDir.boolValue == false { return nil }
-        
-        if exists == false {
-            try? FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
-        }
+
     }
 }
