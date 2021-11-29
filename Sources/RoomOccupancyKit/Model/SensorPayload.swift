@@ -192,7 +192,9 @@ public struct SensorPayload: Codable {
     public func drawImage(cluster: Cluster?,
                           pixelSize: Int = 30,
                           minTemperature: Float = 10,
-                          maxTemperature: Float = 35) throws -> Surface {
+                          maxTemperature: Float = 35,
+                          deltaThreshold: Float = 2,
+                          ignoreBelowThreshold: Bool = false) throws -> Surface {
         
         let side = cols * pixelSize
         let size = CGSize(width: side, height: side)
@@ -209,12 +211,13 @@ public struct SensorPayload: Codable {
                 let x = offset * pixelSize
                 let y = verticalOffset
                 
+//                guard datum >= mean + deltaThreshold else { return }
+                if ignoreBelowThreshold && datum < mean + deltaThreshold { return }
+                
                 let rect = CGRect(x: x,
                                   y: y,
                                   width: pixelSize,
                                   height: pixelSize)
-                
-//                let hue = datum.tempColor(minTemperature, maxTemperature)
                 let color = datum.mapColor(into: SensorPayload.gradient, minTemperature, maxTemperature)
 
                 context.fillColor = color.cgColor
