@@ -37,7 +37,9 @@ let package = Package(
             ]),
         .testTarget(
             name: "RoomOccupancyKitTests",
-            dependencies: ["RoomOccupancyKit"]),
+            dependencies: ["RoomOccupancyKit"],
+            resources: [Resource.process("Resources")]
+        ),
         .executableTarget(
             name: "SwiftOccupancy",
             dependencies: [

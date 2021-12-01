@@ -26,9 +26,8 @@ class TempDrawingTests: XCTestCase {
     
     func testDraw() throws {
         let data = MockSensor(emptyOnLoop: false).testData.randomElement()!
-        let payload = try SensorPayload(data: data, thermistorTemperature: 21)
-        
-        XCTAssertNoThrow(try payload.drawImage(cluster: nil))
+
+        XCTAssertNoThrow(try data.drawImage(cluster: nil))
 //        let image = try payload.drawImage(cluster: nil)
         
 //        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(#function).appendingPathExtension("png")
