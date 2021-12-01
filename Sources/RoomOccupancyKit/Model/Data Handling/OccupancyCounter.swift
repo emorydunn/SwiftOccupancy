@@ -65,6 +65,7 @@ public class OccupancyCounter {
     /// Determine changes in based on clusters in the data.
     /// - Parameter data: Data to cluster
     /// - Returns: Any changes found
+    @discardableResult
     func countChanges(using data: SensorPayload) throws -> OccupancyChange? {
         currentCluster = try self.clusterPixels(in: data)
         
@@ -76,6 +77,8 @@ public class OccupancyCounter {
                             previousCluster: previousCluster,
                             topRoom: topRoom,
                             bottomRoom: bottomRoom)
+            
+            change?.update(topCount: &topRoomCount, bottomCount: &bottomRoomCount)
         }
         
         // Set the previous cluster to the current cluster
@@ -105,8 +108,6 @@ public class OccupancyCounter {
     ///   - change: The change
     ///   - client: The client
     func publishChange(_ change: OccupancyChange, with client: AsyncMQTTClient) {
-        change.update(topCount: &topRoomCount, bottomCount: &bottomRoomCount)
-        
         print("Publishing \(change) to MQTT")
         
         topRoom.publishState(topRoomCount, with: client.client)

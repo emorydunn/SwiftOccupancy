@@ -14,15 +14,18 @@ class OccupancyCounterTests: XCTestCase {
     func testOccupancy() async throws {
         let sensor = I2CAMGSensor(sensor: MockSensor(emptyOnLoop: true))
         
-        let occupancy = OccupancyCounter(sensor: sensor)
+        let counter = OccupancyCounter(sensor: sensor)
+        counter.bottomRoomCount = 1
         
-//        do {
-//            try await occupancy.updateChanges()
-//        } catch {
-//            
-//        }
-//        
-//        print(occupancy.topRoomCount, occupancy.bottomRoomCount)
+        do {
+            for try await data in sensor.data {
+                try counter.countChanges(using: data)
+            }
+        } catch {
+            XCTAssertEqual(counter.topRoomCount, 0)
+            XCTAssertEqual(counter.bottomRoomCount, 1)
+        }
+
     }
     
 }
