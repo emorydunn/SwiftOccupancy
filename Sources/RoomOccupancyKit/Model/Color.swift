@@ -20,4 +20,13 @@ public struct Color {
                 alpha: 1)
         
     }
+    
+}
+
+extension Color {
+    init(value: Float) {
+        self.red = value
+        self.green = value
+        self.blue = value
+    }
 }
