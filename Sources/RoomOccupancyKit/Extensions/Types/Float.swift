@@ -8,32 +8,6 @@
 import Foundation
 import Silica
 
-extension Double {
-    /// Normalize the temperature to a value between `0` and `1`
-    /// - Parameters:
-    ///   - min: Min temp (`0`)
-    ///   - max: Max temp (`1`)
-    /// - Returns: Normalized temp
-    public func normalize(_ minValue: Self, _ maxValue: Self) -> Self {
-
-        let value = min(max(self, minValue), maxValue)
-        
-        return (value - minValue) / (maxValue - minValue)
-    }
-
-//    public func temp(_ min: Double, _ max: Double) -> Int {
-//        let hue = normalize(min, max) * 360
-//
-//        var newHue = hue + 90
-//        if newHue > 360 {
-//            newHue -= 360
-//        }
-//
-//        return Int(newHue)
-//    }
-
-}
-
 extension Float {
     
     /// Normalize the temperature to a value between `0` and `1`
@@ -100,7 +74,6 @@ extension Float {
         let blue: Self =    0.2 * gradStart.blue    /   lastStop + 0.8 * gradEnd.blue
         
         return Color(red: red, green: green, blue: blue)
-        
     }
     
     /// From https://gist.github.com/mjackson/5311256

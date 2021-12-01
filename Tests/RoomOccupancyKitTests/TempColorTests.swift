@@ -19,8 +19,8 @@ class TempDrawingTests: XCTestCase {
     }
     
     func testNormalizeOutOfRange() {
-        XCTAssertEqual(30.0.normalize(15, 30), 1)
-        XCTAssertEqual(10.0.normalize(15, 30), 0)
+        XCTAssertEqual((30.0 as Float).normalize(15, 30), 1)
+        XCTAssertEqual((10.0 as Float).normalize(15, 30), 0)
     }
     
     
