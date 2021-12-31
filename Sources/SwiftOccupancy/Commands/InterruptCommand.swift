@@ -40,6 +40,7 @@ struct InterruptCommand: ParsableCommand {
         
         intPin.onChange { _ in
             self.printInterrupts(with: sensor)
+            sensor.clearInterrupt()
         }
 
         sensor.lowInterrupt = low
@@ -49,12 +50,24 @@ struct InterruptCommand: ParsableCommand {
         sensor.setInterruptModeAbsolute()
         sensor.enableInterrupt()
         
+        sensor.clearInterrupt()
+        
         let interrupt = sensor.interface.readByte(sensor.address, command: 0x03)
         print("Interrupt Mode", String(interrupt, radix: 2))
         print(sensor.lowInterrupt, sensor.highInterrupt, sensor.hysteresis)
 
         print("Putting the main thread into a run loop")
-        RunLoop.main.run()
+        
+        while true {
+            if sensor.status.contains(.interruptFlag) {
+                self.printInterrupts(with: sensor)
+            } else {
+                print("waiting for interrupt flag...")
+            }
+            
+            sleep(1)
+        }
+
     }
     
     func printInterrupts(with sensor: AMG88) {
