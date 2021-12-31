@@ -35,23 +35,29 @@ struct InterruptCommand: ParsableCommand {
         let intPin = SwiftyGPIO.GPIOs(for: board)[.P26]!
         intPin.direction = .IN
         
-        intPin.onRaising { pin in
-            print(Date())
-            let ints = sensor.sensor.getInterrupts()
-            
-            ints.forEach { row in
-                row.forEach {
-                    print($0 ? "1" : "0")
-                }
-            }
+        intPin.onChange { _ in
+            self.printInterrupts(with: sensor)
         }
 
         sensor.sensor.setInterruptLevels(high: high, low: low, hysteresis: 0.95)
         
         sensor.sensor.enableInterrupt()
         
+        printInterrupts(with: sensor)
+        
         print("Putting the main thread into a run loop")
         RunLoop.main.run()
+    }
+    
+    func printInterrupts(with sensor: I2CAMGSensor) {
+        print(Date())
+        let ints = sensor.sensor.getInterrupts()
+        
+        ints.forEach { row in
+            row.forEach {
+                print($0 ? "1" : "0")
+            }
+        }
     }
 }
 
