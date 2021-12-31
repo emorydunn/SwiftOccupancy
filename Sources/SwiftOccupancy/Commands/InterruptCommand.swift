@@ -9,6 +9,7 @@ import Foundation
 import ArgumentParser
 import SwiftyGPIO
 import RoomOccupancyKit
+import AMG88
 
 struct InterruptCommand: ParsableCommand {
 
@@ -30,7 +31,8 @@ struct InterruptCommand: ParsableCommand {
     
 
     func run() throws {
-        let sensor = I2CAMGSensor(board: board)
+//        let sensor = I2CAMGSensor(board: board)
+        let sensor = AMG88(SwiftyGPIO.hardwareI2Cs(for: board)![1])
         
         let intPin = SwiftyGPIO.GPIOs(for: board)[.P26]!
         intPin.direction = .IN
@@ -39,19 +41,21 @@ struct InterruptCommand: ParsableCommand {
             self.printInterrupts(with: sensor)
         }
 
-        sensor.sensor.setInterruptLevels(high: high, low: low, hysteresis: 0.95)
+        sensor.setInterruptLevels(high: high, low: low, hysteresis: 0.95)
         
-        sensor.sensor.enableInterrupt()
+        sensor.enableInterrupt()
         
-        printInterrupts(with: sensor)
-        
+        let value = sensor.interface.readWord(sensor.address, command: 0x08)
+        let temp = value.fromTwosCompliment()
+        print(temp)
+
         print("Putting the main thread into a run loop")
         RunLoop.main.run()
     }
     
-    func printInterrupts(with sensor: I2CAMGSensor) {
+    func printInterrupts(with sensor: AMG88) {
         print(Date())
-        let ints = sensor.sensor.getInterrupts()
+        let ints = sensor.getInterrupts()
         
         ints.forEach { row in
             row.forEach {
