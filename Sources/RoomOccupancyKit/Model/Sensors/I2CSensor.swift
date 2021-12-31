@@ -12,7 +12,7 @@ import AMG88
 /// A sensor that reads its data from an I2C interface.
 public struct I2CAMGSensor: AMGSensorProtocol {
 
-    let sensor: AMG88Protocol
+    public let sensor: AMG88Protocol
 
     public init(interface: I2CInterface) {
         self.sensor = AMG88(interface)
