@@ -46,9 +46,8 @@ struct InterruptCommand: ParsableCommand {
         sensor.highInterrupt = high
         sensor.hysteresis = hysteresis
         
-        sensor.interruptMode = .absolute
-        sensor.interruptEnabled = .enabled
-        sensor.interface
+        sensor.setInterruptModeAbsolute()
+        sensor.enableInterrupt()
         
         let interrupt = sensor.interface.readByte(sensor.address, command: 0x03)
         print("Interrupt Mode", String(interrupt, radix: 2))
