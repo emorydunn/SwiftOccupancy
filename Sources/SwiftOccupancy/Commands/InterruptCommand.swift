@@ -28,7 +28,8 @@ struct InterruptCommand: ParsableCommand {
     @Option(help: "The low temp")
     var high: Float = 25
 
-    
+    @Option(help: "The hysteresis value")
+    var hysteresis: Float = 5
 
     func run() throws {
 //        let sensor = I2CAMGSensor(board: board)
@@ -41,13 +42,14 @@ struct InterruptCommand: ParsableCommand {
             self.printInterrupts(with: sensor)
         }
 
-        sensor.setInterruptLevels(high: high, low: low, hysteresis: 0.95)
+        sensor.lowInterrupt = low
+        sensor.highInterrupt = high
+        sensor.hysteresis = hysteresis
         
-        sensor.enableInterrupt()
+        sensor.interruptMode = .absolute
+        sensor.interruptEnabled = .enabled
         
-        let value = sensor.interface.readWord(sensor.address, command: 0x08)
-        let temp = value.fromTwosCompliment()
-        print(temp)
+        print(sensor.lowInterrupt, sensor.highInterrupt, sensor.hysteresis)
 
         print("Putting the main thread into a run loop")
         RunLoop.main.run()
@@ -59,8 +61,9 @@ struct InterruptCommand: ParsableCommand {
         
         ints.forEach { row in
             row.forEach {
-                print($0 ? "1" : "0")
+                print($0 ? "1" : "0", terminator: " ")
             }
+            print()
         }
     }
 }
