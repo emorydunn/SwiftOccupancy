@@ -61,6 +61,7 @@ struct InterruptCommand: ParsableCommand {
         while true {
             if sensor.status.contains(.interruptFlag) {
                 self.printInterrupts(with: sensor)
+                sensor.clearInterrupt()
             } else {
                 print("waiting for interrupt flag...")
             }
@@ -76,7 +77,7 @@ struct InterruptCommand: ParsableCommand {
         
         ints.forEach { row in
             row.forEach {
-                print($0 ? "1" : "0", terminator: " ")
+                print($0 ? "O" : "•", terminator: "")
             }
             print()
         }
