@@ -37,8 +37,9 @@ struct InterruptCommand: ParsableCommand {
         
         let intPin = SwiftyGPIO.GPIOs(for: board)[.P26]!
         intPin.direction = .IN
+        intPin.pull = .up
         
-        intPin.onChange { _ in
+        intPin.onFalling { _ in
             self.printInterrupts(with: sensor)
             sensor.clearInterrupt()
         }
@@ -58,16 +59,18 @@ struct InterruptCommand: ParsableCommand {
 
         print("Putting the main thread into a run loop")
         
-        while true {
-            if sensor.status.contains(.interruptFlag) {
-                self.printInterrupts(with: sensor)
-                sensor.clearInterrupt()
-            } else {
-                print("waiting for interrupt flag...")
-            }
-            
-            sleep(1)
-        }
+//        while true {
+//            if sensor.status.contains(.interruptFlag) {
+//                self.printInterrupts(with: sensor)
+//                sensor.clearInterrupt()
+//            } else {
+//                print("waiting for interrupt flag...")
+//            }
+//
+//            sleep(1)
+//        }
+        
+        RunLoop.main.run()
 
     }
     
