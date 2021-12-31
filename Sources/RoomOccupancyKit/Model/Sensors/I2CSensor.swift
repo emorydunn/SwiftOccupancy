@@ -21,6 +21,7 @@ public struct I2CAMGSensor: AMGSensorProtocol {
     public init(board: SupportedBoard) {
         print("Initializing AMG for board \(board)")
         self.sensor = AMG88(SwiftyGPIO.hardwareI2Cs(for: board)![1])
+        sensor.enableMovingAverage()
     }
     
     public init(sensor: AMG88Protocol) {
