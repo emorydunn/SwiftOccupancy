@@ -17,8 +17,7 @@ struct OccupancyCommand: ParsableCommand {
         shouldDisplay: true,
         subcommands: [
             I2COccupancyCommand.self,
-            MQTTOccupancyCommand.self,
-            InterruptCommand.self
+            MQTTOccupancyCommand.self
         ]
     )
 }
