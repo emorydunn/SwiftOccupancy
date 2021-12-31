@@ -9,14 +9,16 @@ import Foundation
 import ArgumentParser
 
 struct OccupancyCommand: ParsableCommand {
-    static var configuration = CommandConfiguration(commandName: "occupancy",
-                                                    abstract: "Read occupancy from an AMG88 sensor.",
-                                                    discussion: "Read and parse data from an AMG88 sensor and publish occupancy changes via MQTT.",
-                                                    version: "0.1.",
-                                                    shouldDisplay: true,
-                                                    subcommands: [
-                                                        I2COccupancyCommand.self,
-                                                        MQTTOccupancyCommand.self
-                                                    ]
+    static var configuration = CommandConfiguration(
+        commandName: "occupancy",
+        abstract: "Read occupancy from an AMG88 sensor.",
+        discussion: "Read and parse data from an AMG88 sensor and publish occupancy changes via MQTT.",
+        version: "0.1.",
+        shouldDisplay: true,
+        subcommands: [
+            I2COccupancyCommand.self,
+            MQTTOccupancyCommand.self,
+            InterruptCommand.self
+        ]
     )
 }
