@@ -15,12 +15,10 @@ extension String {
     /// 2. Lower-cased
     /// 3. Spaces are replaced with hyphens
     var slug: String {
-//        self.replacingCharacters(in: <#T##RangeExpression#>, with: <#T##StringProtocol#>)
+        let normString = self.applyingTransform(.stripDiacritics, reverse: false)?
+            .applyingTransform(.stripCombiningMarks, reverse: false) ?? self
         
-//        let normString = self.applyingTransform(.stripDiacritics, reverse: false)?
-//            .applyingTransform(.stripCombiningMarks, reverse: false) ?? self
-        
-        return self
+        return normString
             .lowercased()
             .replacingOccurrences(of: " ", with: "_")
     }
