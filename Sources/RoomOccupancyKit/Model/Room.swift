@@ -26,7 +26,7 @@ public enum Room: CustomStringConvertible, Decodable {
         case let .room(name):
             return name
         case .æther:
-            return "Æther"
+            return "ether"
         }
     }
     
