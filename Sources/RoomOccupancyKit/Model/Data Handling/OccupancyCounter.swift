@@ -34,7 +34,7 @@ public class OccupancyCounter {
     public var bottomRoomCount: Int = 0
     
     var currentCluster: Cluster?
-    @Buffer(count: 5)
+    @Buffer(bufferSize: 5)
     internal var previousCluster: Cluster?
     
     init(sensor: AMGSensorProtocol, topRoom: Room = .æther, bottomRoom: Room = .æther) {
