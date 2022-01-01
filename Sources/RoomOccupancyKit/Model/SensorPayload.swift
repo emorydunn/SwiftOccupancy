@@ -211,7 +211,6 @@ public struct SensorPayload: Codable {
                 let x = offset * pixelSize
                 let y = verticalOffset
                 
-//                guard datum >= mean + deltaThreshold else { return }
                 if ignoreBelowThreshold && datum < mean + deltaThreshold { return }
                 
                 let rect = CGRect(x: x,
@@ -228,7 +227,7 @@ public struct SensorPayload: Codable {
                     context.strokeColor = CGColor.black
                     context.fillColor = CGColor.white
                     context.textDrawingMode = .stroke
-                        context.setFont(font)
+                    context.setFont(font)
                     context.fontSize = CGFloat(pixelSize) / 2
                     context.textPosition = rect.origin
                     context.show(text: String(format: "%.0f", datum))
@@ -240,10 +239,10 @@ public struct SensorPayload: Codable {
         
         if let cluster = cluster {
             let box = cluster.boundingBox
-            let rect = CGRect(x: box.minX * pixelSize,
-                              y: box.minY * pixelSize,
-                              width: (box.maxX - box.minX) * pixelSize,
-                              height: (box.maxY - box.minY) * pixelSize)
+            let rect = CGRect(x: (box.minX * pixelSize) - pixelSize,
+                              y: (box.minY * pixelSize) - pixelSize,
+                              width: (box.maxX - box.minX) * pixelSize + pixelSize,
+                              height: (box.maxY - box.minY) * pixelSize + pixelSize)
             
             context.lineWidth = 2
             context.strokeColor = CGColor.white
