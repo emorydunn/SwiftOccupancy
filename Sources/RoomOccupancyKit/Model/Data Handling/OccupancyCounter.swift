@@ -33,7 +33,9 @@ public class OccupancyCounter {
     public var topRoomCount: Int = 0
     public var bottomRoomCount: Int = 0
     
+    @Buffer(bufferSize: 5)
     var currentCluster: Cluster?
+    
     @Buffer(bufferSize: 5)
     internal var previousCluster: Cluster?
     
