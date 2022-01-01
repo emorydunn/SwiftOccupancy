@@ -13,7 +13,7 @@ import MQTT
 public class OccupancyCounter {
     
     public var id: String {
-        "\(topRoom)-\(bottomRoom)"
+        "\(topRoom.slug)-\(bottomRoom.slug)"
     }
     
     let sensor: AMGSensorProtocol
