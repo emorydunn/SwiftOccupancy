@@ -36,7 +36,7 @@ public enum Room: CustomStringConvertible, Decodable {
         self = .room(try container.decode(String.self))
     }
     
-    var slug: String {
+    public var slug: String {
         description.slug
     }
     
