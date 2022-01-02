@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  HAMQTTPublisher.swift
 //  
 //
 //  Created by Emory Dunn on 11/22/21.
