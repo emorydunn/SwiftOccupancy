@@ -24,6 +24,8 @@ struct MQTTOccupancyCommand: ParsableCommand {
     var sensor: String
     
     @OptionGroup var rooms: RoomOptions
+    
+    @OptionGroup var counterOptions: CounterOptions
 
     func run() throws {
         
@@ -32,11 +34,13 @@ struct MQTTOccupancyCommand: ParsableCommand {
         let client = mqtt.makeClient(clientID: rooms.clientID)
         
         let sensor = MQTTAMGSensor(client: client, topic: topic)
+        
+        let counter = OccupancyCounter(topRoom: rooms.topRoom, bottomRoom: rooms.bottomRoom)
+        counterOptions.configureCounter(counter)
 
         let publisher = HAMQTTPublisher(sensor: sensor,
                                         client: client,
-                                        topRoom: rooms.topRoom,
-                                        bottomRoom: rooms.bottomRoom)
+                                        counter: counter)
         
         Task {
             

@@ -38,6 +38,12 @@ public struct HAMQTTPublisher {
         self.counter = OccupancyCounter(topRoom: topRoom, bottomRoom: bottomRoom)
     }
     
+    public init(board: SupportedBoard, client: AsyncMQTTClient, counter: OccupancyCounter) {
+        self.sensor = I2CAMGSensor(board: board)
+        self.client = client
+        self.counter = counter
+    }
+    
     public init(board: SupportedBoard, client: AsyncMQTTClient, topRoom: Room = .æther, bottomRoom: Room = .æther) {
         self.sensor = I2CAMGSensor(board: board)
         self.client = client

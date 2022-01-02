@@ -24,15 +24,19 @@ struct I2COccupancyCommand: ParsableCommand {
     var board: SupportedBoard = SupportedBoard.RaspberryPi4
     
     @OptionGroup var rooms: RoomOptions
+    
+    @OptionGroup var counterOptions: CounterOptions
 
     func run() throws {
         
         let client = mqtt.makeClient(clientID: rooms.clientID)
+        
+        let counter = OccupancyCounter(topRoom: rooms.topRoom, bottomRoom: rooms.bottomRoom)
+        counterOptions.configureCounter(counter)
 
         let publisher = HAMQTTPublisher(board: board,
                                         client: client,
-                                        topRoom: rooms.topRoom,
-                                        bottomRoom: rooms.bottomRoom)
+                                        counter: counter)
         
         Task {
             
