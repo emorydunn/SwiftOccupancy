@@ -101,7 +101,7 @@ struct LogDataCommand: ParsableCommand {
             try eventsData.write(to: url.appendingPathComponent("events.json"))
             
             print("Saving PNGs")
-            try collectedData.values.enumerated().forEach { index, data in
+            try collectedData.forEach { index, data in
                 let cluster = Cluster(from: data, deltaThreshold: deltaThreshold)
 
                 let fileURL = url.appendingPathComponent("frame-\(index).png")
