@@ -32,8 +32,8 @@ public class Cluster {
             self.maxX = maxX
             self.maxY = maxY
             
-            self.width = maxX - minX
-            self.height = maxY - minY
+            self.width = maxX - minX + 1
+            self.height = maxY - minY + 1
         }
     }
     
