@@ -237,6 +237,14 @@ public struct SensorPayload: Codable {
             
         }
         
+        // Draw the center line
+        context.strokeColor = .black
+        context.lineWidth = 2
+        context.move(to: CGPoint(x: 0, y: side / 2))
+        context.addLine(to: CGPoint(x: side, y: side / 2))
+        context.strokePath()
+        
+        // Draw the cluster
         if let cluster = cluster {
             let box = cluster.boundingBox
             let rect = CGRect(x: (box.minX * pixelSize) - pixelSize,
