@@ -12,19 +12,46 @@ import AMG88
 
 enum MockData: String {
     
+    static var loadedData: [MockData: [Int: SensorPayload]] = [:]
+    
     /// Sensor data of someone walking from the bottom of the sensor to the top and then back.
     case twoPassWalk = "two-pass-walk"
     
-    var data: [SensorPayload] {
+    /// Sensor data of someone walking to the bottom room, and then back at the edge of the frame.
+    /// - Cross from top to bottom: frame 27
+    /// - Cross from bottom to top: frame 87
+    case twoPassDoorEdge = "two-pass-door-edge"
+    
+    var data: [Int: SensorPayload] {
+        if let data = MockData.loadedData[self] {
+            return data
+        }
+        
         guard let file = Bundle.module.url(forResource: rawValue, withExtension: "json") else {
             preconditionFailure("'\(rawValue).json' does not exist in \(Bundle.module.resourcePath!)")
         }
         do {
             let contents = try Data(contentsOf: file)
-            return try JSONDecoder().decode([SensorPayload].self, from: contents)
+            let newData = try JSONDecoder().decode([Int: SensorPayload].self, from: contents)
+            
+            MockData.loadedData[self] = newData
+            
+            return newData
         } catch {
             preconditionFailure(error.localizedDescription)
         }
+        
+        
+    }
+    
+    var orderedData: [SensorPayload] {
+        var testData: [SensorPayload] = []
+        
+        data.sorted(by: { $0.key < $1.key }).forEach { index, data in
+            testData.insert(data, at: index)
+        }
+        
+        return testData
     }
 }
 
@@ -37,7 +64,7 @@ class MockSensor: AMG88Protocol {
     
     init(emptyOnLoop: Bool, data: MockData = .twoPassWalk) {
         self.emptyOnLoop = emptyOnLoop
-        self.testData = data.data
+        self.testData = data.orderedData
     }
     
     func readPixels() -> [Float] {

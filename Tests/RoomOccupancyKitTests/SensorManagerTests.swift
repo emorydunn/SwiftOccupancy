@@ -11,20 +11,24 @@ import XCTest
 
 class OccupancyCounterTests: XCTestCase {
     
-    func testOccupancy() async throws {
-        let sensor = I2CAMGSensor(sensor: MockSensor(emptyOnLoop: true))
+    func testOccupancy_twoPassDoorEdge() throws {
         
-        let counter = OccupancyCounter(sensor: sensor)
-        counter.bottomRoomCount = 1
+//        let sensor = I2CAMGSensor(sensor: MockSensor(emptyOnLoop: true))
+        let data = MockData.twoPassDoorEdge.orderedData
+        let counter = OccupancyCounter(topRoom: .room("Top"), bottomRoom: .room("Bottom"))
+//
+//        try counter.countChanges(using: data[85])
+//        try counter.countChanges(using: data[86])
+//        try counter.countChanges(using: data[87])
+//        try counter.countChanges(using: data[88])
         
-        do {
-            for try await data in sensor.data {
-                try counter.countChanges(using: data)
-            }
-        } catch {
-            XCTAssertEqual(counter.topRoomCount, 0)
-            XCTAssertEqual(counter.bottomRoomCount, 1)
-        }
+//        print(counter.topRoom, counter.topRoomCount)
+//        print(counter.bottomRoom, counter.bottomRoomCount)
+        
+        try counter.countChanges(using: data)
+        
+        XCTAssertEqual(counter.topRoomCount, 1)
+        XCTAssertEqual(counter.bottomRoomCount, 0)
 
     }
     
