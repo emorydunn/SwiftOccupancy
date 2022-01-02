@@ -38,14 +38,12 @@ struct LogDataCommand: ParsableCommand {
     func run() throws {
 
         let sensor = I2CAMGSensor(board: board)
-        let counter = OccupancyCounter(sensor: sensor, topRoom: .room("Top"), bottomRoom: .room("Bottom"))
+        let counter = OccupancyCounter(topRoom: .room("Top"), bottomRoom: .room("Bottom"))
         
         Task {
             var collectedData: [Int: SensorPayload] = [:]
             var events: [Int: OccupancyChange] = [:]
-            
-            
-            
+
             // Capture SIGINT so we can save the data
             signal(SIGINT) { signal in
                 LogDataCommand.signalReceived = 1

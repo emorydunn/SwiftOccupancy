@@ -35,13 +35,13 @@ public struct HAMQTTPublisher {
     public init(sensor: AMGSensorProtocol, client: AsyncMQTTClient, topRoom: Room = .æther, bottomRoom: Room = .æther) {
         self.sensor = sensor
         self.client = client
-        self.counter = OccupancyCounter(sensor: sensor, topRoom: topRoom, bottomRoom: bottomRoom)
+        self.counter = OccupancyCounter(topRoom: topRoom, bottomRoom: bottomRoom)
     }
     
     public init(board: SupportedBoard, client: AsyncMQTTClient, topRoom: Room = .æther, bottomRoom: Room = .æther) {
         self.sensor = I2CAMGSensor(board: board)
         self.client = client
-        self.counter = OccupancyCounter(sensor: sensor, topRoom: topRoom, bottomRoom: bottomRoom)
+        self.counter = OccupancyCounter(topRoom: topRoom, bottomRoom: bottomRoom)
     }
     
     public func setupHA() {

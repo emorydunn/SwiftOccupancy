@@ -15,17 +15,15 @@ public class OccupancyCounter {
     public var id: String {
         "\(topRoom.slug)-\(bottomRoom.slug)"
     }
-    
-    let sensor: AMGSensorProtocol
-    
+
     public var topRoom: Room = .æther
     public var bottomRoom: Room = .æther
     
     public var deltaThreshold: Float = 2
     
-    public var minClusterSize: Int = 10
+    public var minClusterSize: Int = 8
     public var minWidth: Int = 3
-    public var minHeight: Int = 3
+    public var minHeight: Int = 2
     
     public var averageFrameCount: Int = 2
     
@@ -39,8 +37,7 @@ public class OccupancyCounter {
     @Buffer(bufferSize: 5)
     internal var previousCluster: Cluster?
     
-    public init(sensor: AMGSensorProtocol, topRoom: Room = .æther, bottomRoom: Room = .æther) {
-        self.sensor = sensor
+    public init(topRoom: Room = .æther, bottomRoom: Room = .æther) {
         self.topRoom = topRoom
         self.bottomRoom = bottomRoom
     }
@@ -52,7 +49,7 @@ public class OccupancyCounter {
         
         // Cluster the pixels around hottest pixel
         let cluster = Cluster(from: data, deltaThreshold: deltaThreshold)
-        
+
         // Ensure the cluster meets our requirements
         guard
             cluster.size >= minClusterSize &&
@@ -71,9 +68,7 @@ public class OccupancyCounter {
     @discardableResult
     public func countChanges(using data: SensorPayload) throws -> OccupancyChange? {
         currentCluster = try self.clusterPixels(in: data)
-        
-        currentCluster?.printGrid()
-        
+
         var change: OccupancyChange?
         if let currentCluster = currentCluster, let previousCluster = previousCluster {
             change = OccupancyChange(currentCluster: currentCluster,
@@ -88,6 +83,19 @@ public class OccupancyCounter {
         previousCluster = currentCluster
         
         return change
+    }
+    
+    @discardableResult
+    /// Count occupancy changes from an array of data.
+    /// - Parameter data: The collected data to use.
+    /// - Returns: An array of change events. 
+    public func countChanges(using data: [SensorPayload]) throws -> [OccupancyChange] {
+        return try data.enumerated().compactMap { index, data in
+            print("Frame \(index):", terminator: " ")
+            let change = try countChanges(using: data)
+            print(String(describing: change))
+            return change
+        }
     }
 
     /// Subscribe to the MQTT topics for each room and update the room counts
