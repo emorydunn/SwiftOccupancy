@@ -38,9 +38,13 @@ struct LogDataCommand: ParsableCommand {
     func run() throws {
 
         let sensor = I2CAMGSensor(board: board)
+        let counter = OccupancyCounter(sensor: sensor, topRoom: .room("Top"), bottomRoom: .room("Bottom"))
         
         Task {
-            var collectedData: [SensorPayload] = []
+            var collectedData: [Int: SensorPayload] = [:]
+            var events: [Int: OccupancyChange] = [:]
+            
+            
             
             // Capture SIGINT so we can save the data
             signal(SIGINT) { signal in
@@ -48,16 +52,24 @@ struct LogDataCommand: ParsableCommand {
             }
             
             for try await data in sensor.data {
+                let frameNumber = collectedData.count
+                
+                let date = Date()
                 if logToScreen {
-                    print(Date())
+                    print(date)
                     data.rawData.logPagedData()
                     print()
                 }
 
-                collectedData.append(data)
+                if let change = try counter.countChanges(using: data) {
+                    events[frameNumber] = change
+                }
+
+                collectedData[frameNumber] = data
+                
                 
                 if LogDataCommand.signalReceived == 1 {
-                    saveData(collectedData)
+                    saveData(collectedData, events: events)
                 }
                 
             }
@@ -68,7 +80,7 @@ struct LogDataCommand: ParsableCommand {
 
     }
     
-    func saveData(_ collectedData: [SensorPayload]) {
+    func saveData(_ collectedData: [Int: SensorPayload], events: [Int: OccupancyChange]) {
         let date = String(describing: Date()).replacingOccurrences(of: " ", with: "_")
         
         guard let url = outputURL?.url.appendingPathComponent(date) else {
@@ -84,8 +96,12 @@ struct LogDataCommand: ParsableCommand {
             let data = try encoder.encode(collectedData)
             try data.write(to: url.appendingPathComponent("raw_data.json"))
             
+            print("Encoding logged events")
+            let eventsData = try encoder.encode(events)
+            try eventsData.write(to: url.appendingPathComponent("events.json"))
+            
             print("Saving PNGs")
-            try collectedData.enumerated().forEach { index, data in
+            try collectedData.values.enumerated().forEach { index, data in
                 let cluster = Cluster(from: data, deltaThreshold: deltaThreshold)
 
                 let fileURL = url.appendingPathComponent("frame-\(index).png")
