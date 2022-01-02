@@ -13,7 +13,7 @@ import MQTT
 import FoundationNetworking
 #endif
 
-public enum Room: CustomStringConvertible, Decodable {
+public enum Room: CustomStringConvertible, Codable {
     
     case room(String)
     case æther
@@ -117,9 +117,9 @@ extension Room: Comparable, Hashable {
     }
 }
 
-public struct OccupancyChange: CustomStringConvertible {
+public struct OccupancyChange: CustomStringConvertible, Codable {
     
-    public enum Direction {
+    public enum Direction: String, Codable {
         case toTop
         case toBottom
         case none
