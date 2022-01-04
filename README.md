@@ -5,7 +5,7 @@ sensors at the top of a doorway two rooms can be tracked at once. Paired sensors
 presence detection.
 
 People are counted as they walk between rooms, so walking out of one room decreases the count there
-and increases it in the room you walk into. For privacy a sensor doesn't need both rooms only only
+and increases it in the room you walk into. For privacy a sensor doesn't need both rooms, only
 the specified rooms will be counted.
 
 ## Software Installation
@@ -24,7 +24,7 @@ The recommended way to run SwiftOccupancy is on a Raspberry Pi Zero 2 running th
 3. Add WiFi settings in `network-config`
    - Triple check that your editor hasn't fucked up the indentation because YAML is picky
 4. Copy the `bcm2710-rpi-3-b.dtb` file to `bcm2710-rpi-zero-2.dtb`
-  - Until Ubuntu officially supprts 64-bit on the Zero 2 this needs to be done
+  - Until Ubuntu officially supports 64-bit on the Zero 2 this needs to be done
 5. Boot your Pi and SSH in
 6. Install the [Swift repository](https://www.swiftlang.xyz)
 7. Select Swift 5.5 (or latest) when prompted
