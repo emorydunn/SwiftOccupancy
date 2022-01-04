@@ -30,62 +30,64 @@ extension OpenCombine.Publisher where Output == [Pixel], Failure == Never {
         .eraseToAnyPublisher()
     }
     
-    public func clusterPixels() -> AnyPublisher<[Cluster], Never> {
-        
-        self.map { pixels in
-            var clusters = [Cluster]()
-            
-            pixels.forEach { pixel in
-                if let neighbor = clusters.first(where: { $0.isNeighbored(to: pixel) }) {
-                    neighbor.pixels.append(pixel)
-                } else {
-                    clusters.append(Cluster(pixel))
-                }
-            }
-    
-            return clusters
-        }
-
-        .eraseToAnyPublisher()
-        
-    }
+//    public func clusterPixels() -> AnyPublisher<[Cluster], Never> {
+//        
+//        self.map { pixels in
+//            var clusters = [Cluster]()
+//            
+//            pixels.forEach { pixel in
+//                if let neighbor = clusters.first(where: { $0.isNeighbored(to: pixel) }) {
+//                    neighbor.pixels.append(pixel)
+//                } else {
+//                    clusters.append(Cluster(pixel))
+//                }
+//            }
+//    
+//            return clusters
+//        }
+//
+//        .eraseToAnyPublisher()
+//        
+//    }
     
     public func clusterHottestPixels() -> AnyPublisher<Cluster?, Never> {
         
         // Start with the hottest pixel
         self.map { pixels in
             
-            let hottestPixel = pixels.reduce(into: Pixel(x: 0, y: 0, temp: 0)) { currentHottest, pixel in
-                currentHottest = pixel.temp > currentHottest.temp ? pixel : currentHottest
-            }
-            
-            let cluster = Cluster(hottestPixel)
-            var newPixels: Set<Pixel> = [hottestPixel]
-            
-            var keepSearching: Bool = true
-            while keepSearching {
-                
-                let oldCount = newPixels.count
-
-                newPixels.forEach { pixel in
-                    // Locate the neighbor pixels
-                    let newNeighbors = pixels.filter {
-
-                        ($0.x == pixel.x - 1 && $0.y == pixel.y) || // Left
-                            ($0.x == pixel.x + 1 && $0.y == pixel.y) || // Right
-                            ($0.x == pixel.x && $0.y - 1 == pixel.y) || // Bottom
-                            ($0.x == pixel.x && $0.y + 1 == pixel.y) // Top
-                            
-                    }
-                    
-                    newPixels.formUnion(newNeighbors)
-                }
-
-                keepSearching = newPixels.count != oldCount
-            }
-            
-            cluster.pixels.append(contentsOf: newPixels)
-            return cluster
+//            Cluster(from: pixels, deltaThreshold: 2)
+//
+//            let hottestPixel = pixels.reduce(into: Pixel(x: 0, y: 0, temp: 0)) { currentHottest, pixel in
+//                currentHottest = pixel.temp > currentHottest.temp ? pixel : currentHottest
+//            }
+//
+//            let cluster = Cluster(hottestPixel)
+//            var newPixels: Set<Pixel> = [hottestPixel]
+//
+//            var keepSearching: Bool = true
+//            while keepSearching {
+//
+//                let oldCount = newPixels.count
+//
+//                newPixels.forEach { pixel in
+//                    // Locate the neighbor pixels
+//                    let newNeighbors = pixels.filter {
+//
+//                        ($0.x == pixel.x - 1 && $0.y == pixel.y) || // Left
+//                            ($0.x == pixel.x + 1 && $0.y == pixel.y) || // Right
+//                            ($0.x == pixel.x && $0.y - 1 == pixel.y) || // Bottom
+//                            ($0.x == pixel.x && $0.y + 1 == pixel.y) // Top
+//
+//                    }
+//
+//                    newPixels.formUnion(newNeighbors)
+//                }
+//
+//                keepSearching = newPixels.count != oldCount
+//            }
+//
+//            cluster.pixels.append(contentsOf: newPixels)
+            return Cluster(from: pixels)
         }
         .eraseToAnyPublisher()
         
@@ -128,8 +130,9 @@ extension OpenCombine.Publisher where Output == SensorPayload, Failure == Never 
                 
                 // Return the first element with the new data
                 return try! SensorPayload(rows: buffer[0].rows,
-                                     cols: buffer[0].cols,
-                                     data: averageData)
+                                          cols: buffer[0].cols,
+                                          data: averageData,
+                                          thermistorTemperature: 0) // FIXME: Average thermistor
             }
             .eraseToAnyPublisher()
     }
@@ -184,8 +187,9 @@ extension OpenCombine.Publisher where Output == SensorPayload?, Failure == Never
                 
                 // Return the first element with the new data
                 return try! SensorPayload(rows: buffer[0].rows,
-                                     cols: buffer[0].cols,
-                                     data: averageData)
+                                          cols: buffer[0].cols,
+                                          data: averageData,
+                                          thermistorTemperature: 0) // FIXME: Average thermistor
             }
             .eraseToAnyPublisher()
     }

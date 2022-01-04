@@ -20,20 +20,33 @@ public enum SensorError: Error {
 }
 
 public struct SensorPayload: Codable {
-
+    
+    // MARK: Sensor Properties
+    /// Number of rows that make up the image
     public let rows: Int
+    
+    /// Number of columns that make up the image
     public let cols: Int
 
-    public let pixels: [Pixel]
+    /// The raw sensor data
     public let rawData: [Float]
     
+    /// The thermistor temperature
+    public let thermistorTemperature: Float
+    
+    // MARK: Derived Properties
+    
+    /// The parsed pixel data for the sensor
+    public let pixels: [Pixel]
+    
+    /// The average pixel temperature.
     public let mean: Float
     
     public enum CodingKeys: String, CodingKey {
-        case rows, cols, rawData
+        case rows, cols, rawData, thermistorTemperature
     }
     
-    public init(rows: Int = 8, cols: Int = 8, data: [Float]) throws {
+    public init(rows: Int = 8, cols: Int = 8, data: [Float], thermistorTemperature: Float) throws {
         self.rows = rows
         self.cols = cols
         
@@ -58,11 +71,13 @@ public struct SensorPayload: Codable {
         }
         
         self.rawData = data
+        self.thermistorTemperature = thermistorTemperature
         self.pixels = pixels
         
         self.mean = tempTotal / Float(rawData.count)
     }
     
+    @available(*, deprecated)
     public init(rows: Int = 8, cols: Int = 8, data: String) throws {
 
         // The data is returned in 4 byte temperature chunks: 31.8
@@ -82,26 +97,55 @@ public struct SensorPayload: Codable {
         try self.init(
                   rows: rows,
                   cols: cols,
-                  data: rawData)
+                  data: rawData,
+                  thermistorTemperature: 0
+        )
     }
     
+    @available(*, deprecated)
     public init(rows: Int = 8, cols: Int = 8, data: Data) throws {
 
-        guard let rawData = String(data: data, encoding: .utf8) else {
-            throw SensorError.decodingError(encoding: .utf8)
-        }
+//        guard let rawData = String(data: data, encoding: .utf8) else {
+//            throw SensorError.decodingError(encoding: .utf8)
+//        }
         
-        try self.init(
-                  rows: rows,
-                  cols: cols,
-                  data: rawData)
+        fatalError("This init is deprecated")
+//        try self.init(
+//                  rows: rows,
+//                  cols: cols,
+//                  data: rawData,
+//                  thermistorTemperature: 0)
     }
+    
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        
+        let rows = try container.decode(Int.self, forKey: .rows)
+        let cols = try container.decode(Int.self, forKey: .cols)
+        let rawData = try container.decode([Float].self, forKey: .rawData)
+        let therm = try container.decode(Float.self, forKey: .thermistorTemperature)
+        
+        self = try SensorPayload(rows: rows, cols: cols, data: rawData, thermistorTemperature: therm)
+        
+    }
+    
+    // MARK: Methods
 
     public func logData() {
         print("FrameData:", rawData.map { String($0) }.joined(separator: ","))
     }
     
-    public func createImage(columns: Int = 8,
+    static let gradient: [Float: Color] = [
+        0.0:    Color(red: 15,  green: 12,  blue: 33),
+        0.16:   Color(red: 60,  green: 25,  blue: 142),
+        0.32:   Color(red: 185, green: 55,  blue: 168),
+        0.48:   Color(red: 233, green: 128, blue: 62),
+        0.64:   Color(red: 242, green: 175, blue: 76),
+        0.8:    Color(red: 251, green: 220, blue: 89),
+        1:      Color(red: 255, green: 255, blue: 255),
+    ]
+    
+    public func drawSVG(columns: Int = 8,
                             pixelSize: Int = 10,
                             minTemperature: Float = 16,
                             maxTemperature: Float = 30) -> String {
@@ -126,7 +170,7 @@ public struct SensorPayload: Codable {
                 element.addAttribute(verticalOffset, forKey: "y")
                 element.addAttribute(pixelSize, forKey: "width")
                 element.addAttribute(pixelSize, forKey: "height")
-                let hue: Int = datum.temp(minTemperature, maxTemperature)
+                let hue: Int = datum.mapHue(minTemperature, maxTemperature)
                 element.addAttribute("hsl(\(hue), 100%, 50%)", forKey: "fill")
                 svg.addChild(element)
 
@@ -146,9 +190,11 @@ public struct SensorPayload: Codable {
     }
     
     public func drawImage(cluster: Cluster?,
-                          pixelSize: Int = 15,
-                          minTemperature: Float = 16,
-                          maxTemperature: Float = 30) throws -> Surface {
+                          pixelSize: Int = 30,
+                          minTemperature: Float = 10,
+                          maxTemperature: Float = 35,
+                          deltaThreshold: Float = 2,
+                          ignoreBelowThreshold: Bool = false) throws -> Surface {
         
         let side = cols * pixelSize
         let size = CGSize(width: side, height: side)
@@ -165,48 +211,54 @@ public struct SensorPayload: Codable {
                 let x = offset * pixelSize
                 let y = verticalOffset
                 
+                if ignoreBelowThreshold && datum < mean + deltaThreshold { return }
+                
                 let rect = CGRect(x: x,
                                   y: y,
                                   width: pixelSize,
                                   height: pixelSize)
-                
-                let hue = datum.tempColor(minTemperature, maxTemperature)
+                let color = datum.mapColor(into: SensorPayload.gradient, minTemperature, maxTemperature)
 
-                context.fillColor = hue
+                context.fillColor = color.cgColor
                 context.addRect(rect)
                 context.fillPath()
-
+                
+                if let font = CGFont(name: "Arial") {
+                    context.strokeColor = CGColor.black
+                    context.fillColor = CGColor.white
+                    context.textDrawingMode = .stroke
+                    context.setFont(font)
+                    context.fontSize = CGFloat(pixelSize) / 2
+                    context.textPosition = rect.origin
+                    context.show(text: String(format: "%.0f", datum))
+                }
+                
             }
             
         }
         
+        // Draw the center line
+        context.strokeColor = .black
+        context.lineWidth = 2
+        context.move(to: CGPoint(x: 0, y: side / 2))
+        context.addLine(to: CGPoint(x: side, y: side / 2))
+        context.strokePath()
+        
+        // Draw the cluster
         if let cluster = cluster {
-            print("Drawing cluster")
-            let box = cluster.boundingBox()
-            let rect = CGRect(x: box.minX * pixelSize,
-                              y: box.minY * pixelSize,
-                              width: (box.maxX - box.minX) * pixelSize,
-                              height: (box.maxY - box.minY) * pixelSize)
+            let box = cluster.boundingBox
+            let rect = CGRect(x: (box.minX * pixelSize) - pixelSize,
+                              y: (box.minY * pixelSize) - pixelSize,
+                              width: (box.maxX - box.minX) * pixelSize + pixelSize,
+                              height: (box.maxY - box.minY) * pixelSize + pixelSize)
             
-            context.lineWidth = 10
+            context.lineWidth = 2
             context.strokeColor = CGColor.white
             context.addRect(rect)
             context.strokePath()
         }
         
-//        context.scaleBy(x: 10, y: 10)
         return context.surface
-        
-    }
-
-    public init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        
-        let rows = try container.decode(Int.self, forKey: .rows)
-        let cols = try container.decode(Int.self, forKey: .cols)
-        let rawData = try container.decode([Float].self, forKey: .rawData)
-        
-        self = try SensorPayload(rows: rows, cols: cols, data: rawData)
         
     }
     

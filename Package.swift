@@ -1,4 +1,4 @@
-// swift-tools-version:5.1
+// swift-tools-version:5.5
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -20,11 +20,10 @@ let package = Package(
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
-        .package(url: "https://github.com/OpenCombine/OpenCombine.git", from: "0.12.0"),
         .package(url: "https://github.com/PureSwift/Silica.git", .branch("master")),
         .package(url: "https://github.com/emorydunn/AMG88xx.swift.git", .branch("main")),
-        .package(url: "https://github.com/matsune/swift-mqtt.git", from: "1.0.0")
-        
+        .package(url: "https://github.com/matsune/swift-mqtt.git", from: "1.0.0"),
+        .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.0.0")
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
@@ -32,16 +31,20 @@ let package = Package(
         .target(
             name: "RoomOccupancyKit",
             dependencies: [
-                .product(name: "OpenCombineShim", package: "OpenCombine"),
-                "MQTT",
-                "AMG88xx",
+                .product(name: "MQTT", package: "swift-mqtt"),
+                .product(name: "AMG88", package: "AMG88xx.swift"),
                 "Silica"
             ]),
         .testTarget(
             name: "RoomOccupancyKitTests",
-            dependencies: ["RoomOccupancyKit"]),
-        .target(
+            dependencies: ["RoomOccupancyKit"],
+            resources: [Resource.process("Resources")]
+        ),
+        .executableTarget(
             name: "SwiftOccupancy",
-            dependencies: ["RoomOccupancyKit"]),
+            dependencies: [
+                "RoomOccupancyKit",
+                .product(name: "ArgumentParser", package: "swift-argument-parser"),
+            ]),
     ]
 )

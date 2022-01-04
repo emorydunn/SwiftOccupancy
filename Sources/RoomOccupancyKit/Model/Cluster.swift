@@ -8,46 +8,103 @@
 
 import Foundation
 
-public class Cluster: Identifiable, Hashable {
+public class Cluster {
     
     /// The side of the frame the Cluster is on.
     public enum ClusterSide: String, Equatable {
         case top, bottom
     }
     
-    /// The Pixels that make up this cluster
-    public var pixels: [Pixel] {
-        didSet {
-            centerCache = nil
+    public struct Rect {
+        let minX: Int
+        let minY: Int
+        
+        let maxX: Int
+        let maxY: Int
+        
+        let width: Int
+        let height: Int
+        
+        init(minX: Int, minY: Int, maxX: Int, maxY: Int) {
+            self.minX = minX
+            self.minY = minY
+            
+            self.maxX = maxX
+            self.maxY = maxY
+            
+            self.width = maxX - minX + 1
+            self.height = maxY - minY + 1
         }
     }
     
-    /// The previously calculated center
-    fileprivate var centerCache: Pixel?
-    
-    
-    /// The center of the Cluster
-    public var center: Pixel {
-        centerCache ?? calculateCenter()
-    }
-    
+    /// The Pixels that make up this cluster
+    public let pixels: [Pixel]
     
     /// The size of the Cluster
     public var size: Int { pixels.count }
     
     /// Which side of the dividing line the Cluster is on
-    public var clusterSide: ClusterSide {
+    public lazy var clusterSide: ClusterSide = {
         if center.y > 4 {
             return .bottom
         } else {
             return .top
         }
-    }
+    }()
     
     /// Create a new Cluster
     /// - Parameter pixels: Pixels in the Cluster
     public init(_ pixels: Pixel...) {
         self.pixels = pixels
+    }
+    
+    /// Create a new Cluster
+    /// - Parameter pixels: Pixels in the Cluster
+    public init(from pixels: [Pixel]) {
+        
+        // Determine which pixel to use as the center of the cluster
+        let hottestPixel = pixels.reduce(into: Pixel(x: 0, y: 0, temp: 0)) { currentHottest, pixel in
+            currentHottest = pixel.temp > currentHottest.temp ? pixel : currentHottest
+        }
+        
+        // Create a set for the pixels
+        var newPixels: Set<Pixel> = [hottestPixel]
+
+        var keepSearching: Bool = true
+        while keepSearching {
+            
+            let oldCount = newPixels.count
+
+            newPixels.forEach { pixel in
+                // Locate the neighbor pixels
+                let newNeighbors = pixels.filter {
+
+                    ($0.x == pixel.x - 1 && $0.y == pixel.y) || // Left
+                        ($0.x == pixel.x + 1 && $0.y == pixel.y) || // Right
+                        ($0.x == pixel.x && $0.y - 1 == pixel.y) || // Bottom
+                        ($0.x == pixel.x && $0.y + 1 == pixel.y) // Top
+                        
+                }
+                
+                newPixels.formUnion(newNeighbors)
+            }
+
+            keepSearching = newPixels.count != oldCount
+        }
+        
+        self.pixels = newPixels.sorted()
+
+    }
+    
+    public convenience init(from payload: SensorPayload, deltaThreshold: Float) {
+        // Determine the threshold for filtering the data
+        let threshold = payload.mean + deltaThreshold
+        
+        // Filter out pixels below the threshold
+        let pixels = payload.pixels.filter { $0.temp >= threshold }
+        
+        // Create the cluster
+        self.init(from: pixels)
     }
     
     /// Determine whether a Pixel neighbors the Cluster.
@@ -69,12 +126,12 @@ public class Cluster: Identifiable, Hashable {
     /// with the highest temperature is used.
     ///
     /// - Returns: The Pixel in the center
-    func calculateCenter() -> Pixel {
+    public lazy var center: Pixel = {
         guard size > 0 else {
-            return temperatureCenter()
+            return temperatureCenter
         }
         
-        let box = boundingBox()
+        let box = boundingBox
         
         let width = Double(box.maxX - box.minX)
         let tempX = Double(box.minX) + width / 2
@@ -91,24 +148,24 @@ public class Cluster: Identifiable, Hashable {
         guard let center = pixels.first(where: {
             $0.x == centerX && $0.y == centerY
         }) else {
-            return temperatureCenter()
+            return temperatureCenter
         }
         
         return center
 
-    }
+    }()
     
     /// The Pixel with the highest temperature, often at the center of the Cluster.
     /// - Returns: The Pixel in the center
-    func temperatureCenter() -> Pixel {
+    lazy var temperatureCenter: Pixel = {
         return pixels.reduce(pixels[0]) { result, pixel in
             result.temp > pixel.temp ? result : pixel
         }
-    }
+    }()
     
     /// Calculate the bounding box of the cluster
     /// - Returns: The four points making up the corners.
-    public func boundingBox() -> (minX: Int, minY: Int, maxX: Int, maxY: Int) {
+    public lazy var boundingBox: Rect = {
         var minX: Int = Int.max
         var minY: Int = Int.max
         var maxX: Int = Int.min
@@ -122,16 +179,9 @@ public class Cluster: Identifiable, Hashable {
             maxY = max(maxY, $0.y)
         }
         
-        return (minX, minY, maxX, maxY)
-    }
+        return Rect(minX: minX, minY: minY, maxX: maxX, maxY: maxY)
+    }()
     
-    public static func == (lhs: Cluster, rhs: Cluster) -> Bool {
-        lhs.pixels == rhs.pixels
-    }
-    
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(pixels)
-    }
     
     /// Convenience function to determine whether a Pixel is in the Cluster.
     /// - Parameter pixel: The element to find in the sequence.
@@ -160,7 +210,7 @@ public class Cluster: Identifiable, Hashable {
     public func generateGrid(columns: Int = 8, rows: Int = 8) -> String {
         let grid = (1...columns).map { y in
             (1...rows).map { x in
-                let bb = boundingBox()
+                let bb = boundingBox
                 if center.x == x && center.y == y {
                     switch clusterSide {
                     case .bottom:
@@ -215,9 +265,20 @@ public class Cluster: Identifiable, Hashable {
     }
 }
 
-extension Cluster: CustomStringConvertible {
+extension Cluster: CustomStringConvertible, Hashable, Equatable, Identifiable {
+    
+    public var id: Pixel { center }
+    
     public var description: String {
         "\(clusterSide.rawValue.capitalized) Cluster at \(center) size \(size)"
+    }
+    
+    public static func == (lhs: Cluster, rhs: Cluster) -> Bool {
+        lhs.pixels == rhs.pixels
+    }
+    
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(pixels)
     }
 }
 

@@ -7,24 +7,26 @@
 
 
 import Foundation
-import OpenCombine
 import MQTT
 
 #if canImport(FoundationNetworking)
 import FoundationNetworking
 #endif
 
-public enum Room: CustomStringConvertible, Decodable {
+public enum Room: CustomStringConvertible, Codable {
     
     case room(String)
     case æther
+    
+    /// Convenience for Æther
+    public static let aether: Room = .æther
     
     public var description: String {
         switch self {
         case let .room(name):
             return name
         case .æther:
-            return "Æther"
+            return "ether"
         }
     }
     
@@ -34,7 +36,7 @@ public enum Room: CustomStringConvertible, Decodable {
         self = .room(try container.decode(String.self))
     }
     
-    var slug: String {
+    public var slug: String {
         description.slug
     }
     
@@ -103,21 +105,6 @@ public enum Room: CustomStringConvertible, Decodable {
         client.subscribe(topic: stateTopic, qos: .atMostOnce, identifier: nil)
     }
     
-    /// Subscribe to the state of this room.
-    /// - Parameter client: The MQTT client.
-    /// - Returns: A Publisher indicating the number of people in the room.
-    func occupancy(_ pub: AnyPublisher<PublishPacket, Error>) -> AnyPublisher<Int, Never> {
-        pub
-            .filter(forTopic: stateTopic)
-            .compactMap { message in
-                String(data: message.payload, encoding: .utf8)
-            }
-            .compactMap {
-                Int($0)
-            }
-            .replaceError(with: 0)
-            .eraseToAnyPublisher()
-    }
 }
 
 extension Room: Comparable, Hashable {
@@ -130,45 +117,14 @@ extension Room: Comparable, Hashable {
     }
 }
 
-public class House {
-    @OpenCombine.Published public private(set) var rooms: [Room: Int]
-    var tokens: [AnyCancellable] = []
+public struct OccupancyChange: CustomStringConvertible, Codable {
     
-    public init(rooms: [Room: Int]) {
-        self.rooms = rooms
-    }
-    
-    public init(rooms: [Room]) {
-        self.rooms = [Room: Int]()
-        
-        rooms.forEach {
-            self.rooms[$0] = 0
-        }
-    }
-    
-//    public init(sensors: [MQTTSensor]) {
-//        self.rooms = [Room: Int]()
-//        sensors.forEach {
-//            self.rooms[$0.topName] = 0
-//            self.rooms[$0.bottomName] = 0
-//        }
-//    }
-    
-    public subscript(_ room: Room) -> Int {
-        get {
-            rooms[room, default: 0]
-        }
-        set {
-            rooms[room] = max(0, newValue)
-        }
+    public enum Direction: String, Codable {
+        case toTop
+        case toBottom
+        case none
     }
 
-}
-
-public struct OccupancyChange: CustomStringConvertible {
-    
-//    public static let `default` = OccupancyChange(action: "No Action", delta: [:])
-    
     public let topRoom: Room
     public let bottomRoom: Room
     public let direction: Direction
@@ -178,29 +134,48 @@ public struct OccupancyChange: CustomStringConvertible {
         self.topRoom = topRoom
         self.bottomRoom = bottomRoom
     }
+    
+    public init(currentCluster: Cluster, previousCluster: Cluster, topRoom: Room, bottomRoom: Room) {
+        
+        // Parse cluster delta
+        switch (previousCluster.clusterSide, currentCluster.clusterSide) {
+        case (.bottom, .bottom):
+            // Same side, nothing to do
+            self = OccupancyChange(.none, topRoom: topRoom, bottomRoom: bottomRoom)
+        case (.top, .top):
+            // Same side, nothing to do
+            self = OccupancyChange(.none, topRoom: topRoom, bottomRoom: bottomRoom)
+        case (.bottom, .top):
+            // Moved from bottom to top
+            self = OccupancyChange(.toTop, topRoom: topRoom, bottomRoom: bottomRoom)
+        case (.top, .bottom):
+            // Moved from top to bottom
+            self = OccupancyChange(.toBottom, topRoom: topRoom, bottomRoom: bottomRoom)
+        }
+    }
 
     public var description: String {
         switch direction {
         case .toTop:
-            return "\(bottomRoom) -> \(topRoom)"
+            return "B \(bottomRoom) -> T \(topRoom)"
         case .toBottom:
-            return "\(topRoom) -> \(bottomRoom)"
+            return "T \(topRoom) -> B \(bottomRoom)"
+        case .none:
+            return "T \(topRoom) == B \(bottomRoom)"
         }
     }
-    
-    func update(_ house: House) {
+
+    func update(topCount: inout Int, bottomCount: inout Int) {
         switch direction {
         case .toTop:
-            house[topRoom] += 1
-            house[bottomRoom] -= 1
+            topCount += 1
+            bottomCount = max(0, bottomCount - 1)
         case .toBottom:
-            house[topRoom] -= 1
-            house[bottomRoom] += 1
+            topCount = max(0, topCount - 1)
+            bottomCount += 1
+        case .none:
+            break
         }
     }
 }
 
-public enum Direction {
-    case toTop
-    case toBottom
-}

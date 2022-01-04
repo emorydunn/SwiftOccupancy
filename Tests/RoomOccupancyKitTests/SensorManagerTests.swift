@@ -7,31 +7,29 @@
 
 import Foundation
 import XCTest
-import OpenCombineShim
 @testable import RoomOccupancyKit
 
-class SensorManagerTests: XCTestCase {
+class OccupancyCounterTests: XCTestCase {
     
-    var tokens: [AnyCancellable] = []
-    
-    func testMQTT() {
-//        let manager = SensorManager(sensors: [], broker: HAMQTTConfig(username: nil, password: nil), haConfig: nil)
-//        
-//        manager.sensors = [
-//            MQTTSensor("office-hall", topName: .room("Hall"), bottomName: .room("Office")),
-//            MQTTSensor("bedroom-hall", topName: .room("Hall"), bottomName: .room("Bedroom")),
-//        ]
-//        
-//        let exp = expectation(description: "MQTT")
-//        
-//        manager.monitorMQTT(publishToHA: false)
+    func testOccupancy_twoPassDoorEdge() throws {
         
-//        manager.$occupancy.sink { newValue in
-//            print(newValue)
-////            exp.fulfill()
-//        }
-//        .store(in: &tokens)
+//        let sensor = I2CAMGSensor(sensor: MockSensor(emptyOnLoop: true))
+        let data = MockData.twoPassDoorEdge.orderedData
+        let counter = OccupancyCounter(topRoom: .room("Top"), bottomRoom: .room("Bottom"))
+//
+//        try counter.countChanges(using: data[85])
+//        try counter.countChanges(using: data[86])
+//        try counter.countChanges(using: data[87])
+//        try counter.countChanges(using: data[88])
         
-        waitForExpectations(timeout: 120)
+//        print(counter.topRoom, counter.topRoomCount)
+//        print(counter.bottomRoom, counter.bottomRoomCount)
+        
+        try counter.countChanges(using: data)
+        
+        XCTAssertEqual(counter.topRoomCount, 1)
+        XCTAssertEqual(counter.bottomRoomCount, 0)
+
     }
+    
 }
