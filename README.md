@@ -31,7 +31,13 @@ The recommended way to run SwiftOccupancy is on a Raspberry Pi Zero 2 running th
 
 ## Installing SwiftOccupancy
 
-Download the file. Done.
+For now clone the repository and either build it on a Pi or use a cross-compiler toolchain. 
+
+```shell
+git clone https://github.com/emorydunn/SwiftOccupancy.git
+cd SwiftOccupancy
+swift build
+```
 
 ## Hardware Configuration
 
