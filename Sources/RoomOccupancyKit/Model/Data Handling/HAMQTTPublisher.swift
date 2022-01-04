@@ -20,34 +20,40 @@ public struct HAMQTTPublisher {
     
     public var clientID: String { counter.id }
     
+    public var publishImage: Bool
+    
     // MQTT Topics
     var mqttTopic: String { "homeassistant/camera/swift-occupancy/\(clientID)" }
     var statusTopic: String { "swift-occupancy/sensor/\(clientID)/status" }
     var stateTopic: String { "\(mqttTopic)/state" }
     var configTopic: String { "\(mqttTopic)/config" }
     
-    public init(sensor: AMGSensorProtocol, client: AsyncMQTTClient, counter: OccupancyCounter) {
+    public init(sensor: AMGSensorProtocol, client: AsyncMQTTClient, counter: OccupancyCounter, publishImage: Bool) {
         self.sensor = sensor
         self.client = client
         self.counter = counter
+        self.publishImage = publishImage
     }
     
-    public init(sensor: AMGSensorProtocol, client: AsyncMQTTClient, topRoom: Room = .æther, bottomRoom: Room = .æther) {
+    public init(sensor: AMGSensorProtocol, client: AsyncMQTTClient, topRoom: Room = .æther, bottomRoom: Room = .æther, publishImage: Bool) {
         self.sensor = sensor
         self.client = client
         self.counter = OccupancyCounter(topRoom: topRoom, bottomRoom: bottomRoom)
+        self.publishImage = publishImage
     }
     
-    public init(board: SupportedBoard, client: AsyncMQTTClient, counter: OccupancyCounter) {
+    public init(board: SupportedBoard, client: AsyncMQTTClient, counter: OccupancyCounter, publishImage: Bool) {
         self.sensor = I2CAMGSensor(board: board)
         self.client = client
         self.counter = counter
+        self.publishImage = publishImage
     }
     
-    public init(board: SupportedBoard, client: AsyncMQTTClient, topRoom: Room = .æther, bottomRoom: Room = .æther) {
+    public init(board: SupportedBoard, client: AsyncMQTTClient, topRoom: Room = .æther, bottomRoom: Room = .æther, publishImage: Bool) {
         self.sensor = I2CAMGSensor(board: board)
         self.client = client
         self.counter = OccupancyCounter(topRoom: topRoom, bottomRoom: bottomRoom)
+        self.publishImage = publishImage
     }
     
     public func setupHA() {
@@ -80,11 +86,14 @@ public struct HAMQTTPublisher {
                 }
             }
             
-            // Publish the sensor image
-            Task {
-                let image = try data.drawImage(cluster: counter.currentCluster).writePNG()
-                client.publish(topic: self.stateTopic, retain: false, qos: .atMostOnce, payload: image)
+            if publishImage {
+                // Publish the sensor image
+                Task {
+                    let image = try data.drawImage(cluster: counter.currentCluster).writePNG()
+                    client.publish(topic: self.stateTopic, retain: false, qos: .atMostOnce, payload: image)
+                }
             }
+            
             
             // Publish the thermistor temp
             Task {

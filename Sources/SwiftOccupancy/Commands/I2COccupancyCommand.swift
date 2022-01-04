@@ -36,7 +36,8 @@ struct I2COccupancyCommand: ParsableCommand {
 
         let publisher = HAMQTTPublisher(board: board,
                                         client: client,
-                                        counter: counter)
+                                        counter: counter,
+                                        publishImage: mqtt.publishImage)
         
         Task {
             

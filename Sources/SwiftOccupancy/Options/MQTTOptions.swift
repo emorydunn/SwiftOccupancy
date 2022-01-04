@@ -23,6 +23,9 @@ struct MQTTOptions: ParsableArguments {
     @Option(name: .shortAndLong, help: "MQTT password")
     var password: String?
     
+    @Option(name: .shortAndLong, help: "Publish the rendered sensor view.")
+    var publishImage: Bool = false
+    
     func makeClient(clientID: String, willMessage: PublishMessage? = nil) -> AsyncMQTTClient {
         AsyncMQTTClient(
             host: host,
