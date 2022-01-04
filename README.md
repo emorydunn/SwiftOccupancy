@@ -10,60 +10,73 @@ the specified rooms will be counted.
 
 ## Software Installation
 
-SwiftOccupancy is primarily designed to be run as a Home Assistant add-on, but can be run anywhere.
+SwiftOccupancy designed to be run on a cluster of Raspberry Pis, preferably a Raspberry Pi 4 or Raspberry Pi Zero 2. You can use anything you'd like so long as it:
 
-**Configuration**
+- Can run Swift 5.5 (a 64-bit OS)
+- Has I2C support
 
-There are two sections to the config file. The Home Assistant config is only needed if not running
-as an add-on.
+## Ubuntu Installation
 
-The other section is a list of sensors. Each sensor needs a URL, and optionally, names for the two
-rooms to be tracked. If a room isn't provided it will be ignored.
+The recommended way to run SwiftOccupancy is on a Raspberry Pi Zero 2 running the 64-bit version Ubuntu Server 21.10.
 
-```json
-{
-	"homeAssistant": {
-		"url": "http://homeassistant.local:8123",
-		"token": "<long-lived-token>"
-	},
-	"sensors": [{
-			"url": "ws://10.0.2.163",
-			"topName": "Hall",
-			"bottomName": "Office"
-		},
-		{
-			"url": "ws://10.0.2.85",
-			"topName": "Hall",
-			"bottomName": "Upstairs Bedroom"
-		}
-	]
-}
-```
+1. Flash the Ubuntu Server 21.10 to your SD card with Raspberry Pi Imager
+2. Plug the SD card back into your computer for initial config
+3. Add WiFi settings in `network-config`
+   - Triple check that your editor hasn't fucked up the indentation because YAML is picky
+4. Copy the `bcm2710-rpi-3-b.dtb` file to `bcm2710-rpi-zero-2.dtb`
+  - Until Ubuntu officially supprts 64-bit on the Zero 2 this needs to be done
+5. Boot your Pi and SSH in
+6. Install the [Swift repository](https://www.swiftlang.xyz)
+7. Select Swift 5.5 (or latest) when prompted
 
-**Home Assistant**
+## Installing SwiftOccupancy
 
-You can add the repository to Home Assistant OS to [install it](https://www.home-assistant.io/hassio/installing_third_party_addons/).
-
-SwiftOccupancy will automatically detect the Home Assistant credentials.
-
-SwiftOccupancy uses the Home Assistant HTTP API to create sensors for each room who's state is the number
-of people in the room.
-
-```
-friendly_name: Office Occupancy
-unit_of_measurement: person
-icon: 'mdi:account'
-```
+Download the file. Done.
 
 ## Hardware Configuration
-
-Upload the sketch in `Hardware/OccupancySensor` to an ESP8266. The sensor creates a WebSocket for the
-server to connect to. The sensors are best powered via USB, unless you want to tape a massive battery to your wall.
-
-Fill in your WiFi details in `secrets.h`.
-
-**Placement**
 
 The sensor should be placed such that the _top_ and _bottom_ of the frame point across the door.
 At this time there is no rotation support and people will only be detected when walking from
 top to bottom and visa-versa.
+
+## Usage
+
+`SwiftOccupancy` has a number of command line options, but in order to run an instance the command to run is `SwiftOccupancy occupancy i2c`. You'll need to provide a number of options to configure the instance. The required ones are:
+
+- host
+- username
+- password
+- address
+- At least one room
+    - You don't technically need to provide any rooms, but it'll be a pretty useless sensor
+
+```plain
+OVERVIEW: Read data from an I2C sensor.
+
+Data is read from an I2C sensor, occupancy changes are parsed and published to Home Assistant via MQTT.
+
+USAGE: swift-occupancy occupancy i2c [<options>] --host <host> --address <address>
+
+OPTIONS:
+  --host <host>           MQTT server hostname
+  --port <port>           MQTT server port (default: 1883)
+  -u, --username <username>
+                          MQTT username
+  -p, --password <password>
+                          MQTT password
+  --enable-camera/--disable-camera
+                          Publish the rendered sensor view. (default: false)
+  --board <board>         The board for connecting via I2C (default: RaspberryPi4)
+  --address <address>     The sensor address
+  --top-room <top-room>   The top room name (default: ether)
+  --bottom-room <bottom-room>
+                          The bottom room name (default: ether)
+  --reset-counts          Reset room counts.
+  --delta <delta>         The delta between what is detected as foreground and background. (default: 2.0)
+  --size <size>           The minimum number of pixels for a cluster to be included. (default: 5)
+  --width <width>         The minimum width of a cluster's bounding box. (default: 3)
+  --height <height>       The minimum height of a cluster's bounding box. (default: 2)
+  --version               Show the version.
+  -h, --help              Show help information.
+```
+
