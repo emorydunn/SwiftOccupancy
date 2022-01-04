@@ -18,8 +18,7 @@ struct LogDataCommand: ParsableCommand {
                                                     version: "0.1.",
                                                     shouldDisplay: true)
     
-    @Option(help: "The board for connecting via I2C")
-    var board: SupportedBoard = SupportedBoard.RaspberryPi4
+    @OptionGroup var sensorOptions: SensorOptions
     
     @Option(help: "The threshold to use when calculating clusters.")
     var deltaThreshold: Float = 2
@@ -37,7 +36,7 @@ struct LogDataCommand: ParsableCommand {
     
     func run() throws {
 
-        let sensor = I2CAMGSensor(board: board)
+        let sensor = I2CAMGSensor(board: sensorOptions.board, address: sensorOptions.address.address)
         let counter = OccupancyCounter(topRoom: .room("Top"), bottomRoom: .room("Bottom"))
         
         Task {

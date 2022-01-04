@@ -19,8 +19,7 @@ struct InterruptCommand: ParsableCommand {
                                                     version: "0.1.",
                                                     shouldDisplay: true)
     
-    @Option(help: "The board for connecting via I2C")
-    var board: SupportedBoard = SupportedBoard.RaspberryPi4
+    @OptionGroup var sensorOptions: SensorOptions
     
     @Option(help: "The low temp")
     var low: Float = 16
@@ -32,10 +31,9 @@ struct InterruptCommand: ParsableCommand {
     var hysteresis: Float = 5
 
     func run() throws {
-//        let sensor = I2CAMGSensor(board: board)
-        let sensor = AMG88(SwiftyGPIO.hardwareI2Cs(for: board)![1])
+        let sensor = AMG88(SwiftyGPIO.hardwareI2Cs(for: sensorOptions.board)![1], address: sensorOptions.address.address)
         
-        let intPin = SwiftyGPIO.GPIOs(for: board)[.P26]!
+        let intPin = SwiftyGPIO.GPIOs(for: sensorOptions.board)[.P26]!
         intPin.direction = .IN
         intPin.pull = .up
         

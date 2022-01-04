@@ -31,8 +31,8 @@ public class SensorDataMQTTPublisher {
         self.topic = topic
     }
     
-    public convenience init(board: SupportedBoard, client: AsyncMQTTClient, topic: String) {
-        self.init(sensor: I2CAMGSensor(board: board),
+    public convenience init(board: SupportedBoard, address: Int, client: AsyncMQTTClient, topic: String) {
+        self.init(sensor: I2CAMGSensor(board: board, address: address),
                   client: client,
                   topic: topic)
     }

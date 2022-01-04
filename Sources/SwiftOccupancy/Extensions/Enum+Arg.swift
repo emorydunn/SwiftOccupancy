@@ -65,3 +65,17 @@ struct Directory: ExpressibleByArgument {
 
     }
 }
+
+enum SensorAddress: String, ExpressibleByArgument, CaseIterable {
+    case address68 = "68"
+    case address69 = "69"
+
+    var address: Int {
+        switch self {
+        case .address68:
+            return 0x68
+        case .address69:
+            return 0x69
+        }
+    }
+}

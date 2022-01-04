@@ -42,15 +42,15 @@ public struct HAMQTTPublisher {
         self.publishImage = publishImage
     }
     
-    public init(board: SupportedBoard, client: AsyncMQTTClient, counter: OccupancyCounter, publishImage: Bool) {
-        self.sensor = I2CAMGSensor(board: board)
+    public init(board: SupportedBoard, address: Int, client: AsyncMQTTClient, counter: OccupancyCounter, publishImage: Bool) {
+        self.sensor = I2CAMGSensor(board: board, address: address)
         self.client = client
         self.counter = counter
         self.publishImage = publishImage
     }
     
-    public init(board: SupportedBoard, client: AsyncMQTTClient, topRoom: Room = .æther, bottomRoom: Room = .æther, publishImage: Bool) {
-        self.sensor = I2CAMGSensor(board: board)
+    public init(board: SupportedBoard, address: Int, client: AsyncMQTTClient, topRoom: Room = .æther, bottomRoom: Room = .æther, publishImage: Bool) {
+        self.sensor = I2CAMGSensor(board: board, address: address)
         self.client = client
         self.counter = OccupancyCounter(topRoom: topRoom, bottomRoom: bottomRoom)
         self.publishImage = publishImage

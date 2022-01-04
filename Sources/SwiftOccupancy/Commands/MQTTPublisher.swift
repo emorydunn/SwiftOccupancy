@@ -23,8 +23,7 @@ struct MQTTPublisher: ParsableCommand {
     @Option(help: "The Client ID for the MQTT server")
     var clientID: String = "SwiftOccupancy-\(Int.random(in: 0..<100))"
     
-    @Option(help: "The board for connecting via I2C")
-    var board: SupportedBoard = SupportedBoard.RaspberryPi4
+    @OptionGroup var sensorOptions: SensorOptions
     
     func run() throws {
         
@@ -32,7 +31,7 @@ struct MQTTPublisher: ParsableCommand {
         
         let topic = "swift-occupancy/sensor/\(clientID)/data"
         
-        let publisher = SensorDataMQTTPublisher(board: board, client: client, topic: topic)
+        let publisher = SensorDataMQTTPublisher(board: sensorOptions.board, address: sensorOptions.address.address, client: client, topic: topic)
         
         Task {
             

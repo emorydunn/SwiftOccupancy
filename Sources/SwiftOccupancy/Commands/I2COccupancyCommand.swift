@@ -19,10 +19,9 @@ struct I2COccupancyCommand: ParsableCommand {
                                                     shouldDisplay: true)
     
     @OptionGroup var mqtt: MQTTOptions
-
-    @Option(help: "The board for connecting via I2C")
-    var board: SupportedBoard = SupportedBoard.RaspberryPi4
     
+    @OptionGroup var sensorOptions: SensorOptions
+
     @OptionGroup var rooms: RoomOptions
     
     @OptionGroup var counterOptions: CounterOptions
@@ -34,7 +33,8 @@ struct I2COccupancyCommand: ParsableCommand {
         let counter = OccupancyCounter(topRoom: rooms.topRoom, bottomRoom: rooms.bottomRoom)
         counterOptions.configureCounter(counter)
 
-        let publisher = HAMQTTPublisher(board: board,
+        let publisher = HAMQTTPublisher(board: sensorOptions.board,
+                                        address: sensorOptions.address.address,
                                         client: client,
                                         counter: counter,
                                         publishImage: mqtt.camera)

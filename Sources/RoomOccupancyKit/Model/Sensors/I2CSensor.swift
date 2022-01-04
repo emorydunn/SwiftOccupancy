@@ -14,13 +14,13 @@ public struct I2CAMGSensor: AMGSensorProtocol {
 
     public let sensor: AMG88Protocol
 
-    public init(interface: I2CInterface) {
-        self.sensor = AMG88(interface)
+    public init(interface: I2CInterface, address: Int) {
+        self.sensor = AMG88(interface, address: address)
     }
     
-    public init(board: SupportedBoard) {
+    public init(board: SupportedBoard, address: Int) {
         print("Initializing AMG for board \(board)")
-        self.sensor = AMG88(SwiftyGPIO.hardwareI2Cs(for: board)![1])
+        self.sensor = AMG88(SwiftyGPIO.hardwareI2Cs(for: board)![1], address: address)
         sensor.enableMovingAverage()
     }
     
