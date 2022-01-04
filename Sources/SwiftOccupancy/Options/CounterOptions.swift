@@ -14,7 +14,7 @@ struct CounterOptions: ParsableArguments {
     var deltaThreshold: Float = 2
     
     @Option(name: .customLong("size"), help: "The minimum number of pixels for a cluster to be included.")
-    var minClusterSize: Int = 8
+    var minClusterSize: Int = 5
     
     @Option(name: .customLong("width"), help: "The minimum width of a cluster's bounding box.")
     var minWidth: Int = 3
