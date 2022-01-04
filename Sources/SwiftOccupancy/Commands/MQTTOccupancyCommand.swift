@@ -41,7 +41,7 @@ struct MQTTOccupancyCommand: ParsableCommand {
         let publisher = HAMQTTPublisher(sensor: sensor,
                                         client: client,
                                         counter: counter,
-                                        publishImage: mqtt.publishImage)
+                                        publishImage: mqtt.camera)
         
         Task {
             

@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  MQTTOptions.swift
 //  
 //
 //  Created by Emory Dunn on 11/23/21.
@@ -23,8 +23,8 @@ struct MQTTOptions: ParsableArguments {
     @Option(name: .shortAndLong, help: "MQTT password")
     var password: String?
     
-    @Option(name: .shortAndLong, help: "Publish the rendered sensor view.")
-    var publishImage: Bool = false
+    @Flag(name: .long, inversion: FlagInversion.prefixedEnableDisable, help: "Publish the rendered sensor view.")
+    var camera: Bool = false
     
     func makeClient(clientID: String, willMessage: PublishMessage? = nil) -> AsyncMQTTClient {
         AsyncMQTTClient(
