@@ -1,0 +1,46 @@
+blueprint:
+  name: Room Presence Actions
+  description: Trigger actions based on occupancy and the sun. 
+  domain: automation
+  input:
+    presence_entity:
+      name: Room Occupancy Sensor
+      selector:
+        entity:
+          domain: sensor
+    empty_room:
+      name: Empty Room
+      selector:
+        action:
+    occupied_daytime:
+      name: Occupied Daytime
+      selector:
+        action:
+    occupied_evening:
+      name: Occupied Evening
+      selector:
+        action:
+
+trigger: 
+  - platform: state
+    entity_id: !input presence_entity
+  - platform: sun
+    event: sunset
+  - platform: sun
+    event: sunrise
+
+mode: single
+
+action:
+  - choose:
+      - conditions:
+          - condition: numeric_state
+            entity_id: !input presence_entity
+            below: '1'
+        sequence: !input empty_room
+      - conditions:
+          - condition: state
+            entity_id: sun.sun
+            state: below_horizon
+        sequence: !input occupied_evening
+    default: !input occupied_daytime
