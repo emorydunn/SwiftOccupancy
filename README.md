@@ -22,7 +22,7 @@ The recommended way to run SwiftOccupancy is on a Raspberry Pi Zero 2 running th
 1. Flash the Ubuntu Server 21.10 to your SD card with Raspberry Pi Imager
 2. Plug the SD card back into your computer for initial config
 3. Add WiFi settings in `network-config`
-   - Triple check that your editor hasn't fucked up the indentation because YAML is picky
+  - Triple check that your editor hasn't changed the indentation because YAML is picky
 4. Copy the `bcm2710-rpi-3-b.dtb` file to `bcm2710-rpi-zero-2.dtb`
   - Until Ubuntu officially supports 64-bit on the Zero 2 this needs to be done
 5. Boot your Pi and SSH in
@@ -86,3 +86,30 @@ OPTIONS:
   -h, --help              Show help information.
 ```
 
+### systemd
+
+Additionally there is a sample `systemd` service in Support that can be used to run `SwiftOccupancy` on boot. 
+1. Copy the sample file to `/lib/systemd/system/`
+2. Edit the file and set your desired command line options
+3. Copy the `SwiftOccupancy` binary to `/home/ubuntu/.bin`
+4. Add execution permission: 
+  ```plain
+  sudo chmod +x /lib/systemd/system/occpancy.service
+  ```
+
+5. Start the service:
+  ```plain
+  sudo systemctl daemon-reload
+  sudo systemctl enable occpancy.service
+  sudo systemctl start occpancy.service
+  ```
+  
+## Home Assistant Automation
+
+Included in the Support directory is a blueprint for easily controlling lights based on occupancy and the sun. There are three states you can configure:
+
+- Empty Room
+- Occupied during the day
+- Occupied at night
+
+In order to use it you'll need to [import the blueprint](https://www.home-assistant.io/docs/automation/using_blueprints/#importing-blueprints) into Home Assistant.
