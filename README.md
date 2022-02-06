@@ -106,10 +106,11 @@ Additionally there is a sample `systemd` service in Support that can be used to 
   
 ## Home Assistant Automation
 
-Included in the Support directory is a blueprint for easily controlling lights based on occupancy and the sun. There are three states you can configure:
+Included in the Support directory is a blueprint for easily controlling lights based on occupancy and the sun. There are four states you can configure:
 
 - Empty Room
 - Occupied during the day
-- Occupied at night
+- Occupied in the evening
+- Occupied at night after a specified time
 
 In order to use it you'll need to [import the blueprint](https://www.home-assistant.io/docs/automation/using_blueprints/#importing-blueprints) into Home Assistant.

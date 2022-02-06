@@ -1,6 +1,6 @@
 blueprint:
   name: Room Presence Actions
-  description: Trigger actions based on occupancy and the sun. 
+  description: Control lights based room presence.
   domain: automation
   input:
     presence_entity:
@@ -20,6 +20,14 @@ blueprint:
       name: Occupied Evening
       selector:
         action:
+    night_time:
+      name: Night Time
+      selector:
+        time:
+    occupied_night:
+      name: Occupied Night
+      selector:
+        action:
 
 trigger: 
   - platform: state
@@ -28,6 +36,8 @@ trigger:
     event: sunset
   - platform: sun
     event: sunrise
+  - platform: time
+    at: !input night_time
 
 mode: single
 
@@ -38,6 +48,10 @@ action:
             entity_id: !input presence_entity
             below: '1'
         sequence: !input empty_room
+      - conditions:
+          - condition: time
+            after: !input night_time
+        sequence: !input occupied_night
       - conditions:
           - condition: state
             entity_id: sun.sun
