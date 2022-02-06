@@ -3,7 +3,7 @@ Description=Job that runs occupancy services.
 
 [Service]
 Type=idle
-ExecStart=sudo /home/ubuntu/.bin/SwiftOccupancy occupancy i2c --address 69 --host <host> -u <username> -p <password> --top-room <top-room> --bottom-room <bottom-room> --reset-counts --disable-camera
+ExecStart=/home/ubuntu/.bin/SwiftOccupancy occupancy i2c --address 69 --host <host> -u <username> -p <password> --top-room <top-room> --bottom-room <bottom-room> --reset-counts --disable-camera
 
 [Install]
 WantedBy=multi-user.target
