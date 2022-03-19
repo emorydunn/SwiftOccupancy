@@ -7,6 +7,18 @@
 
 import Foundation
 
+/// Buffers a value against being set as `nil` for the specified number of attempts.
+/// ```
+/// @Buffer(bufferSize: 5)
+/// var buffered = "A Value"
+///
+/// buffered = nil // 5. buffered = "A Value"
+/// buffered = nil // 4. buffered = "A Value"
+/// buffered = nil // 3. buffered = "A Value"
+/// buffered = nil // 2. buffered = "A Value"
+/// buffered = nil // 1. buffered = "A Value"
+/// buffered = nil // 0. buffered = nil
+/// ```
 @propertyWrapper
 struct Buffer<Value> {
     var bufferedValue: Value?
