@@ -29,6 +29,9 @@ struct LogDataCommand: ParsableCommand {
     @Flag(name: .customLong("print"), inversion: FlagInversion.prefixedNo, help: "Log data to stdout.")
     var logToScreen: Bool = true
     
+    @Flag(name: .customLong("annotate"), inversion: FlagInversion.prefixedNo, help: "Annotate PNGs with debug data.")
+    var annotateData: Bool = true
+    
     @Option(help: "Write the logged data to the specified folder.")
     var outputURL: Directory?
     
@@ -103,7 +106,9 @@ struct LogDataCommand: ParsableCommand {
 
                 let fileURL = url.appendingPathComponent("frame-\(index).png")
                 try data.drawImage(cluster: cluster,
-                                   ignoreBelowThreshold: ignoreBelowThreshold).writePNG(atPath: fileURL.path)
+                                   ignoreBelowThreshold: ignoreBelowThreshold,
+                                   annotateData: annotateData
+                ).writePNG(atPath: fileURL.path)
             }
             
             print("Logged data written to \(url.path)")

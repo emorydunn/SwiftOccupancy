@@ -194,7 +194,9 @@ public struct SensorPayload: Codable {
                           minTemperature: Float = 10,
                           maxTemperature: Float = 35,
                           deltaThreshold: Float = 2,
-                          ignoreBelowThreshold: Bool = false) throws -> Surface {
+                          ignoreBelowThreshold: Bool = false,
+                          annotateData: Bool = true
+    ) throws -> Surface {
         
         let side = cols * pixelSize
         let size = CGSize(width: side, height: side)
@@ -223,7 +225,7 @@ public struct SensorPayload: Codable {
                 context.addRect(rect)
                 context.fillPath()
                 
-                if let font = CGFont(name: "Arial") {
+                if let font = CGFont(name: "Arial") && annotateData {
                     context.strokeColor = CGColor.black
                     context.fillColor = CGColor.white
                     context.textDrawingMode = .stroke
@@ -235,6 +237,10 @@ public struct SensorPayload: Codable {
                 
             }
             
+        }
+        
+        guard annotateData else {
+            return context.surface
         }
         
         // Draw the center line
