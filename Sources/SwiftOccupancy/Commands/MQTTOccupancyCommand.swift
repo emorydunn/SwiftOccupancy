@@ -47,7 +47,7 @@ struct MQTTOccupancyCommand: ParsableCommand {
             
             print("Connecting to MQTT server 'mqtt://\(mqtt.host):\(mqtt.port)' as '\(client.clientID)'")
             
-            client.willMessage = publisher.statusMessage(false)
+            // client.willMessage = publisher.statusMessage(false)
             
             try await client.connect()
             

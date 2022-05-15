@@ -225,7 +225,7 @@ public struct SensorPayload: Codable {
                 context.addRect(rect)
                 context.fillPath()
                 
-                if let font = CGFont(name: "Arial") && annotateData {
+                if annotateData, let font = CGFont(name: "Arial") {
                     context.strokeColor = CGColor.black
                     context.fillColor = CGColor.white
                     context.textDrawingMode = .stroke
