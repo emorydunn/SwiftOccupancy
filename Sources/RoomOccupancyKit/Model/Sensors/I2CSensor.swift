@@ -19,8 +19,12 @@ public struct I2CAMGSensor: AMGSensorProtocol {
     }
     
     public init(board: SupportedBoard, address: Int) {
+        guard let i2c = SwiftyGPIO.hardwareI2Cs(for: board) else {
+            preconditionFailure("I2C not supported on \(board)")
+        }
+        
         print("Initializing AMG for board \(board)")
-        self.sensor = AMG88(SwiftyGPIO.hardwareI2Cs(for: board)![1], address: address)
+        self.sensor = AMG88(i2c[1], address: address)
         sensor.enableMovingAverage()
     }
     
