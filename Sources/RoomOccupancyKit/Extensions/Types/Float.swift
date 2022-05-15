@@ -45,7 +45,7 @@ extension Float {
     
     func mapValue(_ minValue: Self, _ maxValue: Self) -> Color {
         let value = self.normalize(minValue, maxValue)
-        return Color(value: value)
+        return Color(value: value * 255)
     }
     
     func mapColor(into gradient: [Self: Color], _ minValue: Self, _ maxValue: Self) -> Color {
