@@ -104,7 +104,8 @@ struct LogDataCommand: ParsableCommand {
             try collectedData.forEach { index, data in
                 let cluster = Cluster(from: data, deltaThreshold: deltaThreshold)
 
-                let fileURL = url.appendingPathComponent("frame-\(index).png")
+                let paddedIndex = String(format: "%04D", index)
+                let fileURL = url.appendingPathComponent("frame-\(paddedIndex).png")
                 try data.drawImage(cluster: cluster,
                                    ignoreBelowThreshold: ignoreBelowThreshold,
                                    annotateData: annotateData
