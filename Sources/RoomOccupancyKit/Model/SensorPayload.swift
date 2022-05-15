@@ -145,6 +145,16 @@ public struct SensorPayload: Codable {
         1:      Color(red: 255, green: 255, blue: 255),
     ]
     
+    static let greyScaleGradient: [Float: Color] = [
+        0.0:    Color(value: 0),
+//        0.16:   Color(red: 60,  green: 25,  blue: 142),
+//        0.32:   Color(red: 185, green: 55,  blue: 168),
+//        0.48:   Color(red: 233, green: 128, blue: 62),
+//        0.64:   Color(red: 242, green: 175, blue: 76),
+//        0.8:    Color(red: 251, green: 220, blue: 89),
+        1:      Color(value: 1)
+    ]
+    
     public func drawSVG(columns: Int = 8,
                             pixelSize: Int = 10,
                             minTemperature: Float = 16,
@@ -195,7 +205,8 @@ public struct SensorPayload: Codable {
                           maxTemperature: Float = 35,
                           deltaThreshold: Float = 2,
                           ignoreBelowThreshold: Bool = false,
-                          annotateData: Bool = true
+                          annotateData: Bool = true,
+                          greyscale: Bool = false
     ) throws -> Surface {
         
         let side = cols * pixelSize
@@ -219,7 +230,10 @@ public struct SensorPayload: Codable {
                                   y: y,
                                   width: pixelSize,
                                   height: pixelSize)
-                let color = datum.mapColor(into: SensorPayload.gradient, minTemperature, maxTemperature)
+                
+                let color = datum.mapColor(into: greyscale ? SensorPayload.greyScaleGradient : SensorPayload.gradient,
+                                           minTemperature,
+                                           maxTemperature)
 
                 context.fillColor = color.cgColor
                 context.addRect(rect)
