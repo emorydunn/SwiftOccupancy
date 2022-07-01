@@ -21,7 +21,7 @@ struct MQTTPublisher: ParsableCommand {
     @OptionGroup var mqtt: MQTTOptions
     
     @Option(help: "The Client ID for the MQTT server")
-    var clientID: String = "SwiftOccupancy-\(Int.random(in: 0..<100))"
+    var clientID: String = "SwiftOccupancy-\(ProcessInfo.processInfo.hostName)"
     
     @OptionGroup var sensorOptions: SensorOptions
     
