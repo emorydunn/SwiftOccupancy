@@ -37,7 +37,13 @@ struct LogDataCommand: ParsableCommand {
     
     @Option(help: "Write the logged data to the specified folder.")
     var outputURL: Directory?
-    
+
+	@Option(help: "The min temperature")
+	var minTemperature: Float = 10
+	@Option(help: "The max temperature")
+	var maxTemperature: Float = 35
+
+
     static var signalReceived: sig_atomic_t = 0
     
     func run() throws {
@@ -110,6 +116,8 @@ struct LogDataCommand: ParsableCommand {
                 let paddedIndex = String(format: "%04d", index)
                 let fileURL = url.appendingPathComponent("frame-\(paddedIndex).png")
                 try data.drawImage(cluster: cluster,
+								   minTemperature: minTemperature,
+								   maxTemperature: maxTemperature,
                                    ignoreBelowThreshold: ignoreBelowThreshold,
                                    annotateData: annotateData,
                                    greyscale: greyscale
