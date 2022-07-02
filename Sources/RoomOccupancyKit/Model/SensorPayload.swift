@@ -230,7 +230,10 @@ public struct SensorPayload: Codable {
 					break
 				case .minTemp:
 					// Treat the pixel as the min temp, rendering as the "background:
-					datum = minTemperature
+					if datum < mean + deltaThreshold {
+						datum = minTemperature
+					}
+
 				}
 //                if ignoreBelowThreshold && datum < mean + deltaThreshold { return }
                 
