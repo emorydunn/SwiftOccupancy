@@ -87,7 +87,7 @@ public struct HAMQTTPublisher {
         await counter.subscribeToMQTTCounts(with: client)
         
         for try await data in sensor.data {
-            
+
             // Count changes and publish them
             Task {
                 if let change = try counter.countChanges(using: data) {
@@ -109,6 +109,8 @@ public struct HAMQTTPublisher {
                 let temp = String(format: "%.02f", data.thermistorTemperature)
                 let topic = "homeassistant/sensor/swift-occupancy/\(self.clientID)/state"
                 await client.publish(topic: topic, retain: false, qos: .atMostOnce, payload: temp, identifier: nil)
+
+				await client.publish(message: statusMessage(true))
             }
         }
 
@@ -135,6 +137,7 @@ extension HAMQTTPublisher {
             "device": [
                 "name": "\(clientID) Thermopile",
                 "model": "AMG88xx",
+				"manufacturer": "Emory Dunn",
                 "identifiers": "\(clientID)-thermopile"
             ],
             "availability": [
