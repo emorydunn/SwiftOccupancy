@@ -111,7 +111,7 @@ struct LogDataCommand: ParsableCommand {
 				lhs.key < rhs.key
 			}
 			let csvData = sortedEvents.map { frame, change in
-				"\(String(format: "%04d", frame)),\(change.0),\(change.1),\(change.1)"
+				"\(String(format: "%04d", frame)),\(change.0),\(change.1),\(change.2)"
 			}.joined(separator: "\n")
 
 			csv.append(csvData)
