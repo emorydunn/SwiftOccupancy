@@ -11,6 +11,7 @@ import RoomOccupancyKit
 import SwiftyGPIO
 
 extension SupportedBoard: ExpressibleByArgument { }
+extension ThresholdBehavior: EnumerableFlag { }
 
 public enum SensorSource: String, ExpressibleByArgument {
     case mqtt

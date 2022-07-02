@@ -19,6 +19,12 @@ public enum SensorError: Error {
     case decodingError(encoding: String.Encoding)
 }
 
+public enum ThresholdBehavior: String, Codable, CaseIterable {
+	case ignore
+	case include
+	case minTemp
+}
+
 public struct SensorPayload: Codable {
     
     // MARK: Sensor Properties
@@ -194,7 +200,7 @@ public struct SensorPayload: Codable {
                           minTemperature: Float = 10,
                           maxTemperature: Float = 35,
                           deltaThreshold: Float = 2,
-                          ignoreBelowThreshold: Bool = false,
+						  ignoreBelowThreshold: ThresholdBehavior = .include,
                           annotateData: Bool = true,
                           greyscale: Bool = false
     ) throws -> Surface {
@@ -210,11 +216,23 @@ public struct SensorPayload: Codable {
             
             let row = rawData[(currentPage * cols)..<(currentPage * cols) + cols]
             
-            row.enumerated().forEach { offset, datum in
+            row.enumerated().forEach { offset, rawData in
                 let x = offset * pixelSize
                 let y = verticalOffset
-                
-                if ignoreBelowThreshold && datum < mean + deltaThreshold { return }
+				var datum = rawData
+
+				switch ignoreBelowThreshold {
+				case .ignore:
+					// Don't render the pixel
+					return
+				case .include:
+					// Render the pixel
+					break
+				case .minTemp:
+					// Treat the pixel as the min temp, rendering as the "background:
+					datum = minTemperature
+				}
+//                if ignoreBelowThreshold && datum < mean + deltaThreshold { return }
                 
                 let rect = CGRect(x: x,
                                   y: y,

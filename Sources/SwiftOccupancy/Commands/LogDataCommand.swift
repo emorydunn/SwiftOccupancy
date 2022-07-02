@@ -24,7 +24,7 @@ struct LogDataCommand: ParsableCommand {
     var deltaThreshold: Float = 2
     
     @Flag(help: "Don't render pixels that fall below the threshold.")
-    var ignoreBelowThreshold: Bool = false
+	var ignoreBelowThreshold: ThresholdBehavior = .include
     
     @Flag(name: .customLong("print"), inversion: FlagInversion.prefixedNo, help: "Log data to stdout.")
     var logToScreen: Bool = true
