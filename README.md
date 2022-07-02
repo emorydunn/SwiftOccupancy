@@ -37,6 +37,11 @@ cd SwiftOccupancy
 swift build
 ```
 
+If you're copying the binary (say you built it on a Pi 4) install the following with `apt-get`
+
+- libcairo2-dev
+- i2c-tools (for finding the address)
+
 ## Hardware Configuration
 
 The sensor should be placed such that the _top_ and _bottom_ of the frame point across the door.
