@@ -17,14 +17,12 @@ SwiftOccupancy designed to be run on a cluster of Raspberry Pis, preferably a Ra
 
 ## Ubuntu Installation
 
-The recommended way to run SwiftOccupancy is on a Raspberry Pi Zero 2 running the 64-bit version Ubuntu Server 21.10.
+The recommended way to run SwiftOccupancy is on a Raspberry Pi Zero 2 running the 64-bit version Ubuntu Server 22.04 LTS.
 
-1. Flash the Ubuntu Server 21.10 to your SD card with Raspberry Pi Imager
-2. Plug the SD card back into your computer for initial config
-3. Add WiFi settings in `network-config`
-  - Triple check that your editor hasn't changed the indentation because YAML is picky
-4. Copy the `bcm2710-rpi-3-b.dtb` file to `bcm2710-rpi-zero-2.dtb`
-  - Until Ubuntu officially supports 64-bit on the Zero 2 this needs to be done
+1. Select `Ubuntu Server 22.04 LTS (RPi Zero2/3/4/400)` in Raspberry Pi Imager
+2. Choose your Micro-SD card
+3. Click the gear icon to provide initial configuration
+4. Flash the SD card
 5. Boot your Pi and SSH in
 6. Install the [Swift repository](https://www.swiftlang.xyz)
 7. Select Swift 5.5 (or latest) when prompted
