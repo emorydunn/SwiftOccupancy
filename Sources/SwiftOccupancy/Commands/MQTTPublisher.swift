@@ -35,7 +35,7 @@ struct MQTTPublisher: ParsableCommand {
         
         Task {
             
-            print("Connecting to MQTT server 'mqtt://\(mqtt.host):\(mqtt.port)' as '\(client.clientID)'")
+            print("Connecting to MQTT server 'mqtt://\(mqtt.host):\(mqtt.port)' as '\(await client.clientID)'")
             try await client.connect()
             
             try await publisher.publishData(retain: false, qos: .atLeastOnce)

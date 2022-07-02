@@ -9,7 +9,7 @@ import Foundation
 import MQTT
 import NIOSSL
 
-public class AsyncMQTTClient {
+public actor AsyncMQTTClient {
     public let client: MQTTClient
     
     var packetContinuation: AsyncThrowingStream<MQTTPacket, Error>.Continuation?
@@ -114,27 +114,33 @@ public extension AsyncMQTTClient {
 }
 
 extension AsyncMQTTClient: MQTTClientDelegate {
-    public func mqttClient(_ client: MQTTClient, didChange state: ConnectionState) {
-        self.stateContinuation?.yield(state)
+	nonisolated public func mqttClient(_ client: MQTTClient, didChange state: ConnectionState) {
+		Task {
+			await self.stateContinuation?.yield(state)
+		}
     }
     
-    public func mqttClient(_ client: MQTTClient, didReceive packet: MQTTPacket) {
-        self.packetContinuation?.yield(packet)
-        
-        if let packet = packet as? PublishPacket {
-            
-            subscriptionStreams.forEach { regexTopic, stream in
-                // If the topic matches pass the packet to the stream
-                if packet.topic.matches(regex: regexTopic) {
-                    stream.yield(packet)
-                }
-            }
+	nonisolated public func mqttClient(_ client: MQTTClient, didReceive packet: MQTTPacket) {
+		Task {
+			await self.packetContinuation?.yield(packet)
 
-        }
+			if let packet = packet as? PublishPacket {
+
+				await subscriptionStreams.forEach { regexTopic, stream in
+					// If the topic matches pass the packet to the stream
+					if packet.topic.matches(regex: regexTopic) {
+						stream.yield(packet)
+					}
+				}
+
+			}
+		}
     }
     
-    public func mqttClient(_ client: MQTTClient, didCatchError error: Error) {
-        self.packetContinuation?.finish(throwing: error)
+    nonisolated public func mqttClient(_ client: MQTTClient, didCatchError error: Error) {
+		Task {
+			await self.packetContinuation?.finish(throwing: error)
+		}
     }
     
     func convertTopic(_ topic: String) -> String {

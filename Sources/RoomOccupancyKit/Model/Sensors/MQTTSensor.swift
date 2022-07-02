@@ -26,7 +26,7 @@ public struct MQTTAMGSensor: AMGSensorProtocol {
         AsyncThrowingStream { continuation in
             Task {
                 do {
-                    for try await packet in client.streamSubscription(topic: topic, qos: .atMostOnce) {
+                    for try await packet in await client.streamSubscription(topic: topic, qos: .atMostOnce) {
                         let data = try decoder.decode(SensorPayload.self, from: packet.payload)
                         
                         continuation.yield(data)

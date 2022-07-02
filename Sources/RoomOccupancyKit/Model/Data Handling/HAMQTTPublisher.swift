@@ -68,7 +68,9 @@ public struct HAMQTTPublisher {
         
         // Publish HA status
         print("Publishing sensor status message")
-        client.publish(message: statusMessage(true))
+		Task {
+			await client.publish(message: statusMessage(true))
+		}
         
 //        client.client.willMessage = statusMessage(false)
     }
@@ -90,7 +92,7 @@ public struct HAMQTTPublisher {
                 // Publish the sensor image
                 Task {
                     let image = try data.drawImage(cluster: counter.currentCluster).writePNG()
-                    client.publish(topic: self.stateTopic, retain: false, qos: .atMostOnce, payload: image)
+                    await client.publish(topic: self.stateTopic, retain: false, qos: .atMostOnce, payload: image)
                 }
             }
             
@@ -99,7 +101,7 @@ public struct HAMQTTPublisher {
             Task {
                 let temp = String(format: "%.02f", data.thermistorTemperature)
                 let topic = "homeassistant/sensor/swift-occupancy/\(self.clientID)/state"
-                client.publish(topic: topic, retain: false, qos: .atMostOnce, payload: temp, identifier: nil)
+                await client.publish(topic: topic, retain: false, qos: .atMostOnce, payload: temp, identifier: nil)
             }
         }
 
@@ -136,10 +138,10 @@ extension HAMQTTPublisher {
         
         do {
             let payload = try JSONSerialization.data(withJSONObject: config, options: [])
-            
-            client.publish(topic: "\(mqttTopic)/config", retain: true, qos: .atMostOnce, payload: payload, identifier: nil)
-
-            print("Published MQTT discovery topic for \(self)")
+			Task {
+				await client.publish(topic: "\(mqttTopic)/config", retain: true, qos: .atMostOnce, payload: payload, identifier: nil)
+				print("Published MQTT discovery topic for \(self)")
+			}
         } catch {
             print("Could not encode MQTT discovery config for \(self)")
             print(error)
@@ -165,10 +167,11 @@ extension HAMQTTPublisher {
         
         do {
             let payload = try JSONSerialization.data(withJSONObject: config, options: [])
-            
-            client.publish(topic: configTopic, retain: true, qos: .atMostOnce, payload: payload, identifier: nil)
+			Task {
+				await client.publish(topic: configTopic, retain: true, qos: .atMostOnce, payload: payload, identifier: nil)
 
-            print("Published MQTT discovery topic for \(self)")
+				print("Published MQTT discovery topic for \(self)")
+			}
         } catch {
             print("Could not encode MQTT discovery config for \(self)")
             print(error)

@@ -45,7 +45,7 @@ struct MQTTOccupancyCommand: ParsableCommand {
         
         Task {
             
-            print("Connecting to MQTT server 'mqtt://\(mqtt.host):\(mqtt.port)' as '\(client.clientID)'")
+            print("Connecting to MQTT server 'mqtt://\(mqtt.host):\(mqtt.port)' as '\(await client.clientID)'")
             
             // client.willMessage = publisher.statusMessage(false)
             

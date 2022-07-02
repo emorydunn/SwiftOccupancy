@@ -43,7 +43,7 @@ public class SensorDataMQTTPublisher {
             // Encode the data
             let data = try encoder.encode(sensorData)
         
-            client.publish(topic: topic, retain: retain, qos: qos, payload: data, identifier: nil)
+            await client.publish(topic: topic, retain: retain, qos: qos, payload: data, identifier: nil)
         }
     }
     
