@@ -33,6 +33,8 @@ public struct HAMQTTPublisher {
         self.client = client
         self.counter = counter
         self.publishImage = publishImage
+
+		self.client.client.willMessage = PublishMessage(topic: statusTopic, payload: "offline", retain: false, qos: .atMostOnce)
     }
     
     public init(sensor: AMGSensorProtocol, client: AsyncMQTTClient, topRoom: Room = .æther, bottomRoom: Room = .æther, publishImage: Bool) {
@@ -40,6 +42,8 @@ public struct HAMQTTPublisher {
         self.client = client
         self.counter = OccupancyCounter(topRoom: topRoom, bottomRoom: bottomRoom)
         self.publishImage = publishImage
+
+		self.client.client.willMessage = PublishMessage(topic: statusTopic, payload: "offline", retain: false, qos: .atMostOnce)
     }
     
     public init(board: SupportedBoard, address: Int, client: AsyncMQTTClient, counter: OccupancyCounter, publishImage: Bool) {
@@ -47,6 +51,8 @@ public struct HAMQTTPublisher {
         self.client = client
         self.counter = counter
         self.publishImage = publishImage
+
+		self.client.client.willMessage = PublishMessage(topic: statusTopic, payload: "offline", retain: false, qos: .atMostOnce)
     }
     
     public init(board: SupportedBoard, address: Int, client: AsyncMQTTClient, topRoom: Room = .æther, bottomRoom: Room = .æther, publishImage: Bool) {
@@ -54,6 +60,8 @@ public struct HAMQTTPublisher {
         self.client = client
         self.counter = OccupancyCounter(topRoom: topRoom, bottomRoom: bottomRoom)
         self.publishImage = publishImage
+
+		self.client.client.willMessage = PublishMessage(topic: statusTopic, payload: "offline", retain: false, qos: .atMostOnce)
     }
     
     public func setupHA() {
@@ -71,8 +79,7 @@ public struct HAMQTTPublisher {
 		Task {
 			await client.publish(message: statusMessage(true))
 		}
-        
-//        client.client.willMessage = statusMessage(false)
+
     }
     
     public func publishData() async throws {
@@ -140,6 +147,7 @@ extension HAMQTTPublisher {
             let payload = try JSONSerialization.data(withJSONObject: config, options: [])
 			Task {
 				await client.publish(topic: "\(mqttTopic)/config", retain: true, qos: .atMostOnce, payload: payload, identifier: nil)
+//				client.client
 				print("Published MQTT discovery topic for \(self)")
 			}
         } catch {
