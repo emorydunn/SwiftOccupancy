@@ -70,13 +70,13 @@ public enum Room: CustomStringConvertible, Codable {
             "icon": 0.icon,
             "device": [
                 "name": "\(slug)-occupancy-sensor",
-                "model": "AMG88xx",
+                "model": "SwiftOccupancy Counter",
                 "manufacturer": "Emory Dunn",
                 "identifiers": "\(slug)-occupancy-sensor"
             ],
-            "availability": [
-                "topic": availabilityTopic
-            ]
+//            "availability": [
+//                "topic": availabilityTopic
+//            ]
                 
         ]
         
