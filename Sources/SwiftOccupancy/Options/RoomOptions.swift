@@ -20,6 +20,6 @@ struct RoomOptions: ParsableArguments {
     var resetCounts: Bool = false
     
     var clientID: String {
-        "\(topRoom.slug)-\(bottomRoom.slug)-\(Int.random(in: 0...100))"
+        "\(topRoom.slug)-\(bottomRoom.slug)-\(ProcessInfo.processInfo.hostName)"
     }
 }
