@@ -109,8 +109,6 @@ public struct HAMQTTPublisher {
                 let temp = String(format: "%.02f", data.thermistorTemperature)
                 let topic = "homeassistant/sensor/swift-occupancy/\(self.clientID)/state"
                 await client.publish(topic: topic, retain: false, qos: .atMostOnce, payload: temp, identifier: nil)
-
-				await client.publish(message: statusMessage(true))
             }
         }
 
@@ -120,7 +118,7 @@ public struct HAMQTTPublisher {
 extension HAMQTTPublisher {
     
     public func statusMessage(_ status: Bool) -> PublishMessage {
-        PublishMessage(topic: statusTopic, payload: status ? "online" : "offline", retain: false, qos: .atMostOnce)
+        PublishMessage(topic: statusTopic, payload: status ? "online" : "offline", retain: true, qos: .atMostOnce)
     }
     
     func publishSensorConfig(_ client:  AsyncMQTTClient) {
