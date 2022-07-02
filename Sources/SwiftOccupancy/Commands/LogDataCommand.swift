@@ -53,7 +53,7 @@ struct LogDataCommand: ParsableCommand {
         
         Task {
             var collectedData: [Int: SensorPayload] = [:]
-            var events: [Int: OccupancyChange] = [:]
+			var events: [Int: (OccupancyChange.Direction, Int, Int)] = [:]
 
             // Capture SIGINT so we can save the data
             signal(SIGINT) { signal in
@@ -71,7 +71,7 @@ struct LogDataCommand: ParsableCommand {
                 }
 
                 if let change = try counter.countChanges(using: data) {
-                    events[frameNumber] = change
+					events[frameNumber] = (change.direction, counter.topRoomCount, counter.bottomRoomCount)
                 }
 
                 collectedData[frameNumber] = data
@@ -89,7 +89,7 @@ struct LogDataCommand: ParsableCommand {
 
     }
     
-    func saveData(_ collectedData: [Int: SensorPayload], events: [Int: OccupancyChange]) {
+    func saveData(_ collectedData: [Int: SensorPayload], events: [Int: (OccupancyChange.Direction, Int, Int)]) {
         let date = String(describing: Date()).replacingOccurrences(of: " ", with: "_")
         
         guard let url = outputURL?.url.appendingPathComponent(date) else {
@@ -106,8 +106,17 @@ struct LogDataCommand: ParsableCommand {
             try data.write(to: url.appendingPathComponent("raw_data.json"))
             
             print("Encoding logged events")
-            let eventsData = try encoder.encode(events)
-            try eventsData.write(to: url.appendingPathComponent("events.json"))
+			var csv = "frame,direction,top_count,bottom_count\n"
+			let sortedEvents = events.sorted { lhs, rhs in
+				lhs.key < rhs.key
+			}
+			let csvData = sortedEvents.map { frame, change in
+				"\(String(format: "%04d", frame)),\(change.0),\(change.1),\(change.1)"
+			}.joined(separator: "\n")
+
+			csv.append(csvData)
+
+			try csv.write(to: url.appendingPathComponent("events.csv"), atomically: true, encoding: .utf8)
             
             print("Saving PNGs")
             try collectedData.forEach { index, data in
